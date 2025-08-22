@@ -39,6 +39,41 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	stage_->Update();
+
+	   // 检测K键按下触发爆炸
+	if (input_->TriggerKey(DIK_K) && balls_.size() >= 2) {
+		// 左边的球（第一个球）爆炸
+		Ball* leftBall = balls_[0];
+		if (leftBall->IsActive() && !leftBall->IsExploded()) {
+			leftBall->Explode();
+
+			// 获取爆炸位置
+			KamataEngine::Vector3 explosionPos = leftBall->GetPosition();
+			const float explosionRadius = 10.0f;
+			const float explosionForce = 10.0f;
+
+			// 对范围内的其他球体施加爆炸力
+			for (size_t i = 1; i < balls_.size(); i++) {
+				Ball* otherBall = balls_[i];
+				if (otherBall->IsActive()) {
+					float distance = myMath::Distance(explosionPos, otherBall->GetPosition());
+
+					if (distance <= explosionRadius) {
+						// 计算爆炸方向（从爆炸中心指向球体）
+						KamataEngine::Vector3 direction = myMath::Subtract(otherBall->GetPosition(), explosionPos);
+						direction = myMath::Normalize(direction);
+
+						// 计算爆炸力（距离越近力越大）
+						float forceStrength = explosionForce * (1.0f - distance / explosionRadius);
+						KamataEngine::Vector3 force = myMath::Multiply(forceStrength, direction);
+
+						// 应用爆炸力
+						otherBall->ApplyExplosionForce(force);
+					}
+				}
+			}
+		}
+	}
 	// 更新所有 Ball
 	for (Ball* ball : balls_) {
 		ball->Update();
