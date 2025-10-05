@@ -14,6 +14,9 @@ private:
     KamataEngine::Sprite* titleSprite_ = nullptr;
     uint32_t startTextureHandle_ = 0;
     KamataEngine::Sprite* startSprite_ = nullptr;
+	uint32_t backgroundTextureHandle_ = 0;
+	KamataEngine::Sprite* backgroundSprite_ = nullptr;
+
     KamataEngine::Input* input_ = nullptr;
     KamataEngine::DirectXCommon* dxCommon_ = nullptr;
     bool isSceneEnd_ = false;
