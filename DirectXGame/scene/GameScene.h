@@ -1,5 +1,6 @@
 #pragma once
 #include "../Ball.h"
+#include "../Goal.h"
 #include "../stage.h"
 #include "KamataEngine.h"
 #include <vector> 
@@ -42,6 +43,10 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Stage* stage_ = nullptr;
 	std::vector<Ball*> balls_; // 改为存储多个 Ball 的向量
+	std::vector<Goal*> goals_; 
+	Vector2 mousePos = {0, 0};
+    bool IsMouseOverBall(Ball* ball, const Vector2& mousePos);
+	KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 	Camera camera_;
 	/// <summary>
 	/// ゲームシーン用

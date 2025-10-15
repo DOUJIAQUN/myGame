@@ -45,6 +45,8 @@ void Ball::Update() {
 		velocity_ = myMath::Multiply(0.9f, velocity_);
 	}
 
+
+
 	worldTransform_.UpdateMatrix();
 }
 
