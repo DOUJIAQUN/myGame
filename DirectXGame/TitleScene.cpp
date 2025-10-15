@@ -35,9 +35,9 @@ void TitleScene::Draw() {
 	backgroundSprite_->Draw();
     titleSprite_->Draw();
     // 60で割った余りが30以上なら描画（点滅）
-    if ((frameCount_ % 60) >= 30) {
-        startSprite_->Draw();
-    }
+	if ((frameCount_ % 60) >= 30) {
+		startSprite_->Draw();
+	}
 
     Sprite::PostDraw();
     dxCommon_->ClearDepthBuffer();
