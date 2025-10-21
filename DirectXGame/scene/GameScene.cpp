@@ -9,6 +9,17 @@ GameScene::~GameScene() {
 		delete ball;
 	}
 	balls_.clear(); // 清空向量
+
+	  // 释放教程相关的Sprite资源
+	for (auto sprite : tutorialSprites_) {
+		delete sprite;
+	}
+	tutorialSprites_.clear();
+
+	if (startSprite_) {
+		delete startSprite_;
+		startSprite_ = nullptr;
+	}
 }
 
 void GameScene::Initialize() {
@@ -19,6 +30,15 @@ void GameScene::Initialize() {
 
 	stage_ = new Stage();
 	stage_->Initialize();
+
+
+	   // 初始化教程系统
+	LoadTutorialTextures();           
+	gameState_ = GameState::Tutorial;
+	currentTutorialIndex_ = 0;
+	showStart_ = false;
+	startTimer_ = 0.0f;
+
 
 	  // 创建两个 Ball 实例并设置不同位置
     const int ballCount = 4;
@@ -48,66 +68,197 @@ void GameScene::Initialize() {
 }
 
 
+void GameScene::LoadTutorialTextures() {
+	// 加载教程图片纹理并创建对应的Sprite
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial1.png"));
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial2.png"));
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial3.png"));
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial4.png"));
+
+	// 为每个纹理创建Sprite对象（全屏显示）
+	for (auto handle : tutorialTextureHandles_) {
+		KamataEngine::Sprite* sprite = Sprite::Create(handle, {0, 0});
+		tutorialSprites_.push_back(sprite);
+	}
+
+	// 加载开始图片
+	startTextureHandle_ = TextureManager::Load("gameTutorial/gameStart.png");
+	// 计算初始位置：让3倍大的图片居中显示
+	// 屏幕中心坐标 - (图片宽度/2)
+	float startX = 640.0f - (startSize_.x / 2.0f);
+	float startY = 360.0f - (startSize_.y / 2.0f);
+	startSprite_ = Sprite::Create(startTextureHandle_, {startX, startY});
+
+	  // 设置初始尺寸（3倍大小）
+	if (startSprite_) {
+		startSprite_->SetSize(startSize_);
+	}
+}
 
 void GameScene::Update() {
-	stage_->Update();
+
+	switch (gameState_) {
+	case GameState::Tutorial:
+		UpdateTutorial();
+		break;
+	case GameState::StartWait:
+		UpdateStartWait();
+		break;
+	case GameState::StartAnim: // 新增动画状态
+		UpdateStartAnim();
+		break;
+	case GameState::Playing:
+
+		stage_->Update();
 
 		// 获取鼠标位置
-	mousePos = Input::GetInstance()->GetMousePosition();
+		mousePos = Input::GetInstance()->GetMousePosition();
 
-	  
-	if (input_->IsTriggerMouse(0)) {
-		// 遍历所有球体，检查鼠标是否点击到球体
-		for (size_t i = 0; i < balls_.size(); i++) {
-			Ball* clickedBall = balls_[i];
+		if (input_->IsTriggerMouse(0)) {
+			// 遍历所有球体，检查鼠标是否点击到球体
+			for (size_t i = 0; i < balls_.size(); i++) {
+				Ball* clickedBall = balls_[i];
 
-			// 检查球体是否活跃且未被爆炸
-			if (clickedBall->IsActive() && !clickedBall->IsExploded()) {
-				// 使用IsMouseOverBall检测鼠标是否在球体范围内
-				if (IsMouseOverBall(clickedBall, mousePos)) {
-					// 这里处理鼠标点击到小球的情况
-					clickedBall->Explode();
+				// 检查球体是否活跃且未被爆炸
+				if (clickedBall->IsActive() && !clickedBall->IsExploded()) {
+					// 使用IsMouseOverBall检测鼠标是否在球体范围内
+					if (IsMouseOverBall(clickedBall, mousePos)) {
+						// 这里处理鼠标点击到小球的情况
+						clickedBall->Explode();
 
-					// 获取爆炸位置
-					KamataEngine::Vector3 explosionPos = clickedBall->GetPosition();
-					const float explosionRadius = 11.0f;
-					const float explosionForce = 1.0f;
+						// 获取爆炸位置
+						KamataEngine::Vector3 explosionPos = clickedBall->GetPosition();
+						const float explosionRadius = 11.0f;
+						const float explosionForce = 1.0f;
 
-					// 对范围内的其他球体施加爆炸力
-					for (size_t j = 0; j < balls_.size(); j++) {
-						if (i == j)
-							continue; // 跳过被点击的球体本身
+						// 对范围内的其他球体施加爆炸力
+						for (size_t j = 0; j < balls_.size(); j++) {
+							if (i == j)
+								continue; // 跳过被点击的球体本身
 
-						Ball* otherBall = balls_[j];
-						if (otherBall->IsActive()) {
-							float distance = myMath::Distance(explosionPos, otherBall->GetPosition());
+							Ball* otherBall = balls_[j];
+							if (otherBall->IsActive()) {
+								float distance = myMath::Distance(explosionPos, otherBall->GetPosition());
 
-							if (distance <= explosionRadius) {
-								// 计算爆炸方向（从爆炸中心指向球体）
-								KamataEngine::Vector3 direction = myMath::Subtract(otherBall->GetPosition(), explosionPos);
-								direction = myMath::Normalize(direction);
+								if (distance <= explosionRadius) {
+									// 计算爆炸方向（从爆炸中心指向球体）
+									KamataEngine::Vector3 direction = myMath::Subtract(otherBall->GetPosition(), explosionPos);
+									direction = myMath::Normalize(direction);
 
-								
-								
-								KamataEngine::Vector3 force = myMath::Multiply(explosionForce, direction);
+									KamataEngine::Vector3 force = myMath::Multiply(explosionForce, direction);
 
-								// 应用爆炸力
-								otherBall->ApplyExplosionForce(force);
+									// 应用爆炸力
+									otherBall->ApplyExplosionForce(force);
+								}
 							}
 						}
+						break; // 只处理第一个被点击的球体
 					}
-					break; // 只处理第一个被点击的球体
 				}
 			}
 		}
+		// 更新所有 Ball
+		for (Ball* ball : balls_) {
+			ball->Update();
+		}
+		break;
 	}
-	// 更新所有 Ball
-	for (Ball* ball : balls_) {
-		ball->Update();
-	}
-    
 	camera_.UpdateMatrix();
 }
+
+void GameScene::UpdateTutorial() {
+	// 检测鼠标左键点击来切换教程图片
+	if (input_->IsTriggerMouse(0)) {
+		currentTutorialIndex_++;
+
+		// 如果所有教程图片都播放完毕
+		if (currentTutorialIndex_ >= tutorialSprites_.size()) {
+			showStart_ = true;
+			gameState_ = GameState::StartWait;
+			startTimer_ = 0.0f;
+		}
+	}
+}
+
+
+
+
+
+
+void GameScene::UpdateStartWait() {
+	// 更新计时器
+	startTimer_ += 1.0f / 60.0f; // 假设60帧
+
+  // 检测鼠标左键点击或等待1秒后开始动画
+	if (input_->IsTriggerMouse(0)|| startTimer_ >= 0.01f) {
+        // 进入动画状态
+        gameState_ = GameState::StartAnim;
+        animTimer_ = 0.0f;
+        
+        // 设置初始缩放（3倍大小）
+        if (startSprite_) {
+			// 重新设置初始位置和尺寸，确保一致性
+			float startX = 640.0f - (startSize_.x / 2.0f);
+			float startY = 360.0f - (startSize_.y / 2.0f);
+			startSprite_->SetPosition({startX, startY});
+			startSprite_->SetSize(startSize_);
+        }
+    }
+}
+
+
+void GameScene::UpdateStartAnim() {
+	// 更新动画计时器
+	animTimer_ += 1.0f / 60.0f;
+
+	if (startSprite_) {
+		// 计算动画进度（0.0 ~ 1.0）
+		float progress = animTimer_ / animDuration_;
+		if (progress > 1.0f)
+			progress = 1.0f;
+
+		// 使用缓动函数
+		float easeProgress = 1.0f - (1.0f - progress) * (1.0f - progress) * (1.0f - progress); // easeOutCubic
+
+		// 计算当前尺寸
+		float currentSizeX = startSize_.x + (targetSize_.x - startSize_.x) * easeProgress;
+		float currentSizeY = startSize_.y + (targetSize_.y - startSize_.y) * easeProgress;
+
+		// 计算当前位置：让图片在缩放过程中保持居中
+		float currentX = 640.0f - (currentSizeX / 2.0f);
+		float currentY = 360.0f - (currentSizeY / 2.0f);
+
+		// 应用尺寸和位置变化
+		startSprite_->SetSize({currentSizeX, currentSizeY});
+		startSprite_->SetPosition({currentX, currentY});
+
+		// 动画结束后等待1秒再开始游戏
+		if (progress >= 1.0f) {
+			if (animTimer_ >= animDuration_ + displayDuration_) {
+				StartGame();
+			}
+		}
+	} else {
+		// 如果没有开始图片，直接开始游戏
+		StartGame();
+	}
+}
+
+void GameScene::StartGame() {
+	gameState_ = GameState::Playing;
+	showStart_ = false;
+
+	// 重置所有球体状态（如果需要）
+	for (Ball* ball : balls_) {
+		// 可以在这里重置球体位置和状态
+	}
+}
+
+
+
+
+
+
 
 void GameScene::Draw() {
 
@@ -122,6 +273,8 @@ void GameScene::Draw() {
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
 	stage_->Draw();
+
+	
 	// スプライト描画後処理
 	Sprite::PostDraw();
 	// 深度バッファクリア
@@ -152,12 +305,27 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-
+	if (gameState_ != GameState::Playing) {
+		DrawTutorial();
+	}
 	// スプライト描画後処理
 	Sprite::PostDraw();
 
 #pragma endregion
 }
+
+void GameScene::DrawTutorial() {
+    if (gameState_ == GameState::Tutorial && currentTutorialIndex_ < tutorialSprites_.size()) {
+        // 绘制当前教程图片（全屏）
+        tutorialSprites_[currentTutorialIndex_]->Draw();
+    } else if ((gameState_ == GameState::StartWait || gameState_ == GameState::StartAnim) && 
+               showStart_ && startSprite_) {
+        // 在 StartWait 和 StartAnim 状态都绘制开始图片
+        startSprite_->Draw();
+    }
+}
+
+
 
 bool GameScene::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {
 	// 获取球体的世界坐标

@@ -48,6 +48,37 @@ private: // メンバ変数
     bool IsMouseOverBall(Ball* ball, const Vector2& mousePos);
 	KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 	Camera camera_;
+
+	enum class GameState {
+		Tutorial,  // 教程图片播放
+		StartWait, // 等待开始
+		StartAnim, // 开始动画（缩小动画）
+		Playing    // 游戏进行中
+	};
+	GameState gameState_ = GameState::Tutorial;
+
+    std::vector<uint32_t> tutorialTextureHandles_; // 教程图片纹理句柄
+	std::vector<KamataEngine::Sprite*> tutorialSprites_; 
+	 uint32_t startTextureHandle_ = 0;             // 开始图片纹理句柄
+	KamataEngine::Sprite* startSprite_ = nullptr; // 开始图片精灵
+	int currentTutorialIndex_ = 0;           // 当前教程图片索引
+	float startTimer_ = 0.0f;                // 开始计时器
+	float animTimer_ = 0.0f;                 // 动画计时器
+	bool showStart_ = false;                 // 是否显示开始图片
+	Vector2 startSize_ = {3840.0f, 2160.0f}; // 开始图片的初始尺寸（3倍：1280*3, 720*3）
+	Vector2 targetSize_ = {1280.0f, 720.0f}; // 开始图片的目标尺寸
+	const float animDuration_ = 1.0f;        // 动画持续时间（秒）
+	const float displayDuration_ = 1.0f;     // 显示持续时间（秒）
+
+
+	// 教程系统方法
+	void LoadTutorialTextures();
+	void UpdateTutorial();
+	void UpdateStartWait();
+	void UpdateStartAnim();
+	void DrawTutorial();
+	void StartGame();
+	
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
