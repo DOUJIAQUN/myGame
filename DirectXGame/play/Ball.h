@@ -17,12 +17,27 @@ public:
 
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 
+	// 修改方法：接收屏幕坐标来更新爆炸范围位置
+	void UpdateExplosionRangePosition(const KamataEngine::Vector3& screenPos);
+
+
 	  // 爆炸相关方法
 	void Explode();                                               // 触发爆炸
 	bool IsExploded() const { return isExploded_; }               // 是否已爆炸
 	bool IsActive() const { return isActive_; }                   // 是否活跃（未消失）
 	void ApplyExplosionForce(const KamataEngine::Vector3& force); // 应用爆炸力
+	void DrawExplosionRange();
 
+	// 鼠标悬停相关方法
+	void SetMouseOver(bool isMouseOver) { isMouseOver_ = isMouseOver; }
+	bool IsMouseOver() const { return isMouseOver_; }
+
+	// 新增旋转相关方法
+	void SetRotationSpeed(float speed) { rotationSpeed_ = speed; }
+	float GetRotation() const { return rotation_; }
+
+
+	
 private:
 	KamataEngine::Model* model_;
 	KamataEngine::WorldTransform worldTransform_;
@@ -36,4 +51,13 @@ private:
 	bool isActive_ = true;                       // 是否活跃（未消失）
 	KamataEngine::Vector3 velocity_ = {0, 0, 0}; // 速度向量
 	
+
+	// 鼠标悬停相关变量
+	bool isMouseOver_ = false;                   // 鼠标是否悬停
+	uint32_t explosionRangeTextureHandle_ = 0;   // 爆炸范围纹理句柄
+	KamataEngine::Sprite* explosionRangeSprite_ = nullptr; // 爆炸范围精灵
+
+	// 旋转相关变量
+	float rotation_ = 0.0f;           // 当前旋转角度（弧度）
+	float rotationSpeed_ = 1.0f;      // 旋转速度（弧度/秒）
 };

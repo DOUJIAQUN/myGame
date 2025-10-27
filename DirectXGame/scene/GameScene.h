@@ -38,6 +38,10 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+	// 添加游戏结束状态获取方法
+	bool IsGameOver() const { return gameState_ == GameState::GameOver; }
+	bool IsSceneEnd() const { return isSceneEnd_; }
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -49,11 +53,13 @@ private: // メンバ変数
 	KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 	Camera camera_;
 
+	// 游戏状态枚举
 	enum class GameState {
 		Tutorial,  // 教程图片播放
 		StartWait, // 等待开始
 		StartAnim, // 开始动画（缩小动画）
-		Playing    // 游戏进行中
+		Playing,   // 游戏进行中
+		GameOver   // 游戏结束
 	};
 	GameState gameState_ = GameState::Tutorial;
 
@@ -78,6 +84,13 @@ private: // メンバ変数
 	void UpdateStartAnim();
 	void DrawTutorial();
 	void StartGame();
+
+	bool isGameOver_ = false;
+	bool isSceneEnd_ = false;  // 场景是否结束
+
+	// 碰撞检测方法
+	bool CheckBallGoalCollision(Ball* ball, Goal* goal);
+	void GameOver();
 	
 	/// <summary>
 	/// ゲームシーン用

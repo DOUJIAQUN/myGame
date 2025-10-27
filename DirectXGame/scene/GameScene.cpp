@@ -39,13 +39,16 @@ void GameScene::Initialize() {
 	showStart_ = false;
 	startTimer_ = 0.0f;
 
+	// 初始化游戏结束状态
+	isGameOver_ = false;
+
 
 	  // 创建两个 Ball 实例并设置不同位置
     const int ballCount = 4;
 	KamataEngine::Vector3 positions[4] = {
 	    {-30.0f, 0.0f, 0.0f}, // 第一个小球
-	    {-25.0f, 0.0f, 0.0f}, // 第二个小球
-	    {-5.0f, 0.0f, 0.0f}, // 第三个小球
+	    {-20.0f, 0.0f, 0.0f}, // 第二个小球
+	    { 0.0f, 0.0f, 0.0f}, // 第三个小球
 	    {15.0f, 0.0f, 0.0f}  // 第四个小球
 	};
 	for (int i = 0; i < ballCount; i++) {
@@ -114,6 +117,27 @@ void GameScene::Update() {
 		// 获取鼠标位置
 		mousePos = Input::GetInstance()->GetMousePosition();
 
+		// 重置所有球的鼠标悬停状态
+		for (Ball* ball : balls_) {
+			ball->SetMouseOver(false);
+		}
+
+		// 检测鼠标悬停
+		for (Ball* ball : balls_) {
+			if (ball->IsActive() && !ball->IsExploded()) {
+				if (IsMouseOverBall(ball, mousePos)) {
+					ball->SetMouseOver(true);
+
+					// 使用 GameScene 的 WorldToScreen 函数获取准确的屏幕坐标
+					KamataEngine::Vector3 screenPos = WorldToScreen(ball->GetPosition());
+					ball->UpdateExplosionRangePosition(screenPos);
+
+					break; // 只处理第一个悬停的球体
+				}
+			}
+		}
+
+
 		if (input_->IsTriggerMouse(0)) {
 			// 遍历所有球体，检查鼠标是否点击到球体
 			for (size_t i = 0; i < balls_.size(); i++) {
@@ -128,7 +152,7 @@ void GameScene::Update() {
 
 						// 获取爆炸位置
 						KamataEngine::Vector3 explosionPos = clickedBall->GetPosition();
-						const float explosionRadius = 11.0f;
+						const float explosionRadius = 10.1f;
 						const float explosionForce = 1.0f;
 
 						// 对范围内的其他球体施加爆炸力
@@ -161,6 +185,25 @@ void GameScene::Update() {
 		for (Ball* ball : balls_) {
 			ball->Update();
 		}
+		// 检测小球与终点的碰撞
+		if (!isGameOver_) {
+			for (Ball* ball : balls_) {
+				for (Goal* goal : goals_) {
+					if (ball->IsActive() && CheckBallGoalCollision(ball, goal)) {
+						GameOver();
+						break;
+					}
+				}
+				if (isGameOver_) break; // 如果游戏结束，跳出循环
+			}
+		}
+		break;
+	case GameState::GameOver:
+		// 游戏结束状态，等待一段时间或用户输入后结束场景
+		// 这里可以添加计时器，或者检测按键输入
+		
+			isSceneEnd_ = true;
+	
 		break;
 	}
 	camera_.UpdateMatrix();
@@ -308,6 +351,10 @@ void GameScene::Draw() {
 	if (gameState_ != GameState::Playing) {
 		DrawTutorial();
 	}
+	// 绘制所有球的爆炸范围（在前景）
+	for (Ball* ball : balls_) {
+		ball->DrawExplosionRange();
+	}
 	// スプライト描画後処理
 	Sprite::PostDraw();
 
@@ -379,4 +426,29 @@ KamataEngine::Vector3 GameScene::WorldToScreen(const KamataEngine::Vector3& worl
 	float screenY = (1.0f - (clipPos.y + 1.0f) * 0.5f) * 720.0f;
 
 	return {screenX, screenY, clipPos.z};
+}
+
+bool GameScene::CheckBallGoalCollision(Ball* ball, Goal* goal) {
+	// 获取球体和目标的位置
+	KamataEngine::Vector3 ballPos = ball->GetPosition();
+	KamataEngine::Vector3 goalPos = goal->GetPosition();
+
+	// 计算距离
+	float distance = myMath::Distance(ballPos, goalPos);
+
+	// 碰撞半径（根据球体和目标的大小调整）
+	float ballRadius = 2.0f;  // 球体半径（根据你的球体大小调整）
+	float goalRadius = 2.0f;  // 目标半径（根据你的目标大小调整）
+	float collisionRadius = ballRadius + goalRadius;
+
+	// 调试输出
+	// printf("Ball-Goal distance: %.2f, Collision radius: %.2f\n", distance, collisionRadius);
+
+	return distance <= collisionRadius;
+}
+
+void GameScene::GameOver() {
+	isGameOver_ = true;
+	gameState_ = GameState::GameOver;
+	printf("Game Over! Ball reached the goal!\n");
 }

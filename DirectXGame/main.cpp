@@ -1,5 +1,6 @@
 #include "KamataEngine.h"
 #include "scene/GameScene.h"
+#include "scene/ResultScene.h"  
 #include <Windows.h>
 #include "scene/TitleScene.h"
 #include "scene/LoadingScene.h"
@@ -15,6 +16,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	GameScene* gameScene = nullptr;
 	TitleScene* titleScene = nullptr;
 	LoadingScene* loadingScene = nullptr;
+	ResultScene* resultScene = nullptr;
 
 	SceneState currentSceneState = TITLE;
 	// DirectXCommonインスタンスの取得
@@ -58,6 +60,29 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		case GAME:
 			if (gameScene) {
 				gameScene->Update();
+				if (gameScene->IsSceneEnd()) {
+					delete gameScene;
+					gameScene = nullptr;
+
+					resultScene = new ResultScene();
+					resultScene->Initialize();
+					currentSceneState = RESULT;
+				}
+			}
+			break;
+		case RESULT:
+			if (resultScene) {
+				resultScene->Update();
+				if (resultScene->IsSceneEnd()) {
+					delete resultScene;
+					resultScene = nullptr;
+
+					// 重新开始游戏或返回标题
+					// 这里简单处理为返回标题
+					titleScene = new TitleScene();
+					titleScene->Initialize();
+					currentSceneState = TITLE;
+				}
 			}
 			break;
 		}
@@ -83,6 +108,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		case GAME:
 			if (gameScene) {
 				gameScene->Draw();
+			}
+			break;
+		case RESULT:
+			if (resultScene) {
+				resultScene->Draw();
 			}
 			break;
 		}

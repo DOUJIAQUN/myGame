@@ -46,6 +46,9 @@
     <ClCompile Include="math\myMath.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="scene\ResultScene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
@@ -120,6 +123,9 @@
     </ClInclude>
     <ClInclude Include="math\myMath.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\ResultScene.h">
+      <Filter>scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

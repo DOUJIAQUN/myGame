@@ -112,6 +112,7 @@
     <ClCompile Include="play\Goal.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="scene\LoadingScene.cpp" />
+    <ClCompile Include="scene\ResultScene.cpp" />
     <ClCompile Include="scene\Stage.cpp" />
     <ClCompile Include="scene\TitleScene.cpp" />
     <ClCompile Include="WorldTransformEx.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="play\Goal.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\LoadingScene.h" />
+    <ClInclude Include="scene\ResultScene.h" />
     <ClInclude Include="scene\SceneState.h" />
     <ClInclude Include="scene\Stage.h" />
     <ClInclude Include="scene\TitleScene.h" />
