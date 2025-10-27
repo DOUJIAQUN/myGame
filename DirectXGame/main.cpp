@@ -1,9 +1,9 @@
 #include "KamataEngine.h"
 #include "scene/GameScene.h"
 #include <Windows.h>
-#include "TitleScene.h"
-#include "LoadingScene.h"
-#include "SceneState.h"
+#include "scene/TitleScene.h"
+#include "scene/LoadingScene.h"
+#include "scene/SceneState.h"
 using namespace KamataEngine;
 
 

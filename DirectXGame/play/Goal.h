@@ -1,6 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
-#include "myMath.h"
+#include "../math/myMath.h"
 #include <functional>
 
 class Goal

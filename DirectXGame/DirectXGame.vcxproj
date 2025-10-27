@@ -106,14 +106,14 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Goal.cpp" />
-    <ClCompile Include="LoadingScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Ball.cpp" />
-    <ClCompile Include="myMath.cpp" />
+    <ClCompile Include="math\myMath.cpp" />
+    <ClCompile Include="play\Ball.cpp" />
+    <ClCompile Include="play\Goal.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
-    <ClCompile Include="Stage.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
+    <ClCompile Include="scene\LoadingScene.cpp" />
+    <ClCompile Include="scene\Stage.cpp" />
+    <ClCompile Include="scene\TitleScene.cpp" />
     <ClCompile Include="WorldTransformEx.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -192,14 +192,14 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ball.h" />
-    <ClInclude Include="Goal.h" />
-    <ClInclude Include="LoadingScene.h" />
-    <ClInclude Include="myMath.h" />
-    <ClInclude Include="SceneState.h" />
+    <ClInclude Include="math\myMath.h" />
+    <ClInclude Include="play\Ball.h" />
+    <ClInclude Include="play\Goal.h" />
     <ClInclude Include="scene\GameScene.h" />
-    <ClInclude Include="Stage.h" />
-    <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="scene\LoadingScene.h" />
+    <ClInclude Include="scene\SceneState.h" />
+    <ClInclude Include="scene\Stage.h" />
+    <ClInclude Include="scene\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,42 +5,46 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="ヘッダー ファイル">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="シェーダー ファイル">
       <UniqueIdentifier>{718c7f4c-fc51-40ad-a221-b9456a7a1a3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{1002bc06-2784-44a7-aa8b-bee2f68c4d5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="play">
+      <UniqueIdentifier>{1d279d67-e0c5-47dd-b522-134d58812efa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{67713be1-d18e-4f82-9acd-74dcbea4a42d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="scene\GameScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Ball.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Stage.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="TitleScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="WorldTransformEx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="myMath.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="scene\GameScene.cpp">
+      <Filter>scene</Filter>
     </ClCompile>
-    <ClCompile Include="LoadingScene.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="scene\TitleScene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\Stage.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\LoadingScene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="play\Goal.cpp">
+      <Filter>play</Filter>
+    </ClCompile>
+    <ClCompile Include="play\Ball.cpp">
+      <Filter>play</Filter>
+    </ClCompile>
+    <ClCompile Include="math\myMath.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -94,25 +98,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scene\GameScene.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include="Ball.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="scene\TitleScene.h">
+      <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include="Stage.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="scene\Stage.h">
+      <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include="TitleScene.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="scene\LoadingScene.h">
+      <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include="myMath.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="scene\SceneState.h">
+      <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include="LoadingScene.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="play\Goal.h">
+      <Filter>play</Filter>
     </ClInclude>
-    <ClInclude Include="SceneState.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="play\Ball.h">
+      <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="math\myMath.h">
+      <Filter>math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

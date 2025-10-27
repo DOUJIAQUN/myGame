@@ -1,7 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include <functional>
-#include "myMath.h"
+#include "../math/myMath.h"
 
 class Ball
 

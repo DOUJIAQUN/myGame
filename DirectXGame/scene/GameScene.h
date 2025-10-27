@@ -1,7 +1,7 @@
 #pragma once
-#include "../Ball.h"
-#include "../Goal.h"
-#include "../stage.h"
+#include "../play/Ball.h"
+#include "../play/Goal.h"
+#include "../scene/stage.h"
 #include "KamataEngine.h"
 #include <vector> 
 
