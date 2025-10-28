@@ -15,19 +15,28 @@ void Ball::Initialize(Camera* camera) {
 	worldTransform_.Initialize();
 	model_ = Model::CreateFromOBJ("Player", true);
 	input_ = Input::GetInstance();
+
+
 	worldTransform_.translation_ = {-30, 0, 0};
+	
+
 	worldTransform_.scale_ = {2, 2, 2};
+	initialScale_ = worldTransform_.scale_;
+
+
 	isExploded_ = false;
 	isActive_ = true;
 	velocity_ = {0, 0, 0};
 	isMouseOver_ = false;
+
 	// 旋转初始化
 	rotation_ = 0.0f;
+	initialRotation_ = rotation_;
 	rotationSpeed_ = 0.3f; // 1弧度/秒，大约57度/秒
 
 	
 	// 加载爆炸范围图片
-	explosionRangeTextureHandle_ = TextureManager::Load("explosionRange.png");
+	explosionRangeTextureHandle_ = TextureManager::Load("ui/explosionRange.png");
 
 	// 创建爆炸范围精灵（初始位置设为0，0，在Update中更新位置）
 	explosionRangeSprite_ = Sprite::Create(explosionRangeTextureHandle_, { 0, 0 });
@@ -40,6 +49,13 @@ void Ball::Initialize(Camera* camera) {
 		// 设置锚点为图片中心 (0.5, 0.5)
 		explosionRangeSprite_->SetAnchorPoint({ 0.5f, 0.5f });
 	}
+}
+
+//设置初始位置
+void Ball::SetInitialPosition(const KamataEngine::Vector3& position) {
+	initialPosition_ = position;
+	worldTransform_.translation_ = position;
+	worldTransform_.UpdateMatrix();
 }
 
 // SetPosition 方法的实现
@@ -112,4 +128,24 @@ void Ball::DrawExplosionRange() {
 		}
 	}
 }
+
+void Ball::Reset() {
+	// 重置位置到各自独特的初始位置
+	worldTransform_.translation_ = initialPosition_;
+
+	// 重置状态
+	isExploded_ = false;
+	isActive_ = true;
+	isMouseOver_ = false;
+
+	// 重置速度
+	velocity_ = { 0, 0, 0 };
+
+	// 重置旋转
+	rotation_ = 0.0f;
+
+	// 更新变换矩阵
+	worldTransform_.UpdateMatrix();
+}
+
 

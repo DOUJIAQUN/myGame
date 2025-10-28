@@ -3,7 +3,9 @@
 #include "../play/Goal.h"
 #include "../scene/stage.h"
 #include "KamataEngine.h"
+#include "../play/GameUI.h"
 #include <vector> 
+#include "SceneState.h"
 
 
 using namespace KamataEngine;
@@ -42,10 +44,16 @@ public: // メンバ関数
 	bool IsGameOver() const { return gameState_ == GameState::GameOver; }
 	bool IsSceneEnd() const { return isSceneEnd_; }
 
+	// 获取下一个场景状态
+	SceneState GetNextSceneState() const {
+		return returnToTitle_ ? TITLE : RESULT;
+	}
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Stage* stage_ = nullptr;
+	GameUI* gameUI_ = nullptr;
 	std::vector<Ball*> balls_; // 改为存储多个 Ball 的向量
 	std::vector<Goal*> goals_; 
 	Vector2 mousePos = {0, 0};
@@ -75,7 +83,7 @@ private: // メンバ変数
 	Vector2 targetSize_ = {1280.0f, 720.0f}; // 开始图片的目标尺寸
 	const float animDuration_ = 1.0f;        // 动画持续时间（秒）
 	const float displayDuration_ = 1.0f;     // 显示持续时间（秒）
-
+	
 
 	// 教程系统方法
 	void LoadTutorialTextures();
@@ -84,9 +92,13 @@ private: // メンバ変数
 	void UpdateStartAnim();
 	void DrawTutorial();
 	void StartGame();
+	void RestartLevel();
+	void ReturnToTitle();
+
 
 	bool isGameOver_ = false;
 	bool isSceneEnd_ = false;  // 场景是否结束
+	bool returnToTitle_ = false;
 
 	// 碰撞检测方法
 	bool CheckBallGoalCollision(Ball* ball, Goal* goal);

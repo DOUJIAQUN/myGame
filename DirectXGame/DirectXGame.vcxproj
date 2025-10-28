@@ -109,6 +109,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math\myMath.cpp" />
     <ClCompile Include="play\Ball.cpp" />
+    <ClCompile Include="play\GameUI.cpp" />
     <ClCompile Include="play\Goal.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="scene\LoadingScene.cpp" />
@@ -195,6 +196,7 @@
   <ItemGroup>
     <ClInclude Include="math\myMath.h" />
     <ClInclude Include="play\Ball.h" />
+    <ClInclude Include="play\GameUI.h" />
     <ClInclude Include="play\Goal.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\LoadingScene.h" />

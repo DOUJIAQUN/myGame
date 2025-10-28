@@ -49,6 +49,9 @@
     <ClCompile Include="scene\ResultScene.cpp">
       <Filter>scene</Filter>
     </ClCompile>
+    <ClCompile Include="play\GameUI.cpp">
+      <Filter>play</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
@@ -126,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="scene\ResultScene.h">
       <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="play\GameUI.h">
+      <Filter>play</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

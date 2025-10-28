@@ -61,12 +61,22 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			if (gameScene) {
 				gameScene->Update();
 				if (gameScene->IsSceneEnd()) {
+
+					SceneState nextState = gameScene->GetNextSceneState();
+
 					delete gameScene;
 					gameScene = nullptr;
 
-					resultScene = new ResultScene();
-					resultScene->Initialize();
-					currentSceneState = RESULT;
+					if (nextState == TITLE) {
+						titleScene = new TitleScene();
+						titleScene->Initialize();
+						currentSceneState = TITLE;
+					}
+					else {
+						resultScene = new ResultScene();
+						resultScene->Initialize();
+						currentSceneState = RESULT;
+					}
 				}
 			}
 			break;

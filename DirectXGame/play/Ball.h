@@ -12,8 +12,6 @@ public:
 	void Update();
 	void Draw();
 
-	 // 添加 SetPosition 方法
-	void SetPosition(const KamataEngine::Vector3& position);
 
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 
@@ -36,7 +34,11 @@ public:
 	void SetRotationSpeed(float speed) { rotationSpeed_ = speed; }
 	float GetRotation() const { return rotation_; }
 
+	// 修改SetPosition方法，同时更新初始位置
+	void SetInitialPosition(const KamataEngine::Vector3& position);
+	void SetPosition(const KamataEngine::Vector3& position);
 
+	void Reset();
 	
 private:
 	KamataEngine::Model* model_;
@@ -60,4 +62,8 @@ private:
 	// 旋转相关变量
 	float rotation_ = 0.0f;           // 当前旋转角度（弧度）
 	float rotationSpeed_ = 1.0f;      // 旋转速度（弧度/秒）
+
+	KamataEngine::Vector3 initialPosition_ = { -30, 0, 0 }; // 初始位置
+	KamataEngine::Vector3 initialScale_ = { 2, 2, 2 };      // 初始缩放
+	float initialRotation_ = 0.0f;                        // 初始旋转
 };

@@ -20,6 +20,13 @@ GameScene::~GameScene() {
 		delete startSprite_;
 		startSprite_ = nullptr;
 	}
+
+	// 清理UI
+	if (gameUI_) {
+		delete gameUI_;
+		gameUI_ = nullptr;
+	}
+
 }
 
 void GameScene::Initialize() {
@@ -31,6 +38,9 @@ void GameScene::Initialize() {
 	stage_ = new Stage();
 	stage_->Initialize();
 
+	// 初始化游戏UI
+	gameUI_ = new GameUI();
+	gameUI_->Initialize();
 
 	   // 初始化教程系统
 	LoadTutorialTextures();           
@@ -51,10 +61,11 @@ void GameScene::Initialize() {
 	    { 0.0f, 0.0f, 0.0f}, // 第三个小球
 	    {15.0f, 0.0f, 0.0f}  // 第四个小球
 	};
+
 	for (int i = 0; i < ballCount; i++) {
 		Ball* ball = new Ball();
 		ball->Initialize(&camera_);
-		ball->SetPosition(positions[i]);
+		ball->SetInitialPosition(positions[i]);
 		balls_.push_back(ball);
 	}
 	const int GoalCount = 1;
@@ -112,7 +123,23 @@ void GameScene::Update() {
 		break;
 	case GameState::Playing:
 
+
 		stage_->Update();
+
+		// 更新游戏UI
+		if (gameUI_) {
+			gameUI_->Update();
+
+			// 检测重新开始
+			if (gameUI_->IsRestartClicked()) {
+				RestartLevel();
+			}
+			// 检测返回标题
+			else if (gameUI_->IsReturnToTitleClicked()) {
+				ReturnToTitle();
+			}
+		}
+
 
 		// 获取鼠标位置
 		mousePos = Input::GetInstance()->GetMousePosition();
@@ -355,6 +382,11 @@ void GameScene::Draw() {
 	for (Ball* ball : balls_) {
 		ball->DrawExplosionRange();
 	}
+
+	// 绘制游戏UI（总是在最上层）
+	if (gameUI_) {
+		gameUI_->Draw();
+	}
 	// スプライト描画後処理
 	Sprite::PostDraw();
 
@@ -450,5 +482,31 @@ bool GameScene::CheckBallGoalCollision(Ball* ball, Goal* goal) {
 void GameScene::GameOver() {
 	isGameOver_ = true;
 	gameState_ = GameState::GameOver;
-	printf("Game Over! Ball reached the goal!\n");
+	
+}
+
+void GameScene::RestartLevel() {
+	
+
+	// 重置游戏状态
+	isGameOver_ = false;
+	gameState_ = GameState::Playing;
+
+	// 重置所有球体
+	for (Ball* ball : balls_) {
+		// 重置球体到初始位置和状态
+		ball->Reset();
+	}
+
+	// 重置UI点击状态
+	if (gameUI_) {
+		gameUI_->ResetClicks();
+	}
+}
+
+void GameScene::ReturnToTitle() {
+	
+	isSceneEnd_ = true;
+	returnToTitle_ = true;
+	// 结束当前场景，返回主循环的标题状态
 }
