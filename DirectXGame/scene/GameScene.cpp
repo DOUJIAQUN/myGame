@@ -48,46 +48,71 @@ void GameScene::Initialize() {
 	gameUI_->Initialize();
 
 	   // 初始化教程系统
-	LoadTutorialTextures();           
-	gameState_ = GameState::Tutorial;
-	currentTutorialIndex_ = 0;
-	showStart_ = false;
-	startTimer_ = 0.0f;
+	LoadTutorialTextures();  
 
 
-
-
-	  // 创建两个 Ball 实例并设置不同位置
-    const int ballCount = 4;
-	KamataEngine::Vector3 positions[4] = {
-	    {-30.0f, 0.0f, 0.0f}, // 第一个小球
-	    {-20.0f, 0.0f, 0.0f}, // 第二个小球
-	    { 0.0f, 0.0f, 0.0f}, // 第三个小球
-	    {15.0f, 0.0f, 0.0f}  // 第四个小球
-	};
-
-	for (int i = 0; i < ballCount; i++) {
-		Ball* ball = new Ball();
-		ball->Initialize(&camera_);
-		ball->SetInitialPosition(positions[i]);
-		balls_.push_back(ball);
+	// 根据关卡号决定初始状态
+	if (levelNumber_ == 1) {
+		// 第一关：正常教程流程
+		gameState_ = GameState::Tutorial;
+		currentTutorialIndex_ = 0;
+		showStart_ = false;
 	}
-	const int GoalCount = 1;
-	KamataEngine::Vector3 goalPositions[1] = {
-	    {25.0f, 0.0f, 0.0f},
-	    
-	};
-	for (int i = 0; i < GoalCount; i++) {
-		Goal* goal = new Goal();
-		goal->Initialize(&camera_);
-		goal->SetPosition(goalPositions[i]);
-		goals_.push_back(goal);
+	else {
+		// 第二关及以后：直接显示开始图片，跳过教程
+		gameState_ = GameState::Playing;
+		showStart_ = true;
+		startTimer_ = 0.0f;
 	}
+
+
+
+	// 初始化游戏对象
+	InitializeLevelObjects();
 
 	// 初始化游戏逻辑管理器
 	gameLogicManager_.Initialize(balls_, goals_, &camera_);
 }
 
+
+// 新增 InitializeLevelObjects 方法：
+void GameScene::InitializeLevelObjects() {
+	// 清理现有的游戏对象
+	for (Ball* ball : balls_) {
+		delete ball;
+	}
+	balls_.clear();
+
+	for (Goal* goal : goals_) {
+		delete goal;
+	}
+	goals_.clear();
+
+	// 创建球体
+	for (const auto& position : levelBallPositions_) {
+		Ball* ball = new Ball();
+		ball->Initialize(&camera_);
+		ball->SetInitialPosition(position);
+		balls_.push_back(ball);
+	}
+
+	// 创建目标
+	Goal* goal = new Goal();
+	goal->Initialize(&camera_);
+	goal->SetPosition(levelGoalPosition_);
+	goals_.push_back(goal);
+}
+
+
+
+// 新增 SetLevelConfig 方法：
+void GameScene::SetLevelConfig(int levelNumber,
+	const std::vector<KamataEngine::Vector3>& ballPositions,
+	const KamataEngine::Vector3& goalPosition) {
+	levelNumber_ = levelNumber;
+	levelBallPositions_ = ballPositions;
+	levelGoalPosition_ = goalPosition;
+}
 
 void GameScene::LoadTutorialTextures() {
 	// 加载教程图片纹理并创建对应的Sprite

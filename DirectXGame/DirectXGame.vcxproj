@@ -106,6 +106,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="level\LevelManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math\myMath.cpp" />
     <ClCompile Include="play\Ball.cpp" />
@@ -195,6 +196,7 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="level\LevelManager.h" />
     <ClInclude Include="math\myMath.h" />
     <ClInclude Include="play\Ball.h" />
     <ClInclude Include="play\GameLogicManager.h" />

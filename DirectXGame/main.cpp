@@ -1,5 +1,5 @@
 #include "KamataEngine.h"
-#include "scene/GameScene.h"
+#include "level/LevelManager.h"  
 #include "scene/ResultScene.h"  
 #include <Windows.h>
 #include "scene/TitleScene.h"
@@ -13,7 +13,7 @@ using namespace KamataEngine;
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	KamataEngine::Initialize(L"LE3C_17_トウ_カグン");
-	GameScene* gameScene = nullptr;
+	LevelManager* levelManager = nullptr;
 	TitleScene* titleScene = nullptr;
 	LoadingScene* loadingScene = nullptr;
 	ResultScene* resultScene = nullptr;
@@ -51,21 +51,20 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		case LOADING:
 			loadingScene->Updata();
 			if (loadingScene->isLoadingComplete()) {
-				gameScene = new GameScene();
-				gameScene->Initialize();
+				levelManager = new LevelManager();  
+				levelManager->Initialize();
 
 				currentSceneState = GAME;
 			}
 			break;
 		case GAME:
-			if (gameScene) {
-				gameScene->Update();
-				if (gameScene->IsSceneEnd()) {
+			if (levelManager && !levelManager->IsSceneEnd()) {
+				levelManager->Update();
+				if (levelManager->IsSceneEnd()) {
+					SceneState nextState = levelManager->GetNextSceneState();
 
-					SceneState nextState = gameScene->GetNextSceneState();
-
-					delete gameScene;
-					gameScene = nullptr;
+					delete levelManager;
+					levelManager = nullptr;
 
 					if (nextState == TITLE) {
 						titleScene = new TitleScene();
@@ -116,8 +115,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			break;
 
 		case GAME:
-			if (gameScene) {
-				gameScene->Draw();
+			if (levelManager) {
+				levelManager->Draw();
 			}
 			break;
 		case RESULT:
@@ -132,13 +131,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		dxCommon->PostDraw();
 	}
 
-	delete gameScene;
-	gameScene = nullptr;
-	delete titleScene;
-	titleScene = nullptr;
-	delete loadingScene;
-	loadingScene = nullptr;
-
+	if (levelManager) delete levelManager;
+	if (titleScene) delete titleScene;
+	if (loadingScene) delete loadingScene;
+	if (resultScene) delete resultScene;
 	KamataEngine::Finalize();
 
 	return 0;

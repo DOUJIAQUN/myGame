@@ -50,6 +50,13 @@ public: // メンバ関数
 		return returnToTitle_ ? TITLE : RESULT;
 	}
 
+	// 新增关卡配置方法
+	void SetLevelConfig(int levelNumber,
+		const std::vector<KamataEngine::Vector3>& ballPositions,
+		const KamataEngine::Vector3& goalPosition);
+
+	int GetLevelNumber() const { return levelNumber_; }
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -103,7 +110,13 @@ private: // メンバ変数
 	bool isSceneEnd_ = false;  // 场景是否结束
 	bool returnToTitle_ = false;
 
-	
+	// 新增关卡相关变量
+	int levelNumber_ = 1;
+	std::vector<KamataEngine::Vector3> levelBallPositions_;
+	KamataEngine::Vector3 levelGoalPosition_ = { 25.0f, 0.0f, 0.0f };
+
+	// 新增初始化方法
+	void InitializeLevelObjects();
 
 	/// <summary>
 	/// ゲームシーン用
