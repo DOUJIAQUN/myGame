@@ -15,8 +15,13 @@ public:
     // 更新逻辑
     void Update();
 
-    // 碰撞检测
-    bool CheckBallGoalCollision();
+    // 修改碰撞检测方法
+    bool CheckBallGoalCollision();  // 现在返回是否满足通关条件
+    bool CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal);  // 单个碰撞检测
+
+   
+    int GetCurrentGoalsReached() const { return currentGoalsReached_; }
+    int GetRequiredGoalsReached() const { return requiredGoalsReached_; }
 
     // 获取游戏状态
     bool IsGameOver() const { return isGameOver_; }
@@ -42,10 +47,16 @@ private:
     const float explosionRadius_ = 10.1f;
     const float explosionForce_ = 1.0f;
 
+    // 新增通关条件相关变量
+    int requiredGoalsReached_ = 1;
+    int currentGoalsReached_ = 0;
+
+    void UpdateCompletionStatus();  // 更新完成状态
+
     // 私有方法
     void HandleMouseHover();
     void HandleMouseClick();
     bool IsMouseOverBall(Ball* ball, const KamataEngine::Vector2& mousePos);
     KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
-    bool CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal);
+   
 };

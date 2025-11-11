@@ -74,6 +74,33 @@ void GameScene::Initialize() {
 	gameLogicManager_.Initialize(balls_, goals_, &camera_);
 }
 
+void GameScene::LoadTutorialTextures() {
+	// 加载教程图片纹理并创建对应的Sprite
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial1.png"));
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial2.png"));
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial3.png"));
+	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial4.png"));
+
+	// 为每个纹理创建Sprite对象（全屏显示）
+	for (auto handle : tutorialTextureHandles_) {
+		KamataEngine::Sprite* sprite = Sprite::Create(handle, { 0, 0 });
+		tutorialSprites_.push_back(sprite);
+	}
+
+	// 加载开始图片
+	startTextureHandle_ = TextureManager::Load("gameTutorial/gameStart.png");
+	// 计算初始位置：让3倍大的图片居中显示
+	// 屏幕中心坐标 - (图片宽度/2)
+	float startX = 640.0f - (startSize_.x / 2.0f);
+	float startY = 360.0f - (startSize_.y / 2.0f);
+	startSprite_ = Sprite::Create(startTextureHandle_, { startX, startY });
+
+	// 设置初始尺寸（3倍大小）
+	if (startSprite_) {
+		startSprite_->SetSize(startSize_);
+	}
+}
+
 
 // 新增 InitializeLevelObjects 方法：
 void GameScene::InitializeLevelObjects() {
@@ -96,11 +123,21 @@ void GameScene::InitializeLevelObjects() {
 		balls_.push_back(ball);
 	}
 
-	// 创建目标
-	Goal* goal = new Goal();
-	goal->Initialize(&camera_);
-	goal->SetPosition(levelGoalPosition_);
-	goals_.push_back(goal);
+	// 创建多个目标并设置需求次数
+	for (size_t i = 0; i < levelGoalPositions_.size(); i++) {
+		Goal* goal = new Goal();
+		goal->Initialize(&camera_);
+		goal->SetPosition(levelGoalPositions_[i]);
+
+		// 设置每个终点的需求次数
+		if (i < levelGoalRequiredCounts_.size()) {
+			goal->SetRequiredCount(levelGoalRequiredCounts_[i]);
+		}
+
+		goals_.push_back(goal);
+	}
+	// 重置通关状态
+	ResetLevelCompletion();
 }
 
 
@@ -108,38 +145,46 @@ void GameScene::InitializeLevelObjects() {
 // 新增 SetLevelConfig 方法：
 void GameScene::SetLevelConfig(int levelNumber,
 	const std::vector<KamataEngine::Vector3>& ballPositions,
-	const KamataEngine::Vector3& goalPosition) {
+	const std::vector<KamataEngine::Vector3>& goalPositions,
+	const std::vector<int>& goalRequiredCounts) {
 	levelNumber_ = levelNumber;
 	levelBallPositions_ = ballPositions;
-	levelGoalPosition_ = goalPosition;
-}
-
-void GameScene::LoadTutorialTextures() {
-	// 加载教程图片纹理并创建对应的Sprite
-	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial1.png"));
-	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial2.png"));
-	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial3.png"));
-	tutorialTextureHandles_.push_back(TextureManager::Load("gameTutorial/tutorial4.png"));
-
-	// 为每个纹理创建Sprite对象（全屏显示）
-	for (auto handle : tutorialTextureHandles_) {
-		KamataEngine::Sprite* sprite = Sprite::Create(handle, {0, 0});
-		tutorialSprites_.push_back(sprite);
-	}
-
-	// 加载开始图片
-	startTextureHandle_ = TextureManager::Load("gameTutorial/gameStart.png");
-	// 计算初始位置：让3倍大的图片居中显示
-	// 屏幕中心坐标 - (图片宽度/2)
-	float startX = 640.0f - (startSize_.x / 2.0f);
-	float startY = 360.0f - (startSize_.y / 2.0f);
-	startSprite_ = Sprite::Create(startTextureHandle_, {startX, startY});
-
-	  // 设置初始尺寸（3倍大小）
-	if (startSprite_) {
-		startSprite_->SetSize(startSize_);
+	levelGoalPositions_ = goalPositions;
+	levelGoalRequiredCounts_ = goalRequiredCounts;
+	// 如果没提供需求次数，默认每个终点需要1次
+	if (levelGoalRequiredCounts_.empty()) {
+		levelGoalRequiredCounts_.resize(goalPositions.size(), 1);
 	}
 }
+
+
+// 新增检查关卡完成的方法
+void GameScene::CheckLevelCompletion() {
+	// 检查每个终点是否满足需求次数
+	bool allGoalsCompleted = true;
+
+	for (Goal* goal : goals_) {
+		if (!goal->IsCompleted()) {
+			allGoalsCompleted = false;
+			break;
+		}
+	}
+
+	// 如果所有终点都满足需求次数，则关卡完成
+	if (allGoalsCompleted) {
+		GameOver();
+	}
+}
+
+// 新增重置完成状态的方法
+void GameScene::ResetLevelCompletion() {
+	// 重置所有终点的计数
+	for (Goal* goal : goals_) {
+		goal->ResetCount();
+	}
+}
+
+
 
 void GameScene::Update() {
 
@@ -183,10 +228,9 @@ void GameScene::Update() {
 			ball->Update();
 		}
 		
-	 // 检查游戏是否结束
-		if (gameLogicManager_.IsGameOver()) {
-			GameOver();
-		}
+		// 检查关卡完成条件
+		CheckLevelCompletion();
+
 		break;
 	case GameState::GameOver:
 		// 游戏结束状态，等待一段时间或用户输入后结束场景
@@ -381,6 +425,7 @@ void GameScene::RestartLevel() {
 	
 	gameState_ = GameState::Playing;
 	gameLogicManager_.Reset();
+	ResetLevelCompletion();
 
 	// 重置所有球体
 	for (Ball* ball : balls_) {
@@ -400,3 +445,5 @@ void GameScene::ReturnToTitle() {
 	returnToTitle_ = true;
 	// 结束当前场景，返回主循环的标题状态
 }
+
+

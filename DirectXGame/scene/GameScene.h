@@ -53,7 +53,8 @@ public: // メンバ関数
 	// 新增关卡配置方法
 	void SetLevelConfig(int levelNumber,
 		const std::vector<KamataEngine::Vector3>& ballPositions,
-		const KamataEngine::Vector3& goalPosition);
+		const std::vector<KamataEngine::Vector3>& goalPosition,
+		const std::vector<int>& goalRequiredCounts = {});
 
 	int GetLevelNumber() const { return levelNumber_; }
 
@@ -113,7 +114,17 @@ private: // メンバ変数
 	// 新增关卡相关变量
 	int levelNumber_ = 1;
 	std::vector<KamataEngine::Vector3> levelBallPositions_;
-	KamataEngine::Vector3 levelGoalPosition_ = { 25.0f, 0.0f, 0.0f };
+	std::vector<KamataEngine::Vector3> levelGoalPositions_; 
+
+	// 新增通关条件相关变量
+	int requiredGoalsReached_ = 1;  // 需要达成的终点数量
+	int currentGoalsReached_ = 0;   // 当前已达成的终点数量
+	// 新增每个终点的需求次数
+	std::vector<int> levelGoalRequiredCounts_;
+
+	// 新增方法
+	void CheckLevelCompletion();    // 检查关卡完成条件
+	void ResetLevelCompletion();    // 重置完成状态
 
 	// 新增初始化方法
 	void InitializeLevelObjects();

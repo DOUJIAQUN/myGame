@@ -99,14 +99,33 @@ void GameLogicManager::HandleMouseClick() {
 }
 
 bool GameLogicManager::CheckBallGoalCollision() {
-    for (Ball* ball : *balls_) {
-        for (Goal* goal : *goals_) {
+    UpdateCompletionStatus();
+    // 检查是否所有终点都完成了需求次数
+    bool allCompleted = true;
+    for (Goal* goal : *goals_) {
+        if (!goal->IsCompleted()) {
+            allCompleted = false;
+            break;
+        }
+    }
+
+    return allCompleted;
+}
+
+// 新增更新完成状态的方法
+void GameLogicManager::UpdateCompletionStatus() {
+   
+
+    // 检查每个球和每个终点的碰撞
+    for (Goal* goal : *goals_) {
+        for (Ball* ball : *balls_) {
             if (ball->IsActive() && CheckCollisionBetweenBallAndGoal(ball, goal)) {
-                return true; // 游戏结束
+                // 发生碰撞，增加该终点的进入计数
+                goal->IncrementCount();
+                // 可以在这里添加其他效果，比如音效、粒子效果等
             }
         }
     }
-    return false;
 }
 
 bool GameLogicManager::CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal) {

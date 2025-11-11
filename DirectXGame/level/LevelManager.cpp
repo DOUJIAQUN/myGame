@@ -116,7 +116,7 @@ void LevelManager::StartLevelTransition() {
     if (currentLevelIndex_ + 1 < levels_.size()) {
         currentState_ = LevelState::Loading;
         loadingScene_->StartLoading();
-        printf("正在加载第 %zu 关...\n", currentLevelIndex_ + 2);
+       
     }
     else {
         // 已经是最后一关
@@ -159,21 +159,31 @@ void LevelManager::CreateLevels() {
         { 0.0f, 0.0f, 0.0f},
         {15.0f, 0.0f, 0.0f}
     };
-    KamataEngine::Vector3 level1GoalPosition = { 25.0f, 0.0f, 0.0f };
-    level1->SetLevelConfig(1, level1BallPositions, level1GoalPosition);
+    std::vector<KamataEngine::Vector3> level1GoalPositions = {
+       {25.0f, 0.0f, 0.0f}  // 单个终点
+    };
+    level1->SetLevelConfig(1, level1BallPositions, level1GoalPositions);
     levels_.push_back(level1);
 
     // 第二关配置
     GameScene* level2 = new GameScene();
     std::vector<KamataEngine::Vector3> level2BallPositions = {
-        {-35.0f, 5.0f, 0.0f},
-        {-25.0f, -3.0f, 0.0f},
-        {-10.0f, 8.0f, 0.0f},
-        {5.0f, -5.0f, 0.0f},
-        {15.0f, 2.0f, 0.0f}
+        {-12.0f, 0.0f, 0.0f},
+        {-7.0f, -5.0f, 0.0f},
+        {-7.0f, 5.0f, 0.0f},
+        {7.0f, -5.0f, 0.0f},
+        {7.0f, 5.0f, 0.0f},
+        { 12.0f, 0.0f, 0.0f }
     };
-    KamataEngine::Vector3 level2GoalPosition = { 30.0f, 0.0f, 0.0f };
-    level2->SetLevelConfig(2, level2BallPositions, level2GoalPosition);
+    std::vector<KamataEngine::Vector3> level2GoalPositions = {
+        { 0.0f, 12.0f, 0.0f },
+        { 0.0f, -12.0f, 0.0f }
+    };
+    std::vector<int> level2GoalRequiredCounts = {
+    2,  // 终点1需要进入2次
+    2   // 终点2需要进入2次
+    };
+    level2->SetLevelConfig(2, level2BallPositions, level2GoalPositions);
     levels_.push_back(level2);
    
 }
