@@ -52,6 +52,9 @@
     <ClCompile Include="play\GameUI.cpp">
       <Filter>play</Filter>
     </ClCompile>
+    <ClCompile Include="play\GameLogicManager.cpp">
+      <Filter>play</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
@@ -131,6 +134,9 @@
       <Filter>scene</Filter>
     </ClInclude>
     <ClInclude Include="play\GameUI.h">
+      <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="play\GameLogicManager.h">
       <Filter>play</Filter>
     </ClInclude>
   </ItemGroup>

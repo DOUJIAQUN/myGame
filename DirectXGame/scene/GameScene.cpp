@@ -10,6 +10,11 @@ GameScene::~GameScene() {
 	}
 	balls_.clear(); // 清空向量
 
+	for (Goal* goal : goals_) {
+		delete goal;
+	}
+	goals_.clear();
+
 	  // 释放教程相关的Sprite资源
 	for (auto sprite : tutorialSprites_) {
 		delete sprite;
@@ -49,8 +54,7 @@ void GameScene::Initialize() {
 	showStart_ = false;
 	startTimer_ = 0.0f;
 
-	// 初始化游戏结束状态
-	isGameOver_ = false;
+
 
 
 	  // 创建两个 Ball 实例并设置不同位置
@@ -79,6 +83,9 @@ void GameScene::Initialize() {
 		goal->SetPosition(goalPositions[i]);
 		goals_.push_back(goal);
 	}
+
+	// 初始化游戏逻辑管理器
+	gameLogicManager_.Initialize(balls_, goals_, &camera_);
 }
 
 
@@ -141,88 +148,19 @@ void GameScene::Update() {
 		}
 
 
-		// 获取鼠标位置
-		mousePos = Input::GetInstance()->GetMousePosition();
-
-		// 重置所有球的鼠标悬停状态
-		for (Ball* ball : balls_) {
-			ball->SetMouseOver(false);
-		}
-
-		// 检测鼠标悬停
-		for (Ball* ball : balls_) {
-			if (ball->IsActive() && !ball->IsExploded()) {
-				if (IsMouseOverBall(ball, mousePos)) {
-					ball->SetMouseOver(true);
-
-					// 使用 GameScene 的 WorldToScreen 函数获取准确的屏幕坐标
-					KamataEngine::Vector3 screenPos = WorldToScreen(ball->GetPosition());
-					ball->UpdateExplosionRangePosition(screenPos);
-
-					break; // 只处理第一个悬停的球体
-				}
-			}
-		}
+		// 使用游戏逻辑管理器更新游戏逻辑
+		gameLogicManager_.Update();
 
 
-		if (input_->IsTriggerMouse(0)) {
-			// 遍历所有球体，检查鼠标是否点击到球体
-			for (size_t i = 0; i < balls_.size(); i++) {
-				Ball* clickedBall = balls_[i];
-
-				// 检查球体是否活跃且未被爆炸
-				if (clickedBall->IsActive() && !clickedBall->IsExploded()) {
-					// 使用IsMouseOverBall检测鼠标是否在球体范围内
-					if (IsMouseOverBall(clickedBall, mousePos)) {
-						// 这里处理鼠标点击到小球的情况
-						clickedBall->Explode();
-
-						// 获取爆炸位置
-						KamataEngine::Vector3 explosionPos = clickedBall->GetPosition();
-						const float explosionRadius = 10.1f;
-						const float explosionForce = 1.0f;
-
-						// 对范围内的其他球体施加爆炸力
-						for (size_t j = 0; j < balls_.size(); j++) {
-							if (i == j)
-								continue; // 跳过被点击的球体本身
-
-							Ball* otherBall = balls_[j];
-							if (otherBall->IsActive()) {
-								float distance = myMath::Distance(explosionPos, otherBall->GetPosition());
-
-								if (distance <= explosionRadius) {
-									// 计算爆炸方向（从爆炸中心指向球体）
-									KamataEngine::Vector3 direction = myMath::Subtract(otherBall->GetPosition(), explosionPos);
-									direction = myMath::Normalize(direction);
-
-									KamataEngine::Vector3 force = myMath::Multiply(explosionForce, direction);
-
-									// 应用爆炸力
-									otherBall->ApplyExplosionForce(force);
-								}
-							}
-						}
-						break; // 只处理第一个被点击的球体
-					}
-				}
-			}
-		}
+		
 		// 更新所有 Ball
 		for (Ball* ball : balls_) {
 			ball->Update();
 		}
-		// 检测小球与终点的碰撞
-		if (!isGameOver_) {
-			for (Ball* ball : balls_) {
-				for (Goal* goal : goals_) {
-					if (ball->IsActive() && CheckBallGoalCollision(ball, goal)) {
-						GameOver();
-						break;
-					}
-				}
-				if (isGameOver_) break; // 如果游戏结束，跳出循环
-			}
+		
+	 // 检查游戏是否结束
+		if (gameLogicManager_.IsGameOver()) {
+			GameOver();
 		}
 		break;
 	case GameState::GameOver:
@@ -405,82 +343,8 @@ void GameScene::DrawTutorial() {
 }
 
 
-
-bool GameScene::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {
-	// 获取球体的世界坐标
-	KamataEngine::Vector3 worldPos = ball->GetPosition();
-
-	// 将世界坐标转换为屏幕坐标
-	KamataEngine::Vector3 screenPos = WorldToScreen(worldPos);
-
-	// 球体在屏幕上的半径（根据球体大小和距离调整）
-	// 球体实际半径是2（从worldTransform_.scale_ = {2, 2, 2}推断）
-	// 可视范围调整后的屏幕半径
-	float ballRadius = 20.0f; // 这个值可能需要根据实际显示效果调整
-
-	// 计算鼠标位置与球体屏幕位置的距离
-	float distance = std::sqrt(std::pow(mousePos.x - screenPos.x, 2) + std::pow(mousePos.y - screenPos.y, 2));
-
-	// 圆形碰撞检测：检查鼠标是否在圆形范围内
-	return distance <= ballRadius;
-}
-
-
-KamataEngine::Vector3 GameScene::WorldToScreen(const KamataEngine::Vector3& worldPos) {
-	// 确保相机矩阵已经更新
-	camera_.UpdateMatrix();
-
-	// 使用相机的视图投影矩阵进行准确的坐标转换
-	const KamataEngine::Matrix4x4& viewMatrix = camera_.matView;
-	const KamataEngine::Matrix4x4& projectionMatrix = camera_.matProjection;
-	KamataEngine::Matrix4x4 viewProjectionMatrix = myMath::Multiply(viewMatrix, projectionMatrix);
-
-	// 变换到齐次裁剪空间
-	KamataEngine::Vector4 worldPos4 = {worldPos.x, worldPos.y, worldPos.z, 1.0f};
-
-	// 手动进行矩阵变换（因为myMath::Transform可能不支持Vector4）
-	KamataEngine::Vector4 clipPos;
-	clipPos.x = worldPos4.x * viewProjectionMatrix.m[0][0] + worldPos4.y * viewProjectionMatrix.m[1][0] + worldPos4.z * viewProjectionMatrix.m[2][0] + worldPos4.w * viewProjectionMatrix.m[3][0];
-	clipPos.y = worldPos4.x * viewProjectionMatrix.m[0][1] + worldPos4.y * viewProjectionMatrix.m[1][1] + worldPos4.z * viewProjectionMatrix.m[2][1] + worldPos4.w * viewProjectionMatrix.m[3][1];
-	clipPos.z = worldPos4.x * viewProjectionMatrix.m[0][2] + worldPos4.y * viewProjectionMatrix.m[1][2] + worldPos4.z * viewProjectionMatrix.m[2][2] + worldPos4.w * viewProjectionMatrix.m[3][2];
-	clipPos.w = worldPos4.x * viewProjectionMatrix.m[0][3] + worldPos4.y * viewProjectionMatrix.m[1][3] + worldPos4.z * viewProjectionMatrix.m[2][3] + worldPos4.w * viewProjectionMatrix.m[3][3];
-
-	// 透视除法
-	if (clipPos.w != 0.0f) {
-		clipPos.x /= clipPos.w;
-		clipPos.y /= clipPos.w;
-		clipPos.z /= clipPos.w;
-	}
-
-	// 转换到屏幕坐标
-	// 假设屏幕分辨率为1280x720
-	float screenX = (clipPos.x + 1.0f) * 0.5f * 1280.0f;
-	float screenY = (1.0f - (clipPos.y + 1.0f) * 0.5f) * 720.0f;
-
-	return {screenX, screenY, clipPos.z};
-}
-
-bool GameScene::CheckBallGoalCollision(Ball* ball, Goal* goal) {
-	// 获取球体和目标的位置
-	KamataEngine::Vector3 ballPos = ball->GetPosition();
-	KamataEngine::Vector3 goalPos = goal->GetPosition();
-
-	// 计算距离
-	float distance = myMath::Distance(ballPos, goalPos);
-
-	// 碰撞半径（根据球体和目标的大小调整）
-	float ballRadius = 2.0f;  // 球体半径（根据你的球体大小调整）
-	float goalRadius = 2.0f;  // 目标半径（根据你的目标大小调整）
-	float collisionRadius = ballRadius + goalRadius;
-
-	// 调试输出
-	// printf("Ball-Goal distance: %.2f, Collision radius: %.2f\n", distance, collisionRadius);
-
-	return distance <= collisionRadius;
-}
-
 void GameScene::GameOver() {
-	isGameOver_ = true;
+	
 	gameState_ = GameState::GameOver;
 	
 }
@@ -489,8 +353,9 @@ void GameScene::RestartLevel() {
 	
 
 	// 重置游戏状态
-	isGameOver_ = false;
+	
 	gameState_ = GameState::Playing;
+	gameLogicManager_.Reset();
 
 	// 重置所有球体
 	for (Ball* ball : balls_) {

@@ -4,6 +4,7 @@
 #include "../scene/stage.h"
 #include "KamataEngine.h"
 #include "../play/GameUI.h"
+#include "../play/GameLogicManager.h" 
 #include <vector> 
 #include "SceneState.h"
 
@@ -54,11 +55,12 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Stage* stage_ = nullptr;
 	GameUI* gameUI_ = nullptr;
+	GameLogicManager gameLogicManager_;
+
 	std::vector<Ball*> balls_; // 改为存储多个 Ball 的向量
 	std::vector<Goal*> goals_; 
-	Vector2 mousePos = {0, 0};
-    bool IsMouseOverBall(Ball* ball, const Vector2& mousePos);
-	KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
+
+	
 	Camera camera_;
 
 	// 游戏状态枚举
@@ -94,16 +96,15 @@ private: // メンバ変数
 	void StartGame();
 	void RestartLevel();
 	void ReturnToTitle();
+	void GameOver();
 
 
-	bool isGameOver_ = false;
+	
 	bool isSceneEnd_ = false;  // 场景是否结束
 	bool returnToTitle_ = false;
 
-	// 碰撞检测方法
-	bool CheckBallGoalCollision(Ball* ball, Goal* goal);
-	void GameOver();
 	
+
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
