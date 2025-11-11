@@ -1,6 +1,7 @@
 #include "GameLogicManager.h"
 #include <cmath>
 
+
 using namespace KamataEngine;
 
 GameLogicManager::GameLogicManager()
@@ -13,6 +14,9 @@ void GameLogicManager::Initialize(std::vector<Ball*>& balls, std::vector<Goal*>&
     goals_ = &goals;
     camera_ = camera;
     isGameOver_ = false;
+
+    // 初始化碰撞状态记录
+    previousCollisionStates_.resize(goals.size(), std::vector<bool>(balls.size(), false));
 }
 
 void GameLogicManager::Update() {
@@ -114,16 +118,26 @@ bool GameLogicManager::CheckBallGoalCollision() {
 
 // 新增更新完成状态的方法
 void GameLogicManager::UpdateCompletionStatus() {
-   
-
     // 检查每个球和每个终点的碰撞
-    for (Goal* goal : *goals_) {
-        for (Ball* ball : *balls_) {
-            if (ball->IsActive() && CheckCollisionBetweenBallAndGoal(ball, goal)) {
-                // 发生碰撞，增加该终点的进入计数
+    for (size_t g = 0; g < goals_->size(); g++) {
+        Goal* goal = (*goals_)[g];
+
+        for (size_t b = 0; b < balls_->size(); b++) {
+            Ball* ball = (*balls_)[b];
+
+            bool isColliding = ball->IsActive() && CheckCollisionBetweenBallAndGoal(ball, goal);
+            bool wasColliding = previousCollisionStates_[g][b];
+
+            // 如果当前帧碰撞而上一帧没有碰撞，说明是刚进入
+            if (isColliding && !wasColliding) {
+                // 球体刚进入终点，增加计数
                 goal->IncrementCount();
-                // 可以在这里添加其他效果，比如音效、粒子效果等
+
+            
             }
+
+            // 更新碰撞状态
+            previousCollisionStates_[g][b] = isColliding;
         }
     }
 }

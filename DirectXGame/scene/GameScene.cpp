@@ -151,6 +151,9 @@ void GameScene::SetLevelConfig(int levelNumber,
 	levelBallPositions_ = ballPositions;
 	levelGoalPositions_ = goalPositions;
 	levelGoalRequiredCounts_ = goalRequiredCounts;
+
+
+
 	// 如果没提供需求次数，默认每个终点需要1次
 	if (levelGoalRequiredCounts_.empty()) {
 		levelGoalRequiredCounts_.resize(goalPositions.size(), 1);

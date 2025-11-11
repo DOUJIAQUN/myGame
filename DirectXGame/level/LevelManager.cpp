@@ -183,7 +183,7 @@ void LevelManager::CreateLevels() {
     2,  // 终点1需要进入2次
     2   // 终点2需要进入2次
     };
-    level2->SetLevelConfig(2, level2BallPositions, level2GoalPositions);
+    level2->SetLevelConfig(2, level2BallPositions, level2GoalPositions,level2GoalRequiredCounts);
     levels_.push_back(level2);
    
 }

@@ -19,7 +19,7 @@ public:
 
 
 	// 新增方法
-	void ResetCount() { enterCount_ = 0; requiredCount_ = 1; }
+	void ResetCount() { enterCount_ = 0;  }
 	void SetRequiredCount(int count) { requiredCount_ = count; }
 	void IncrementCount() { enterCount_++; }
 	bool IsCompleted() const { return enterCount_ >= requiredCount_; }

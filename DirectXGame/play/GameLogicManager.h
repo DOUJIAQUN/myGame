@@ -51,6 +51,8 @@ private:
     int requiredGoalsReached_ = 1;
     int currentGoalsReached_ = 0;
 
+    std::vector<std::vector<bool>> previousCollisionStates_; // 上一帧的碰撞状态
+
     void UpdateCompletionStatus();  // 更新完成状态
 
     // 私有方法
