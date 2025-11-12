@@ -1,0 +1,12 @@
+Level 1 configured:
+  Balls: 4
+  Goals: 1
+  Required counts: 
+  Using default required counts: 1 
+Level 2 configured:
+  Balls: 6
+  Goals: 2
+  Required counts: 2 2 
+Goal 0: Ball 3 entered. Count: 1/1
+Goal 0: Ball 4 entered. Count: 1/1
+Goal 1: Ball 3 entered. Count: 1/1
