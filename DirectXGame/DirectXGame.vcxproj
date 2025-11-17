@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -67,7 +67,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -92,7 +92,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -106,11 +106,18 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="level\LevelManager.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="math\myMath.cpp" />
+    <ClCompile Include="play\Ball.cpp" />
+    <ClCompile Include="play\GameLogicManager.cpp" />
+    <ClCompile Include="play\GameUI.cpp" />
+    <ClCompile Include="play\Goal.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
-    <ClCompile Include="Stage.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
+    <ClCompile Include="scene\LoadingScene.cpp" />
+    <ClCompile Include="scene\ResultScene.cpp" />
+    <ClCompile Include="scene\Stage.cpp" />
+    <ClCompile Include="scene\TitleScene.cpp" />
     <ClCompile Include="WorldTransformEx.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -189,10 +196,18 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ball.h" />
+    <ClInclude Include="level\LevelManager.h" />
+    <ClInclude Include="math\myMath.h" />
+    <ClInclude Include="play\Ball.h" />
+    <ClInclude Include="play\GameLogicManager.h" />
+    <ClInclude Include="play\GameUI.h" />
+    <ClInclude Include="play\Goal.h" />
     <ClInclude Include="scene\GameScene.h" />
-    <ClInclude Include="Stage.h" />
-    <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="scene\LoadingScene.h" />
+    <ClInclude Include="scene\ResultScene.h" />
+    <ClInclude Include="scene\SceneState.h" />
+    <ClInclude Include="scene\Stage.h" />
+    <ClInclude Include="scene\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

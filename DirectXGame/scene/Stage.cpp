@@ -11,15 +11,15 @@ void Stage::Initialize() {
 }
 
 void Stage::Update() {
-	scrollX_ -= scrollSpeed_;
+	//scrollX_ -= scrollSpeed_;
 
-	if (scrollX_ <= -screenWidth_) {
-		scrollX_ += screenWidth_;
-	}
+	//if (scrollX_ <= -screenWidth_) {
+	//	scrollX_ += screenWidth_;
+	//}
 
-	// 2枚のスプライトの位置を設定
-	bgSprite1_->SetPosition({scrollX_, 0});
-	bgSprite2_->SetPosition({scrollX_ + screenWidth_, 0});
+	//// 2枚のスプライトの位置を設定
+	//bgSprite1_->SetPosition({scrollX_, 0});
+	//bgSprite2_->SetPosition({scrollX_ + screenWidth_, 0});
 }
 
 void Stage::Draw() {

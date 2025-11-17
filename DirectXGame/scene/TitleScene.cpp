@@ -8,10 +8,12 @@ TitleScene::~TitleScene()
 void TitleScene::Initialize() {
     input_ = Input::GetInstance();
     dxCommon_ = DirectXCommon::GetInstance();
-    titleTextureHandle_ = TextureManager::Load("GameTitle.png");
+    titleTextureHandle_ = TextureManager::Load("title/GameTitle.png");
     titleSprite_ = Sprite::Create(titleTextureHandle_, {0, 0});
-    startTextureHandle_ = TextureManager::Load("Start.png");
+    startTextureHandle_ = TextureManager::Load("title/Start.png");
     startSprite_ = Sprite::Create(startTextureHandle_, {0, 0});
+	backgroundTextureHandle_ = TextureManager::Load("title/BackGround.png");
+	backgroundSprite_ = Sprite::Create(backgroundTextureHandle_, {0, 0});
 }
 
 void TitleScene::Update() {
@@ -30,11 +32,12 @@ void TitleScene::Update() {
 void TitleScene::Draw() {
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
+	backgroundSprite_->Draw();
     titleSprite_->Draw();
     // 60で割った余りが30以上なら描画（点滅）
-    if ((frameCount_ % 60) >= 30) {
-        startSprite_->Draw();
-    }
+	if ((frameCount_ % 60) >= 30) {
+		startSprite_->Draw();
+	}
 
     Sprite::PostDraw();
     dxCommon_->ClearDepthBuffer();
