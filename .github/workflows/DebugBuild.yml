@@ -5,7 +5,7 @@ on:
       - master
 
 env:
-  SOLUTION_FILE_PATH: DirectXGamev/DirectXGame.sln
+  SOLUTION_FILE_PATH: DirectXGame/DirectXGame.sln
   CONFIGURATION: Debug
 
 jobs:
