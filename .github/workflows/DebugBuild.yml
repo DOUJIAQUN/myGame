@@ -3,11 +3,9 @@ on:
    push:
      branches:
         - master
-
 env:
   SOLUTION_FILE_PATH: DirectXGame/DirectXGame.sln
   CONFIGURATION: Debug
-
 jobs:
   build:
     runs-on: windows-2022
@@ -15,12 +13,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+        
       - name: Add MSBuild to PATH
         uses: microsoft/setp-msbuild@v2
         with:
           msbuild-architecture: x64
-
       - name: Build
         run:
           msbuild ${{env.SOLUTION_FILE_PATH}} /p:Platform=x64,Configuration=${{env.CONFIGURATION}}
