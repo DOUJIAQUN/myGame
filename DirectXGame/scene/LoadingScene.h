@@ -19,5 +19,5 @@ private:
 
 	bool isLoadingComplete_ = false;
 	int frameCount_ = 0;
-	const int loadingDuration_ = 180;
+	const int loadingDuration_ = 120;
 };

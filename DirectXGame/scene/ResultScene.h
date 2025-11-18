@@ -42,6 +42,8 @@ private:
     Vector2 buttonPosition_ = { 540.0f, 520.0f };       // 按钮位置
     bool isMouseOverTitle_ = false;                      // 鼠标是否在按钮上
 
+
+
     void LoadTextures();
 
     bool IsMouseOverTitle(const Vector2& mousePos);

@@ -1,12 +1,58 @@
-Level 1 configured:
-  Balls: 4
-  Goals: 1
-  Required counts: 
-  Using default required counts: 1 
-Level 2 configured:
-  Balls: 6
-  Goals: 2
-  Required counts: 2 2 
-Goal 0: Ball 3 entered. Count: 1/1
-Goal 0: Ball 4 entered. Count: 1/1
-Goal 1: Ball 3 entered. Count: 1/1
+=== 调试日志开始 ===
+[00:34:35] StageSelectScene: 开始初始化
+[00:34:35] StageSelectScene: GameUI 初始化成功
+[00:34:35] StageSelectScene: 初始化完成
+[00:34:37] StageSelectScene: 鼠标点击检测
+[00:34:37] StageSelectScene: 选择第二关
+[00:34:37] LevelManager: 构造函数开始
+[00:34:37] LevelManager: 开始创建关卡
+[00:34:37] LevelManager: 第一关对象地址 = 1933686292816
+[00:34:37] GameScene::SetLevelConfig: 开始设置关卡配置
+[00:34:37] GameScene::SetLevelConfig: 当前对象地址 = 1933686292816
+[00:34:37] GameScene::SetLevelConfig: 设置前 levelNumber_ = 1
+[00:34:37] GameScene::SetLevelConfig: 新关卡号 = 1
+[00:34:37] GameScene::SetLevelConfig: 设置后 levelNumber_ = 1
+[00:34:37] GameScene: 设置关卡 1 配置
+[00:34:37] GameScene: 球体位置数量: 4
+[00:34:37] GameScene: 终点位置数量: 1
+[00:34:37] GameScene: 需求次数数量: 0
+[00:34:37] GameScene: 使用默认需求次数
+[00:34:37] GameScene::SetLevelConfig: 配置设置完成
+[00:34:37] LevelManager: 第一关创建完成
+[00:34:37] LevelManager: 第二关对象地址 = 1933868872224
+[00:34:37] GameScene::SetLevelConfig: 开始设置关卡配置
+[00:34:37] GameScene::SetLevelConfig: 当前对象地址 = 1933868872224
+[00:34:37] GameScene::SetLevelConfig: 设置前 levelNumber_ = 1
+[00:34:37] GameScene::SetLevelConfig: 新关卡号 = 2
+[00:34:37] GameScene::SetLevelConfig: 设置后 levelNumber_ = 2
+[00:34:37] GameScene: 设置关卡 2 配置
+[00:34:37] GameScene: 球体位置数量: 6
+[00:34:37] GameScene: 终点位置数量: 2
+[00:34:37] GameScene: 需求次数数量: 2
+[00:34:37] GameScene::SetLevelConfig: 配置设置完成
+[00:34:37] LevelManager: 第二关创建完成，球体: 6, 终点: 2
+[00:34:37] LevelManager: 总共创建了 2 个关卡
+[00:34:37] LevelManager: 构造函数完成
+[00:34:37] main: LevelManager 创建完成，设置关卡 2
+[00:34:37] LevelManager: 设置当前关卡为第 2 关 (索引: 1)
+[00:34:37] LevelManager: 关卡 2 指针有效
+[00:34:37] main: 开始初始化 LevelManager
+[00:34:37] LevelManager: 开始初始化第 2 关
+[00:34:37] LevelManager: 当前关卡对象地址 = 1933868872224
+[00:34:37] LevelManager: 初始化前关卡号 = 2
+[00:34:37] GameScene: 开始初始化第 2 关
+[00:34:37] GameScene: 基础组件初始化完成
+[00:34:37] GameScene: 舞台初始化完成
+[00:34:37] GameScene: UI初始化完成
+[00:34:37] GameScene: 教程纹理加载完成
+[00:34:37] GameScene: 第二关 - 直接开始模式
+[00:34:37] GameScene: 开始初始化关卡对象
+[00:34:37] GameScene: 清理了 0 个球和 0 个终点
+[00:34:37] GameScene: 创建 6 个球体
+[00:34:37] GameScene: 创建 2 个终点
+[00:34:37] GameScene: 关卡对象初始化完成
+[00:34:37] GameScene: 游戏对象初始化完成
+[00:34:37] GameScene: 游戏逻辑管理器初始化完成
+[00:34:37] GameScene: 第 2 关初始化全部完成
+[00:34:37] LevelManager: 第 2 关初始化完成
+[00:34:37] main: LevelManager 初始化完成，进入游戏状态

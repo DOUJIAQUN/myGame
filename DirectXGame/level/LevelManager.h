@@ -17,11 +17,12 @@ public:
     bool IsSceneEnd() const { return isSceneEnd_; }
     SceneState GetNextSceneState() const { return shouldReturnToTitle_ ? TITLE : RESULT; }
 
-    // 新增：关卡切换状态
+    //关卡切换状态
     enum class LevelState {
         Playing,    // 游戏中
         Loading,    // 加载中
-        Transition  // 关卡切换中
+        Transition,  // 关卡切换中
+        GameComplete //游戏完成，准备显示结果前的Loading
     };
 
     LevelState GetCurrentState() const { return currentState_; }
@@ -35,6 +36,15 @@ public:
     GameScene* GetCurrentLevel() const {
         return (currentLevelIndex_ < levels_.size()) ? levels_[currentLevelIndex_] : nullptr;
     }
+    //设置当前关卡
+    void SetCurrentLevel(int level);
+
+    //获取关卡信息
+    int GetCurrentLevelNumber() const {
+        return (currentLevelIndex_ < levels_.size()) ? levels_[currentLevelIndex_]->GetLevelNumber() : 0;
+    }
+    std::string GetCurrentLevelName() const;
+
 
 private:
     std::vector<GameScene*> levels_;
@@ -42,7 +52,7 @@ private:
     bool shouldReturnToTitle_ = false;
     bool isSceneEnd_ = false;
 
-    // 新增：Loading场景
+    //Loading场景
     LoadingScene* loadingScene_ = nullptr;
     LevelState currentState_ = LevelState::Playing;
 
@@ -53,4 +63,5 @@ private:
     void UpdatePlayingState();
     void UpdateLoadingState();
     void UpdateTransitionState();
+    void UpdateGameCompleteState();
 };

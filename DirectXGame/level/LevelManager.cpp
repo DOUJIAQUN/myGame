@@ -1,14 +1,17 @@
 #include "LevelManager.h"
 #include <cassert>
+#include "../DebugLogger.h" 
 
 LevelManager::LevelManager()
     : currentLevelIndex_(0),
     shouldReturnToTitle_(false),
     isSceneEnd_(false),
     currentState_(LevelState::Playing) {
+   
     CreateLevels();
     loadingScene_ = new LoadingScene();
     loadingScene_->Initialize();
+   
 }
 
 LevelManager::~LevelManager() {
@@ -17,14 +20,97 @@ LevelManager::~LevelManager() {
         delete loadingScene_;
     }
 }
+std::string LevelManager::GetCurrentLevelName() const {
+    if (currentLevelIndex_ >= levels_.size()) return "Unknown";
+
+    int levelNumber = levels_[currentLevelIndex_]->GetLevelNumber();
+    switch (levelNumber) {
+    case 1: return "1-1";
+    case 2: return "1-2";
+    case 3: return "2-1";
+    default: return "Unknown";
+    }
+}
+
+
+void LevelManager::CreateLevels() {
+  
+    // 第1-1关配置
+    GameScene* level1_1 = new GameScene();
+   
+    std::vector<KamataEngine::Vector3> level1BallPositions = {
+        {-30.0f, 0.0f, 0.0f},
+        {-20.0f, 0.0f, 0.0f},
+        { 0.0f, 0.0f, 0.0f},
+        {15.0f, 0.0f, 0.0f}
+    };
+    std::vector<KamataEngine::Vector3> level1GoalPositions = {
+       {25.0f, 0.0f, 0.0f}  // 单个终点
+    };
+    level1_1->SetLevelConfig(1, level1BallPositions, level1GoalPositions);
+    levels_.push_back(level1_1);
+  
+
+    // 第1-2关配置
+    GameScene* level1_2 = new GameScene();
+   
+    std::vector<KamataEngine::Vector3> level2BallPositions = {
+        {-12.0f, 0.0f, 0.0f},
+        {-7.0f, -5.0f, 0.0f},
+        {-7.0f, 5.0f, 0.0f},
+        {7.0f, -5.0f, 0.0f},
+        {7.0f, 5.0f, 0.0f},
+        { 12.0f, 0.0f, 0.0f }
+    };
+    std::vector<KamataEngine::Vector3> level2GoalPositions = {
+        { 0.0f, 12.0f, 0.0f },
+        { 0.0f, -12.0f, 0.0f }
+    };
+    std::vector<int> level2GoalRequiredCounts = {
+    2,  // 终点1需要进入2次
+    2   // 终点2需要进入2次
+    };
+    level1_2->SetLevelConfig(2, level2BallPositions, level2GoalPositions,level2GoalRequiredCounts);
+    levels_.push_back(level1_2);
+  
+
+    // 第2-1关配置（新增第三关 - 自动通关）
+    GameScene* level2_1 = new GameScene();
+    std::vector<KamataEngine::Vector3> level2_1BallPositions = {
+        {0.0f, 0.0f, 0.0f}  // 只有一个球，放在原点
+    };
+    std::vector<KamataEngine::Vector3> level2_1GoalPositions = {
+        {0.0f, 0.0f, 0.0f}  // 终点也放在原点，与球重合
+    };
+    std::vector<int> level2_1GoalRequiredCounts = {
+        1  // 只需要进入1次
+    };
+    level2_1->SetLevelConfig(3, level2_1BallPositions, level2_1GoalPositions, level2_1GoalRequiredCounts);
+    levels_.push_back(level2_1);
+
+}
+
+
+void LevelManager::SetCurrentLevel(int level) {
+    if (level >= 1 && level <= static_cast<int>(levels_.size())) {
+        currentLevelIndex_ = level - 1;
+    }
+   
+}
+
 
 void LevelManager::Initialize() {
     if (!levels_.empty()) {
-        levels_[0]->Initialize();
+       
+    
+       
+        levels_[currentLevelIndex_]->Initialize();
         isSceneEnd_ = false;
         shouldReturnToTitle_ = false;
         currentState_ = LevelState::Playing;
+       
     }
+  
 }
 
 void LevelManager::Update() {
@@ -41,6 +127,10 @@ void LevelManager::Update() {
 
     case LevelState::Transition:
         UpdateTransitionState();
+        break;
+
+    case LevelState::GameComplete:  // 新增：游戏完成状态
+        UpdateGameCompleteState();
         break;
     }
 }
@@ -77,12 +167,13 @@ void LevelManager::UpdateLoadingState() {
         if (currentLevelIndex_ < levels_.size()) {
             levels_[currentLevelIndex_]->Initialize();
             currentState_ = LevelState::Playing;
-            printf("进入第 %zu 关\n", currentLevelIndex_ + 1);
+          
         }
         else {
             // 所有关卡完成
-            printf("所有关卡完成！\n");
-            isSceneEnd_ = true;
+          
+            currentState_ = LevelState::GameComplete;
+            loadingScene_->StartLoading();
         }
     }
 }
@@ -90,6 +181,14 @@ void LevelManager::UpdateLoadingState() {
 void LevelManager::UpdateTransitionState() {
     // 可以在这里添加其他过渡效果
     // 暂时为空
+}
+
+void LevelManager::UpdateGameCompleteState() {
+    loadingScene_->Updata();
+    if (loadingScene_->isLoadingComplete()) {
+        // 游戏完成Loading结束，设置场景结束
+        isSceneEnd_ = true;
+    }
 }
 
 void LevelManager::Draw() {
@@ -101,6 +200,7 @@ void LevelManager::Draw() {
         break;
 
     case LevelState::Loading:
+    case LevelState::GameComplete:
         if (loadingScene_) {
             loadingScene_->Draw();
         }
@@ -120,7 +220,8 @@ void LevelManager::StartLevelTransition() {
     }
     else {
         // 已经是最后一关
-        isSceneEnd_ = true;
+        currentState_ = LevelState::GameComplete;
+        loadingScene_->StartLoading();  //这里也要重置Loading场景
     }
 }
 
@@ -148,44 +249,6 @@ void LevelManager::RestartCurrentLevel() {
 void LevelManager::ReturnToTitle() {
     shouldReturnToTitle_ = true;
     isSceneEnd_ = true;
-}
-
-void LevelManager::CreateLevels() {
-    // 第一关配置
-    GameScene* level1 = new GameScene();
-    std::vector<KamataEngine::Vector3> level1BallPositions = {
-        {-30.0f, 0.0f, 0.0f},
-        {-20.0f, 0.0f, 0.0f},
-        { 0.0f, 0.0f, 0.0f},
-        {15.0f, 0.0f, 0.0f}
-    };
-    std::vector<KamataEngine::Vector3> level1GoalPositions = {
-       {25.0f, 0.0f, 0.0f}  // 单个终点
-    };
-    level1->SetLevelConfig(1, level1BallPositions, level1GoalPositions);
-    levels_.push_back(level1);
-
-    // 第二关配置
-    GameScene* level2 = new GameScene();
-    std::vector<KamataEngine::Vector3> level2BallPositions = {
-        {-12.0f, 0.0f, 0.0f},
-        {-7.0f, -5.0f, 0.0f},
-        {-7.0f, 5.0f, 0.0f},
-        {7.0f, -5.0f, 0.0f},
-        {7.0f, 5.0f, 0.0f},
-        { 12.0f, 0.0f, 0.0f }
-    };
-    std::vector<KamataEngine::Vector3> level2GoalPositions = {
-        { 0.0f, 12.0f, 0.0f },
-        { 0.0f, -12.0f, 0.0f }
-    };
-    std::vector<int> level2GoalRequiredCounts = {
-    2,  // 终点1需要进入2次
-    2   // 终点2需要进入2次
-    };
-    level2->SetLevelConfig(2, level2BallPositions, level2GoalPositions,level2GoalRequiredCounts);
-    levels_.push_back(level2);
-   
 }
 
 void LevelManager::CleanupLevels() {

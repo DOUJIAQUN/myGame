@@ -117,6 +117,7 @@
     <ClCompile Include="scene\LoadingScene.cpp" />
     <ClCompile Include="scene\ResultScene.cpp" />
     <ClCompile Include="scene\Stage.cpp" />
+    <ClCompile Include="scene\StageSelectScene.cpp" />
     <ClCompile Include="scene\TitleScene.cpp" />
     <ClCompile Include="WorldTransformEx.cpp" />
   </ItemGroup>
@@ -196,6 +197,7 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DebugLogger.h" />
     <ClInclude Include="level\LevelManager.h" />
     <ClInclude Include="math\myMath.h" />
     <ClInclude Include="play\Ball.h" />
@@ -207,6 +209,7 @@
     <ClInclude Include="scene\ResultScene.h" />
     <ClInclude Include="scene\SceneState.h" />
     <ClInclude Include="scene\Stage.h" />
+    <ClInclude Include="scene\StageSelectScene.h" />
     <ClInclude Include="scene\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

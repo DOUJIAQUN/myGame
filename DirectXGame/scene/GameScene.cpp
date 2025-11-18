@@ -1,6 +1,6 @@
 #include "GameScene.h"
 #include <cassert>
-
+#include "../DebugLogger.h"  
 
 GameScene::GameScene() {}
 
@@ -41,10 +41,10 @@ void GameScene::Initialize() {
 	
 	input_ = Input::GetInstance();
 	camera_.Initialize();
-
+	
 	stage_ = new Stage();
 	stage_->Initialize();
-
+	
 	// 初始化游戏UI
 	gameUI_ = new GameUI();
 	gameUI_->Initialize();
@@ -52,6 +52,7 @@ void GameScene::Initialize() {
 	   // 初始化教程系统
 	LoadTutorialTextures();  
 
+	
 
 	// 根据关卡号决定初始状态
 	if (levelNumber_ == 1) {
@@ -59,21 +60,24 @@ void GameScene::Initialize() {
 		gameState_ = GameState::Tutorial;
 		currentTutorialIndex_ = 0;
 		showStart_ = false;
+		
 	}
 	else {
 		// 第二关及以后：直接显示开始图片，跳过教程
 		gameState_ = GameState::Playing;
 		showStart_ = true;
 		startTimer_ = 0.0f;
+	
 	}
 
 
 
 	// 初始化游戏对象
 	InitializeLevelObjects();
-
+	
 	// 初始化游戏逻辑管理器
 	gameLogicManager_.Initialize(balls_, goals_, &camera_);
+
 }
 
 void GameScene::LoadTutorialTextures() {
@@ -106,6 +110,7 @@ void GameScene::LoadTutorialTextures() {
 
 // 新增 InitializeLevelObjects 方法：
 void GameScene::InitializeLevelObjects() {
+	
 	// 清理现有的游戏对象
 	for (Ball* ball : balls_) {
 		delete ball;
@@ -117,6 +122,7 @@ void GameScene::InitializeLevelObjects() {
 	}
 	goals_.clear();
 
+
 	// 创建球体
 	for (const auto& position : levelBallPositions_) {
 		Ball* ball = new Ball();
@@ -126,6 +132,8 @@ void GameScene::InitializeLevelObjects() {
 	}
 
 	// 创建多个目标并设置需求次数
+	
+	
 	for (size_t i = 0; i < levelGoalPositions_.size(); i++) {
 		Goal* goal = new Goal();
 		goal->Initialize(&camera_);
@@ -140,6 +148,7 @@ void GameScene::InitializeLevelObjects() {
 	}
 	// 重置通关状态
 	ResetLevelCompletion();
+	
 }
 
 
@@ -149,6 +158,7 @@ void GameScene::SetLevelConfig(int levelNumber,
 	const std::vector<KamataEngine::Vector3>& ballPositions,
 	const std::vector<KamataEngine::Vector3>& goalPositions,
 	const std::vector<int>& goalRequiredCounts) {
+
 	levelNumber_ = levelNumber;
 	levelBallPositions_ = ballPositions;
 	levelGoalPositions_ = goalPositions;
@@ -159,7 +169,9 @@ void GameScene::SetLevelConfig(int levelNumber,
 	// 如果没提供需求次数，默认每个终点需要1次
 	if (levelGoalRequiredCounts_.empty()) {
 		levelGoalRequiredCounts_.resize(goalPositions.size(), 1);
+		
 	}
+
 }
 
 

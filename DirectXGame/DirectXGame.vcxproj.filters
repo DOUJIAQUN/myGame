@@ -61,6 +61,9 @@
     <ClCompile Include="level\LevelManager.cpp">
       <Filter>level</Filter>
     </ClCompile>
+    <ClCompile Include="scene\StageSelectScene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
@@ -147,6 +150,12 @@
     </ClInclude>
     <ClInclude Include="level\LevelManager.h">
       <Filter>level</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\StageSelectScene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugLogger.h">
+      <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

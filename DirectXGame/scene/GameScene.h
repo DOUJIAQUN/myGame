@@ -41,6 +41,8 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+
+
 	// 添加游戏结束状态获取方法
 	bool IsGameOver() const { return gameState_ == GameState::GameOver; }
 	bool IsSceneEnd() const { return isSceneEnd_; }
