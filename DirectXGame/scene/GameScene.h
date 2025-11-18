@@ -59,6 +59,7 @@ public: // メンバ関数
 	int GetLevelNumber() const { return levelNumber_; }
 
 private: // メンバ変数
+	
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Stage* stage_ = nullptr;

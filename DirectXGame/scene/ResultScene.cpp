@@ -23,16 +23,20 @@ void ResultScene::Initialize() {
 
     isSceneEnd_ = false;
     score_ = 0;
+    isMouseOverTitle_ = false;
 
     LoadTextures();
 }
 
 void ResultScene::LoadTextures() {
     // 加载结果背景图片
-    resultTextureHandle_ = TextureManager::Load("result/resultBackground.png");
+    resultBackgroundTextureHandle_ = TextureManager::Load("result/resultBackground.png");
    
+    resultBackgroundSprite_ = Sprite::Create(resultBackgroundTextureHandle_, { 0, 0 });
+   
+
+    resultTextureHandle_ = TextureManager::Load("result/resultTitle.png");
     resultSprite_ = Sprite::Create(resultTextureHandle_, { 0, 0 });
-   
 
     //// 加载重新开始按钮图片
     //retryTextureHandle_ = TextureManager::Load("result/retryButton.png");
@@ -46,9 +50,9 @@ void ResultScene::LoadTextures() {
     // 加载返回标题按钮图片
     titleTextureHandle_ = TextureManager::Load("result/titleButton.png");
     if (titleTextureHandle_ != 0) {
-        titleSprite_ = Sprite::Create(titleTextureHandle_, { 440, 520 }); // 按钮位置
+        titleSprite_ = Sprite::Create(titleTextureHandle_,  buttonPosition_ ); // 按钮位置
         if (titleSprite_) {
-            titleSprite_->SetSize({ 400, 100 }); // 按钮大小
+            titleSprite_->SetSize(normalButtonSize_); // 按钮大小
         }
     }
 }
@@ -56,13 +60,19 @@ void ResultScene::LoadTextures() {
 void ResultScene::Update() {
     if (isSceneEnd_) return;
 
-    // 获取鼠标位置
-    Vector2 mousePos = input_->GetMousePosition();
+    frameCount_++;
+
+    // 上下に揺らす（sin波でY座標を変更）
+    float offsetY = std::sin(frameCount_ * 0.05f) * 10.0f;
+    resultSprite_->SetPosition({ 20, 20 + offsetY });
+  
+
+    UpdateButtonState();
 
     // 检测鼠标点击
     if (input_->IsTriggerMouse(0)) {
         
-        if (IsMouseOverTitle(mousePos)) {
+        if (isMouseOverTitle_) {
             // 返回标题
             isSceneEnd_ = true;
            
@@ -72,11 +82,46 @@ void ResultScene::Update() {
     }
 }
 
+
+// 新增：更新按钮状态方法
+void ResultScene::UpdateButtonState() {
+    // 获取鼠标位置
+    Vector2 mousePos = input_->GetMousePosition();
+
+    // 检测鼠标是否在按钮上
+    bool wasMouseOver = isMouseOverTitle_;
+    isMouseOverTitle_ = IsMouseOverTitle(mousePos);
+
+    // 如果状态发生变化，更新按钮尺寸
+    if (isMouseOverTitle_ != wasMouseOver && titleSprite_) {
+        if (isMouseOverTitle_) {
+            // 鼠标进入：放大按钮
+            titleSprite_->SetSize(hoverButtonSize_);
+
+            // 调整位置保持中心点不变（可选）
+            Vector2 sizeDiff = {
+                (hoverButtonSize_.x - normalButtonSize_.x) / 2,
+                (hoverButtonSize_.y - normalButtonSize_.y) / 2
+            };
+            titleSprite_->SetPosition({
+                buttonPosition_.x - sizeDiff.x,
+                buttonPosition_.y - sizeDiff.y
+                });
+        }
+        else {
+            // 鼠标离开：恢复正常尺寸
+            titleSprite_->SetSize(normalButtonSize_);
+            titleSprite_->SetPosition(buttonPosition_);
+        }
+    }
+}
+
 void ResultScene::Draw() {
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
     // 绘制结果背景
-  
+    resultBackgroundSprite_->Draw();
+
     resultSprite_->Draw();
     
 
@@ -94,6 +139,7 @@ void ResultScene::Draw() {
 bool ResultScene::IsMouseOverTitle(const Vector2& mousePos) {
     if (!titleSprite_) return false;
 
+    // 使用当前实际的精灵尺寸和位置进行检测
     Vector2 position = titleSprite_->GetPosition();
     Vector2 size = titleSprite_->GetSize();
 

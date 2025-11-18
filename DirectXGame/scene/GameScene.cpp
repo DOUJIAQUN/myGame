@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include <cassert>
 
+
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
@@ -37,6 +38,7 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
+	
 	input_ = Input::GetInstance();
 	camera_.Initialize();
 
@@ -244,6 +246,9 @@ void GameScene::Update() {
 		break;
 	}
 	camera_.UpdateMatrix();
+	
+
+	
 }
 
 void GameScene::UpdateTutorial() {
@@ -397,6 +402,8 @@ void GameScene::Draw() {
 	if (gameUI_) {
 		gameUI_->Draw();
 	}
+	
+	
 	// スプライト描画後処理
 	Sprite::PostDraw();
 
@@ -448,5 +455,7 @@ void GameScene::ReturnToTitle() {
 	returnToTitle_ = true;
 	// 结束当前场景，返回主循环的标题状态
 }
+
+
 
 
