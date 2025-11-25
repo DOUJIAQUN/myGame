@@ -190,6 +190,16 @@ Vector3 myMath::Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	return result;
 }
 
+// Vector4 版本的 Transform 函数
+Vector4 myMath::Transform(const Vector4& vector, const Matrix4x4& matrix) {
+	Vector4 result;
+	result.x = matrix.m[0][0] * vector.x + matrix.m[1][0] * vector.y + matrix.m[2][0] * vector.z + matrix.m[3][0] * vector.w;
+	result.y = matrix.m[0][1] * vector.x + matrix.m[1][1] * vector.y + matrix.m[2][1] * vector.z + matrix.m[3][1] * vector.w;
+	result.z = matrix.m[0][2] * vector.x + matrix.m[1][2] * vector.y + matrix.m[2][2] * vector.z + matrix.m[3][2] * vector.w;
+	result.w = matrix.m[0][3] * vector.x + matrix.m[1][3] * vector.y + matrix.m[2][3] * vector.z + matrix.m[3][3] * vector.w;
+	return result;
+}
+
 Vector3 myMath::TransformNormal(const Vector3& vector, const Matrix4x4& matrix)
 {
 	Vector3 result;

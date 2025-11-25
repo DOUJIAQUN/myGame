@@ -1,6 +1,7 @@
 #pragma once
 #include <math/Matrix4x4.h>
 #include <math/Vector3.h>
+#include <math/Vector4.h>
 #include <cmath>
 // アフィン変換行列の作成
 KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& scale, const KamataEngine::Vector3& rot, const KamataEngine::Vector3& translate);
@@ -22,6 +23,7 @@ public:
 	static KamataEngine::Matrix4x4 MakeRotateZMatrix(float radius);
 	static KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& scale, const KamataEngine::Vector3& rotate, const KamataEngine::Vector3& translate);
 	static KamataEngine::Vector3 Transform(const KamataEngine::Vector3& vector, const KamataEngine::Matrix4x4& matrix);
+	static KamataEngine::Vector4 Transform(const KamataEngine::Vector4& vector, const KamataEngine::Matrix4x4& matrix);
 	static KamataEngine::Vector3 TransformNormal(const KamataEngine::Vector3& vector, const KamataEngine::Matrix4x4& matrix);
 	static KamataEngine::Vector3 Normalize(const KamataEngine::Vector3& v); 
 	// 加算

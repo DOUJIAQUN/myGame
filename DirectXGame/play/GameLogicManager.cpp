@@ -47,7 +47,7 @@ void GameLogicManager::HandleMouseHover() {
 
     // 检测鼠标悬停
     for (Ball* ball : *balls_) {
-        if (ball->IsActive() && !ball->IsExploded()) {
+        if (ball->IsClickable()) {
             if (IsMouseOverBall(ball, mousePos_)) {
                 ball->SetMouseOver(true);
 
