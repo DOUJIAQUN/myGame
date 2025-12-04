@@ -5,6 +5,7 @@
 #include "KamataEngine.h"
 #include "../play/GameUI.h"
 #include "../play/GameLogicManager.h" 
+#include "../play/GoalMovementConfig.h" 
 #include <vector> 
 #include "SceneState.h"
 
@@ -52,11 +53,12 @@ public: // メンバ関数
 		return returnToTitle_ ? TITLE : RESULT;
 	}
 
-	// 新增关卡配置方法
+	// 关卡配置方法
 	void SetLevelConfig(int levelNumber,
 		const std::vector<KamataEngine::Vector3>& ballPositions,
 		const std::vector<KamataEngine::Vector3>& goalPosition,
-		const std::vector<int>& goalRequiredCounts = {});
+		const std::vector<int>& goalRequiredCounts = {},
+		const std::vector<GoalMovementConfig>& goalMovementConfigs = {});
 
 	int GetLevelNumber() const { return levelNumber_; }
 
@@ -118,12 +120,13 @@ private: // メンバ変数
 	int levelNumber_ = 1;
 	std::vector<KamataEngine::Vector3> levelBallPositions_;
 	std::vector<KamataEngine::Vector3> levelGoalPositions_; 
+	std::vector<int> levelGoalRequiredCounts_;
+	std::vector<GoalMovementConfig> levelGoalMovementConfigs_;  //终点移动配置
 
-	// 新增通关条件相关变量
+	// 通关条件相关变量
 	int requiredGoalsReached_ = 1;  // 需要达成的终点数量
 	int currentGoalsReached_ = 0;   // 当前已达成的终点数量
-	// 新增每个终点的需求次数
-	std::vector<int> levelGoalRequiredCounts_;
+	
 
 	// 新增方法
 	void CheckLevelCompletion();    // 检查关卡完成条件

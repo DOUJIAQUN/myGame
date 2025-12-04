@@ -47,6 +47,12 @@ void LevelManager::CreateLevels() {
     std::vector<KamataEngine::Vector3> level1GoalPositions = {
        {25.0f, 0.0f, 0.0f}  // 单个终点
     };
+    std::vector<int> level1GoalRequiredCounts = { 1 };
+    // 第1-1关终点不移动
+    std::vector<GoalMovementConfig> level1MovementConfigs = {
+        GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
+    };
+
     level1_1->SetLevelConfig(1, level1BallPositions, level1GoalPositions);
     levels_.push_back(level1_1);
   
@@ -70,24 +76,49 @@ void LevelManager::CreateLevels() {
     2,  // 终点1需要进入2次
     2   // 终点2需要进入2次
     };
+
+    // 第1-2关终点也不移动
+    std::vector<GoalMovementConfig> level2MovementConfigs = {
+        GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f),
+        GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
+    };
     level1_2->SetLevelConfig(2, level2BallPositions, level2GoalPositions,level2GoalRequiredCounts);
     levels_.push_back(level1_2);
   
 
-    // 第2-1关配置（新增第三关 - 自动通关）
+    // 第2-1关配置
     GameScene* level2_1 = new GameScene();
     std::vector<KamataEngine::Vector3> level2_1BallPositions = {
-        {0.0f, 0.0f, 0.0f}  // 只有一个球，放在原点
+        {-30.0f, 10.0f, 0.0f},
+        {-30.0f, 0.0f, 0.0f},
+        {-10.0f, 10.0f, 0.0f},
+        {-10.0f, 0.0f, 0.0f},
+        {10.0f, 10.0f, 0.0f },
+        {10.0f, 0.0f, 0.0f },
+        {30.0f, 10.0f, 0.0f },
+        {30.0f, 0.0f, 0.0f }
     };
     std::vector<KamataEngine::Vector3> level2_1GoalPositions = {
-        {0.0f, 0.0f, 0.0f}  // 终点也放在原点，与球重合
+        {0.0f, -10.0f, 0.0f}  
     };
     std::vector<int> level2_1GoalRequiredCounts = {
-        1  // 只需要进入1次
+        4  
     };
-    level2_1->SetLevelConfig(3, level2_1BallPositions, level2_1GoalPositions, level2_1GoalRequiredCounts);
-    levels_.push_back(level2_1);
 
+    // 第2-1关终点水平移动
+    std::vector<GoalMovementConfig> level2_1MovementConfigs = {
+        GoalMovementConfig(true, MoveDirection::Horizontal, 30.0f, 0.7f)
+    };
+
+    level2_1->SetLevelConfig(3, level2_1BallPositions, level2_1GoalPositions, level2_1GoalRequiredCounts);
+    
+        // 确保调用的是正确的SetLevelConfig重载
+    level2_1->SetLevelConfig(3, 
+        level2_1BallPositions, 
+        level2_1GoalPositions, 
+        level2_1GoalRequiredCounts, 
+        level2_1MovementConfigs);  // 确保传递了移动配置
+    levels_.push_back(level2_1);
 }
 
 

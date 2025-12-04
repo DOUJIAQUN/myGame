@@ -157,5 +157,8 @@
     <ClInclude Include="DebugLogger.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="play\GoalMovementConfig.h">
+      <Filter>play</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

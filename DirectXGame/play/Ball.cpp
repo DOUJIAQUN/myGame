@@ -104,9 +104,17 @@ void Ball::SetPosition(const KamataEngine::Vector3& position) {
 
 
 void Ball::Explode() {
+	// 如果已经爆炸或是不活跃状态，不重复爆炸
+	if (isExploded_ || !isActive_) return;
+
+
 	isExploded_ = true;
 	isActive_ = false; // 球体消失
 	isMouseOver_ = false; // 鼠标悬停状态重置
+
+
+	// 清空拖尾
+	CleanupTrail();
 
 	// 开始播放爆炸动画
 	isExplosionAnimPlaying_ = true;
@@ -132,12 +140,6 @@ void Ball::ApplyExplosionForce(const KamataEngine::Vector3& force) {
 
 void Ball::Update() {
 
-	// 更新击退锁定状态
-	UpdateKnockbackLock();
-
-	// 更新拖尾特效
-	UpdateTrail();
-
 	// 更新爆炸动画
 	if (isExplosionAnimPlaying_) {
 		explosionAnimTimer_ += 1.0f / 60.0f; // 假设60帧
@@ -162,7 +164,15 @@ void Ball::Update() {
 		}
 	}
 
- 
+	if (!isActive_) {
+		return;
+	}
+	// 更新击退锁定状态
+	UpdateKnockbackLock();
+
+	// 更新拖尾特效
+	UpdateTrail();
+
 
 	// 如果受到爆炸力影响，更新位置
 	// 使用 myMath::Length 而不是全局的 Length 函数
@@ -362,10 +372,10 @@ void Ball::Draw() {
 
 void Ball::DrawExplosionRange() {
 	// 如果鼠标悬停且球体活跃且未爆炸，绘制爆炸范围
-	if (isMouseOver_ && isActive_ && !isExploded_) {
-		if (explosionRangeSprite_ != nullptr) {
+	if (isMouseOver_ && isActive_ && !isExploded_ && explosionRangeSprite_ != nullptr) {
+		
 			explosionRangeSprite_->Draw();
-		}
+		
 	}
 
 	// 绘制爆炸特效（如果正在播放）

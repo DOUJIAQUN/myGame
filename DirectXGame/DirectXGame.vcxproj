@@ -204,6 +204,7 @@
     <ClInclude Include="play\GameLogicManager.h" />
     <ClInclude Include="play\GameUI.h" />
     <ClInclude Include="play\Goal.h" />
+    <ClInclude Include="play\GoalMovementConfig.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\LoadingScene.h" />
     <ClInclude Include="scene\ResultScene.h" />

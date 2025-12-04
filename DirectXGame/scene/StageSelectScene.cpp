@@ -78,7 +78,7 @@ void StageSelectScene::Update() {
         else if (IsMouseOverButton(mousePos, stage2ButtonSprite_)) {
           
 
-            selectedLevel_ = 2;  // Stage2按钮对应第2-1关（关卡号3）
+            selectedLevel_ = 3;  // Stage2按钮对应第2-1关（关卡号3）
             isSceneEnd_ = true;
         }
        

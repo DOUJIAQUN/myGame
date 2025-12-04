@@ -144,6 +144,11 @@ void GameScene::InitializeLevelObjects() {
 			goal->SetRequiredCount(levelGoalRequiredCounts_[i]);
 		}
 
+		// 设置终点的移动配置
+		if (i < levelGoalMovementConfigs_.size()) {
+			goal->SetMovementConfig(levelGoalMovementConfigs_[i]);
+		}
+
 		goals_.push_back(goal);
 	}
 	// 重置通关状态
@@ -153,17 +158,18 @@ void GameScene::InitializeLevelObjects() {
 
 
 
-// 新增 SetLevelConfig 方法：
+// SetLevelConfig 方法：
 void GameScene::SetLevelConfig(int levelNumber,
 	const std::vector<KamataEngine::Vector3>& ballPositions,
 	const std::vector<KamataEngine::Vector3>& goalPositions,
-	const std::vector<int>& goalRequiredCounts) {
+	const std::vector<int>& goalRequiredCounts,
+	const std::vector<GoalMovementConfig>& goalMovementConfigs){
 
 	levelNumber_ = levelNumber;
 	levelBallPositions_ = ballPositions;
 	levelGoalPositions_ = goalPositions;
 	levelGoalRequiredCounts_ = goalRequiredCounts;
-
+	levelGoalMovementConfigs_ = goalMovementConfigs;
 
 
 	// 如果没提供需求次数，默认每个终点需要1次
@@ -171,11 +177,15 @@ void GameScene::SetLevelConfig(int levelNumber,
 		levelGoalRequiredCounts_.resize(goalPositions.size(), 1);
 		
 	}
+	// 如果没提供移动配置，创建默认配置（不移动）
+	if (levelGoalMovementConfigs_.empty()) {
+		levelGoalMovementConfigs_.resize(goalPositions.size(), GoalMovementConfig());
+	}
 
 }
 
 
-// 新增检查关卡完成的方法
+// 检查关卡完成的方法
 void GameScene::CheckLevelCompletion() {
 	// 检查每个终点是否满足需求次数
 	bool allGoalsCompleted = true;
@@ -193,7 +203,7 @@ void GameScene::CheckLevelCompletion() {
 	}
 }
 
-// 新增重置完成状态的方法
+// 重置完成状态的方法
 void GameScene::ResetLevelCompletion() {
 	// 重置所有终点的计数
 	for (Goal* goal : goals_) {
@@ -245,6 +255,11 @@ void GameScene::Update() {
 			ball->Update();
 		}
 		
+		// 更新所有 Goal
+		for (Goal* goal : goals_) {
+			goal->Update();
+		}
+
 		// 检查关卡完成条件
 		CheckLevelCompletion();
 

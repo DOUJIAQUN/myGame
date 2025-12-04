@@ -2,7 +2,7 @@
 #include "KamataEngine.h"
 #include "../math/myMath.h"
 #include <functional>
-
+#include "../play/GoalMovementConfig.h"
 class Goal
 
 {
@@ -26,7 +26,9 @@ public:
 	int GetCurrentCount() const { return enterCount_; }
 	int GetRequiredCount() const { return requiredCount_; }
 	
-
+	// 移动相关方法，使用配置
+	void SetMovementConfig(const GoalMovementConfig& config);
+	const GoalMovementConfig& GetMovementConfig() const { return movementConfig_; }
 private:
 	KamataEngine::Model* model_;
 	KamataEngine::WorldTransform worldTransform_;
@@ -39,4 +41,9 @@ private:
 	int enterCount_ = 0;        // 当前进入次数
 	int requiredCount_ = 1;     // 需要进入的次数
 	
+	// 移动相关变量
+	GoalMovementConfig movementConfig_; // 移动配置
+	float moveTimer_ = 0.0f;            // 移动计时器
+	KamataEngine::Vector3 initialPosition_; // 初始位置
+
 };

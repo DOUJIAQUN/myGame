@@ -67,7 +67,7 @@ void GameLogicManager::HandleMouseClick() {
         Ball* clickedBall = (*balls_)[i];
 
         // 检查球体是否活跃且未被爆炸
-        if (clickedBall->IsActive() && !clickedBall->IsExploded()) {
+        if (clickedBall->IsClickable()) {
             // 使用IsMouseOverBall检测鼠标是否在球体范围内
             if (IsMouseOverBall(clickedBall, mousePos_)) {
                 // 处理鼠标点击到小球的情况
@@ -124,6 +124,8 @@ void GameLogicManager::UpdateCompletionStatus() {
 
         for (size_t b = 0; b < balls_->size(); b++) {
             Ball* ball = (*balls_)[b];
+            // 检查球体是否有效
+            if (!ball) continue;
 
             bool isColliding = ball->IsActive() && CheckCollisionBetweenBallAndGoal(ball, goal);
             bool wasColliding = previousCollisionStates_[g][b];
@@ -133,7 +135,13 @@ void GameLogicManager::UpdateCompletionStatus() {
                 // 球体刚进入终点，增加计数
                 goal->IncrementCount();
 
-            
+                ball->SetActive(false);
+
+                ball->SetMouseOver(false);
+
+                previousCollisionStates_[g][b] = false;
+
+
             }
 
             // 更新碰撞状态

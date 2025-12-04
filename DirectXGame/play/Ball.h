@@ -23,6 +23,13 @@ public:
 	void Explode();                                               // 触发爆炸
 	bool IsExploded() const { return isExploded_; }               // 是否已爆炸
 	bool IsActive() const { return isActive_; }                   // 是否活跃（未消失）
+	void SetActive(bool active) {
+		isActive_ = active;
+		if (!active) {
+		// 球体不活跃时，立即清空拖尾
+		CleanupTrail();
+	}
+	}           // 设置活跃状态
 	void ApplyExplosionForce(const KamataEngine::Vector3& force); // 应用爆炸力
 	void DrawExplosionRange();
 
@@ -34,7 +41,7 @@ public:
 	void SetRotationSpeed(float speed) { rotationSpeed_ = speed; }
 	float GetRotation() const { return rotation_; }
 
-	// 修改SetPosition方法，同时更新初始位置
+	// SetPosition方法，同时更新初始位置
 	void SetInitialPosition(const KamataEngine::Vector3& position);
 	void SetPosition(const KamataEngine::Vector3& position);
 
@@ -84,7 +91,7 @@ private:
 	const int explosionTotalFrames_ = 4;            // 爆炸总帧数
 
 
-	// 新增击退锁定相关变量
+	// 击退锁定相关变量
 	bool isKnockbackLocked_ = false;                // 是否处于击退锁定状态
 	float knockbackLockTimer_ = 0.0f;               // 击退锁定计时器
 	const float knockbackLockDuration_ = 1.0f;      // 击退锁定持续时间（秒）
