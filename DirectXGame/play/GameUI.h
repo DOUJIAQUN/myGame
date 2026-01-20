@@ -38,8 +38,8 @@ private:
     Sprite* titleSprite_ = nullptr;
 
     // 按钮位置和大小
-    Vector2 restartPosition_ = { 1100.0f, 50.0f };  // 右上角位置
-    Vector2 titlePosition_ = { 1180.0f, 50.0f };    // 在重新开始按钮右侧
+    Vector2 restartPosition_ = { 1100.0f, 20.0f };  // 右上角位置
+    Vector2 titlePosition_ = { 1180.0f, 20.0f };    // 在重新开始按钮右侧
     Vector2 normalButtonSize_ = { 64.0f, 64.0f };         // 图标大小
     Vector2 hoverButtonSize_ = { 70.0f, 70.0f };    // 悬停时放大尺寸
 
