@@ -3,6 +3,14 @@
 
 using namespace KamataEngine;
 
+namespace {
+    // 碰撞相关常量
+    const float BALL_COLLISION_RADIUS = 1.5f;      // 3D空间中的球体碰撞半径
+    const float GOAL_COLLISION_RADIUS = 1.5f;      // 3D空间中的终点碰撞半径
+    const float SCREEN_BALL_RADIUS = 15.0f;        // 屏幕坐标中的球体半径（用于鼠标检测）
+}
+
+
 GameLogicManager::GameLogicManager()
     : balls_(nullptr), goals_(nullptr), camera_(nullptr) {
     input_ = Input::GetInstance();
@@ -164,10 +172,7 @@ bool GameLogicManager::CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal) 
     float distance = myMath::Distance(ballPos, goalPos);
 
     // 碰撞半径（根据球体和目标的大小调整）
-    float ballRadius = 2.0f;  // 球体半径
-    float goalRadius = 2.0f;  // 目标半径
-    float collisionRadius = ballRadius + goalRadius;
-
+    float collisionRadius = BALL_COLLISION_RADIUS + GOAL_COLLISION_RADIUS;
     return distance <= collisionRadius;
 }
 
@@ -209,13 +214,7 @@ bool GameLogicManager::CheckBallBallCollision(Ball* ball1, Ball* ball2) {
     float distance = myMath::Distance(pos1, pos2);
 
     // 碰撞半径（根据球体大小调整）
-    float ballRadius = 2.0f;  // 球体半径
-    float collisionDistance = ballRadius * 2.0f;  // 两个球体半径之和
-
-    // 增加10%的碰撞检测范围，让碰撞更自然
-    float collisionTolerance = 1.1f;
-    collisionDistance *= collisionTolerance;
-
+    float collisionDistance = BALL_COLLISION_RADIUS * 2.0f;
     return distance <= collisionDistance;
 }
 
@@ -261,12 +260,12 @@ void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
     // 使用统一的击飞方法，相撞击飞使用不同参数
     ball1->StartKnockback(impulse1,
         0.6f,     // 持续时间稍长
-        2.0f,     // 力倍增器
+        50.0f,     // 力倍增器
         false);   // 不是爆炸击飞
 
     ball2->StartKnockback(impulse2,
         0.6f,
-        2.0f,
+        50.0f,
         false);
 
     // 分离球体，防止重叠
@@ -286,14 +285,13 @@ bool GameLogicManager::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {
     // 将世界坐标转换为屏幕坐标
     Vector3 screenPos = WorldToScreen(worldPos);
 
-    // 球体在屏幕上的半径
-    float ballRadius = 20.0f;
+   
 
     // 计算鼠标位置与球体屏幕位置的距离
     float distance = std::sqrt(std::pow(mousePos.x - screenPos.x, 2) + std::pow(mousePos.y - screenPos.y, 2));
 
     // 圆形碰撞检测：检查鼠标是否在圆形范围内
-    return distance <= ballRadius;
+    return distance <= SCREEN_BALL_RADIUS;
 }
 
 Vector3 GameLogicManager::WorldToScreen(const Vector3& worldPos) {

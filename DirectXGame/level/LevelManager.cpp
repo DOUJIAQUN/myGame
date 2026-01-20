@@ -126,7 +126,7 @@ void LevelManager::CreateLevels() {
     std::vector<KamataEngine::Vector3> level1_4BallPositions = {
         {20.0f, 0.0f, 0.0f},
         {10.0f, 0.0f, 0.0f},
-        {0.0f, 3.0f, 0.0f},
+        {0.0f, 1.5f, 0.0f},
         {-10.0f, 0.0f, 0.0f}
     };
     std::vector<KamataEngine::Vector3> level1_4GoalPositions = {
@@ -142,6 +142,41 @@ void LevelManager::CreateLevels() {
         level1_4GoalRequiredCounts,
         level1_4MovementConfigs);
     levels_.push_back(level1_4);
+
+
+// 第1-5关配置
+    GameScene* level1_5 = new GameScene();
+    std::vector<KamataEngine::Vector3> level1_5BallPositions = {
+        // 第一行（上）
+        {0.0f, 12.0f, 0.0f},
+        // 第二行（中）
+        {-5.0f, 7.0f, 0.0f},
+        {5.0f, 7.0f, 0.0f},
+        {-10.0f, 6.4f, 0.0f},
+        {10.0f, 6.4f, 0.0f},
+        // 第三行（下）
+         {-5.5f, -5.0f, 0.0f},
+        {5.5f, -5.0f, 0.0f},
+        {-13.0f, -10.0f, 0.0f},
+        {13.0f, -10.0f, 0.0f}
+    };
+    std::vector<KamataEngine::Vector3> level1_5GoalPositions = {
+        {0.0f, 0.0f, 0.0f}
+    };
+    std::vector<int> level1_5GoalRequiredCounts = {
+        4  // 需要进入4次
+    };
+    // 第1-5关终点不移动
+    std::vector<GoalMovementConfig> level1_5MovementConfigs = {
+        GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
+    };
+
+    level1_5->SetLevelConfig(5,
+        level1_5BallPositions,
+        level1_5GoalPositions,
+        level1_5GoalRequiredCounts,
+        level1_5MovementConfigs);
+    levels_.push_back(level1_5);
 }
 
 
