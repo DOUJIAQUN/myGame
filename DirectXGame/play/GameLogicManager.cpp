@@ -1,12 +1,7 @@
 #include "GameLogicManager.h"
 #include <cmath>
 
-
 using namespace KamataEngine;
-
-
-const float ballRadius = 5.0f;
-
 
 GameLogicManager::GameLogicManager()
     : balls_(nullptr), goals_(nullptr), camera_(nullptr) {
@@ -37,7 +32,7 @@ void GameLogicManager::Update() {
         HandleMouseClick();
     }
 
-    // 处理球体间的碰撞
+    // 处理球体间的碰撞（新增）
     HandleBallCollisions();
 
     // 检测小球与终点的碰撞
@@ -96,10 +91,15 @@ void GameLogicManager::HandleMouseClick() {
                             Vector3 direction = myMath::Subtract(otherBall->GetPosition(), explosionPos);
                             direction = myMath::Normalize(direction);
 
-                            Vector3 force = myMath::Multiply(explosionForce_, direction);
+                            // 根据距离调整爆炸力（越近力越大）
+                            float distanceFactor = 1.0f - (distance / explosionRadius_);
+                            Vector3 force = myMath::Multiply(explosionForce_ * (1.0f + distanceFactor), direction);
 
-                            // 应用爆炸力
-                            otherBall->ApplyExplosionForce(force);
+                            // 使用统一的击飞方法，爆炸击飞使用更强参数
+                            otherBall->StartKnockback(force,
+                                0.6f,     // 较短但更强烈的击飞
+                                1.5f,     // 更强的力倍增
+                                true);    // 是爆炸击飞
                         }
                     }
                 }
@@ -123,7 +123,7 @@ bool GameLogicManager::CheckBallGoalCollision() {
     return allCompleted;
 }
 
-//更新完成状态的方法
+// 新增更新完成状态的方法
 void GameLogicManager::UpdateCompletionStatus() {
     // 检查每个球和每个终点的碰撞
     for (size_t g = 0; g < goals_->size(); g++) {
@@ -147,8 +147,6 @@ void GameLogicManager::UpdateCompletionStatus() {
                 ball->SetMouseOver(false);
 
                 previousCollisionStates_[g][b] = false;
-
-
             }
 
             // 更新碰撞状态
@@ -172,7 +170,6 @@ bool GameLogicManager::CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal) 
 
     return distance <= collisionRadius;
 }
-
 
 // 处理球体间碰撞的方法
 void GameLogicManager::HandleBallCollisions() {
@@ -215,6 +212,10 @@ bool GameLogicManager::CheckBallBallCollision(Ball* ball1, Ball* ball2) {
     float ballRadius = 2.0f;  // 球体半径
     float collisionDistance = ballRadius * 2.0f;  // 两个球体半径之和
 
+    // 增加10%的碰撞检测范围，让碰撞更自然
+    float collisionTolerance = 1.1f;
+    collisionDistance *= collisionTolerance;
+
     return distance <= collisionDistance;
 }
 
@@ -222,12 +223,16 @@ bool GameLogicManager::CheckBallBallCollision(Ball* ball1, Ball* ball2) {
 void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
     Vector3 pos1 = ball1->GetPosition();
     Vector3 pos2 = ball2->GetPosition();
-    Vector3 vel1 = ball1->GetVelocity();  // 需要给Ball类添加GetVelocity方法
-    Vector3 vel2 = ball2->GetVelocity();  // 需要给Ball类添加GetVelocity方法
+    Vector3 vel1 = ball1->GetVelocity();
+    Vector3 vel2 = ball2->GetVelocity();
 
     // 计算碰撞法线
     Vector3 collisionNormal = myMath::Subtract(pos2, pos1);
-    collisionNormal = myMath::Normalize(collisionNormal);
+    float distance = myMath::Length(collisionNormal);
+
+    if (distance == 0.0f) return;
+
+    collisionNormal = myMath::Multiply(1.0f / distance, collisionNormal);
 
     // 计算相对速度
     Vector3 relativeVelocity = myMath::Subtract(vel1, vel2);
@@ -238,27 +243,40 @@ void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
         return;
     }
 
-    // 恢复系数（弹性系数，0.8表示有轻微能量损失）
-    float restitution = 0.8f;
+    // 碰撞参数
+    const float BALL_RADIUS = 2.0f;
+    const float MIN_DISTANCE = BALL_RADIUS * 2.0f;
 
-    // 计算冲量
+    // 恢复系数（弹性）
+    float restitution = 0.9f; // 从0.8增加到0.9，更有弹性
+
+    // 计算冲量（增加碰撞力）
     float impulseScalar = -(1.0f + restitution) * velocityAlongNormal;
+    impulseScalar *= 1.2f; // 增加20%的击飞力
 
-    // 应用冲量
-    Vector3 impulse1 = myMath::Multiply(-impulseScalar * 0.5f, collisionNormal);
-    Vector3 impulse2 = myMath::Multiply(impulseScalar * 0.5f, collisionNormal);
+    // 应用冲量（更强的击飞）
+    Vector3 impulse1 = myMath::Multiply(-impulseScalar * 0.6f, collisionNormal);
+    Vector3 impulse2 = myMath::Multiply(impulseScalar * 0.6f, collisionNormal);
+
+    // 使用统一的击飞方法，相撞击飞使用不同参数
+    ball1->StartKnockback(impulse1,
+        0.6f,     // 持续时间稍长
+        2.0f,     // 力倍增器
+        false);   // 不是爆炸击飞
+
+    ball2->StartKnockback(impulse2,
+        0.6f,
+        2.0f,
+        false);
 
     // 分离球体，防止重叠
-    float penetration = (2.0f * ballRadius) - myMath::Distance(pos1, pos2);
-    if (penetration > 0) {
-        Vector3 separation = myMath::Multiply(penetration * 0.5f, collisionNormal);
+    if (distance < MIN_DISTANCE && distance > 0.0f) {
+        float overlap = MIN_DISTANCE - distance;
+        Vector3 separation = myMath::Multiply(overlap * 0.5f, collisionNormal);
+
         ball1->SetPosition(myMath::Subtract(pos1, separation));
         ball2->SetPosition(myMath::Add(pos2, separation));
     }
-
-    // 应用速度变化
-    ball1->ApplyForce(impulse1);  // 需要给Ball类添加ApplyForce方法
-    ball2->ApplyForce(impulse2);
 }
 
 bool GameLogicManager::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {

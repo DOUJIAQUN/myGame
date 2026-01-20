@@ -4,7 +4,6 @@
 #include "../math/myMath.h"
 
 class Ball
-
 {
 public:
 	~Ball();
@@ -12,23 +11,21 @@ public:
 	void Update();
 	void Draw();
 
-
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 
-	//接收屏幕坐标来更新爆炸范围位置
+	// 接收屏幕坐标来更新爆炸范围位置
 	void UpdateExplosionRangePosition(const KamataEngine::Vector3& screenPos);
 
-
-	  // 爆炸相关方法
+	// 爆炸相关方法
 	void Explode();                                               // 触发爆炸
 	bool IsExploded() const { return isExploded_; }               // 是否已爆炸
 	bool IsActive() const { return isActive_; }                   // 是否活跃（未消失）
 	void SetActive(bool active) {
 		isActive_ = active;
 		if (!active) {
-		// 球体不活跃时，立即清空拖尾
-		CleanupTrail();
-	}
+			// 球体不活跃时，立即清空拖尾
+			CleanupTrail();
+		}
 	}           // 设置活跃状态
 	void ApplyExplosionForce(const KamataEngine::Vector3& force); // 应用爆炸力
 	void DrawExplosionRange();
@@ -45,28 +42,31 @@ public:
 	void SetInitialPosition(const KamataEngine::Vector3& position);
 	void SetPosition(const KamataEngine::Vector3& position);
 
-	//检查是否可被点击
+	// 检查是否可被点击
 	bool IsClickable() const { return isActive_ && !isExploded_ && !isKnockbackLocked_; }
 
-	//设置击退锁定状态
+	// 设置击退锁定状态
 	void SetKnockbackLocked(bool locked) { isKnockbackLocked_ = locked; }
 	bool IsKnockbackLocked() const { return isKnockbackLocked_; }
 
+	void Reset();
 
-	// 获取速度
+	// 物理相关方法
 	KamataEngine::Vector3 GetVelocity() const { return velocity_; }
-
-	// 应用力（用于碰撞后的速度变化）
 	void ApplyForce(const KamataEngine::Vector3& force) {
 		velocity_ = myMath::Add(velocity_, force);
 	}
 
-	// 设置速度
-	void SetVelocity(const KamataEngine::Vector3& vel) { velocity_ = vel; }
+	// 统一的击飞方法
+	void StartKnockback(const KamataEngine::Vector3& force,
+		float duration = 0.5f,
+		float forceMultiplier = 1.0f,
+		bool isExplosionKnockback = false);
 
+	// 查询击飞状态
+	bool IsKnockedBack() const { return isKnockedBack_; }
+	KamataEngine::Vector3 GetKnockbackForce() const { return knockbackForce_; }
 
-	void Reset();
-	
 private:
 	KamataEngine::Model* model_;
 	KamataEngine::WorldTransform worldTransform_;
@@ -75,11 +75,10 @@ private:
 	KamataEngine::Input* input_ = nullptr;
 	const float kSpeed = 0.2f;
 
-	  // 爆炸相关变量
+	// 爆炸相关变量
 	bool isExploded_ = false;                    // 是否已爆炸
 	bool isActive_ = true;                       // 是否活跃（未消失）
-	KamataEngine::Vector3 velocity_ = {0, 0, 0}; // 速度向量
-	
+	KamataEngine::Vector3 velocity_ = { 0, 0, 0 }; // 速度向量
 
 	// 鼠标悬停相关变量
 	bool isMouseOver_ = false;                   // 鼠标是否悬停
@@ -103,7 +102,6 @@ private:
 	const float explosionFrameDuration_ = 0.1f;     // 每帧持续时间（秒）
 	const int explosionTotalFrames_ = 4;            // 爆炸总帧数
 
-
 	// 击退锁定相关变量
 	bool isKnockbackLocked_ = false;                // 是否处于击退锁定状态
 	float knockbackLockTimer_ = 0.0f;               // 击退锁定计时器
@@ -124,11 +122,21 @@ private:
 	uint32_t trailTextureHandle_ = 0;               // 拖尾纹理句柄
 	const float trailSize_ = 60.0f;                 // 拖尾点大小
 
+	// 击飞状态相关
+	bool isKnockedBack_ = false;                // 是否正在被击飞
+	float knockbackTimer_ = 0.0f;               // 击飞计时器
+	float knockbackDuration_ = 0.5f;            // 击飞持续时间
+	KamataEngine::Vector3 knockbackForce_ = { 0, 0, 0 }; // 击飞力
+	bool isExplosionKnockback_ = false;         // 是否是爆炸击飞
+
 	// 私有方法
 	KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 	void UpdateKnockbackLock();                     // 更新击退锁定状态
 	void UpdateTrail();                            // 更新拖尾特效
 	void DrawTrail();                              // 绘制拖尾特效
-	void AddTrailPoint();                          // 添加拖尾点
+	void AddTrailPoint(float size = 60.0f);        // 添加拖尾点
 	void CleanupTrail();                           // 清理拖尾资源
+	void UpdateKnockback();                        // 更新击飞状态
+	float CalculateSlowDownFactor();               // 计算减速因子
+	void AddTrailPointWithConfig(float size, const KamataEngine::Vector4& color, float lifetime); // 带配置的拖尾点
 };

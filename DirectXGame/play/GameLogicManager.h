@@ -19,7 +19,7 @@ public:
     bool CheckBallGoalCollision();  // 现在返回是否满足通关条件
     bool CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal);  // 单个碰撞检测
 
-   
+
     int GetCurrentGoalsReached() const { return currentGoalsReached_; }
     int GetRequiredGoalsReached() const { return requiredGoalsReached_; }
 
@@ -45,7 +45,7 @@ private:
 
     // 爆炸参数
     const float explosionRadius_ = 10.1f;
-    const float explosionForce_ = 1.0f;
+    const float explosionForce_ = 1.1f;
 
     // 新增通关条件相关变量
     int requiredGoalsReached_ = 1;
@@ -61,9 +61,8 @@ private:
     bool IsMouseOverBall(Ball* ball, const KamataEngine::Vector2& mousePos);
     KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 
-    //球体间碰撞检测相关
+    // 新增球体间碰撞检测相关
     void HandleBallCollisions();
     bool CheckBallBallCollision(Ball* ball1, Ball* ball2);
     void ResolveBallCollision(Ball* ball1, Ball* ball2);
-   
 };

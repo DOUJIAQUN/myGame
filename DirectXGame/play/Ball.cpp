@@ -1,14 +1,13 @@
 #include "Ball.h"
 #include <cmath>
 
-
 using namespace KamataEngine;
 
-Ball::~Ball() { 
-    delete model_; 
-    if (explosionRangeSprite_) {
-	    delete explosionRangeSprite_;
-    }
+Ball::~Ball() {
+	delete model_;
+	if (explosionRangeSprite_) {
+		delete explosionRangeSprite_;
+	}
 	if (explosionSprite_) {
 		delete explosionSprite_;
 	}
@@ -21,17 +20,13 @@ void Ball::Initialize(Camera* camera) {
 	model_ = Model::CreateFromOBJ("Player", true);
 	input_ = Input::GetInstance();
 
-
-	worldTransform_.translation_ = {-30, 0, 0};
-	
-
-	worldTransform_.scale_ = {2, 2, 2};
+	worldTransform_.translation_ = { -30, 0, 0 };
+	worldTransform_.scale_ = { 2, 2, 2 };
 	initialScale_ = worldTransform_.scale_;
-
 
 	isExploded_ = false;
 	isActive_ = true;
-	velocity_ = {0, 0, 0};
+	velocity_ = { 0, 0, 0 };
 	isMouseOver_ = false;
 
 	// 旋转初始化
@@ -39,7 +34,6 @@ void Ball::Initialize(Camera* camera) {
 	initialRotation_ = rotation_;
 	rotationSpeed_ = 0.3f; // 1弧度/秒，大约57度/秒
 
-	
 	// 加载爆炸范围图片
 	explosionRangeTextureHandle_ = TextureManager::Load("ui/explosionRange.png");
 
@@ -47,7 +41,6 @@ void Ball::Initialize(Camera* camera) {
 	explosionRangeSprite_ = Sprite::Create(explosionRangeTextureHandle_, { 0, 0 });
 
 	// 设置爆炸范围大小（根据爆炸半径11.0f调整）
-	// 假设爆炸半径11.0f对应屏幕上的某个尺寸，需要根据实际调整
 	const float explosionRangeSize = 400.0f; // 示例值，需要根据实际调整
 	if (explosionRangeSprite_) {
 		explosionRangeSprite_->SetSize({ explosionRangeSize, explosionRangeSize });
@@ -56,7 +49,6 @@ void Ball::Initialize(Camera* camera) {
 	}
 
 	// 初始化爆炸特效
-	// 加载爆炸特效图片
 	explosionTextureHandles_.push_back(TextureManager::Load("effect/boom1.png"));
 	explosionTextureHandles_.push_back(TextureManager::Load("effect/boom2.png"));
 	explosionTextureHandles_.push_back(TextureManager::Load("effect/boom3.png"));
@@ -86,9 +78,16 @@ void Ball::Initialize(Camera* camera) {
 	if (trailTextureHandle_ == 0) {
 		trailTextureHandle_ = explosionRangeTextureHandle_; // 如果没有拖尾纹理，使用爆炸范围纹理
 	}
+
+	// 初始化击飞状态
+	isKnockedBack_ = false;
+	knockbackTimer_ = 0.0f;
+	knockbackDuration_ = 0.5f;
+	knockbackForce_ = { 0, 0, 0 };
+	isExplosionKnockback_ = false;
 }
 
-//设置初始位置
+// 设置初始位置
 void Ball::SetInitialPosition(const KamataEngine::Vector3& position) {
 	initialPosition_ = position;
 	worldTransform_.translation_ = position;
@@ -98,20 +97,16 @@ void Ball::SetInitialPosition(const KamataEngine::Vector3& position) {
 // SetPosition 方法的实现
 void Ball::SetPosition(const KamataEngine::Vector3& position) {
 	worldTransform_.translation_ = position;
-	// 如果需要立即更新矩阵，可以调用 UpdateMatrix
 	worldTransform_.UpdateMatrix();
 }
-
 
 void Ball::Explode() {
 	// 如果已经爆炸或是不活跃状态，不重复爆炸
 	if (isExploded_ || !isActive_) return;
 
-
 	isExploded_ = true;
 	isActive_ = false; // 球体消失
 	isMouseOver_ = false; // 鼠标悬停状态重置
-
 
 	// 清空拖尾
 	CleanupTrail();
@@ -130,16 +125,46 @@ void Ball::Explode() {
 }
 
 void Ball::ApplyExplosionForce(const KamataEngine::Vector3& force) {
-	velocity_ = myMath::Add(velocity_, force);
-
-	// 应用爆炸力时进入击退锁定状态
-	isKnockbackLocked_ = true;
-	knockbackLockTimer_ = 0.0f;
+	// 使用统一的击飞方法，爆炸击飞使用特定参数
+	StartKnockback(force,
+		0.4f,    // 持续时间
+		1.0f,    // 力倍增器
+		true);   // 是爆炸击飞
 }
 
+// 统一的击飞方法
+void Ball::StartKnockback(const KamataEngine::Vector3& force,
+	float duration,
+	float forceMultiplier,
+	bool isExplosionKnockback) {
+	if (!isActive_ || isExploded_) return;
+
+	// 计算增强后的击飞力
+	KamataEngine::Vector3 enhancedForce = myMath::Multiply(forceMultiplier, force);
+
+	// 设置击飞状态
+	isKnockedBack_ = true;
+	knockbackTimer_ = 0.0f;
+	knockbackDuration_ = duration;
+	knockbackForce_ = enhancedForce;
+	isExplosionKnockback_ = isExplosionKnockback;
+
+	// 应用初始速度
+	velocity_ = myMath::Add(velocity_, enhancedForce);
+
+	// 清空当前拖尾，重新开始
+	CleanupTrail();
+	trailSpawnTimer_ = 0.0f;
+
+	// 设置击退锁定
+	if (isExplosionKnockback) {
+		// 爆炸击飞使用原有的击退锁定逻辑
+		isKnockbackLocked_ = true;
+		knockbackLockTimer_ = 0.0f;
+	}
+}
 
 void Ball::Update() {
-
 	// 更新爆炸动画
 	if (isExplosionAnimPlaying_) {
 		explosionAnimTimer_ += 1.0f / 60.0f; // 假设60帧
@@ -167,19 +192,24 @@ void Ball::Update() {
 	if (!isActive_) {
 		return;
 	}
+
+	// 更新击飞状态
+	if (isKnockedBack_) {
+		UpdateKnockback();
+	}
+
 	// 更新击退锁定状态
 	UpdateKnockbackLock();
 
 	// 更新拖尾特效
 	UpdateTrail();
 
-
-	// 如果受到爆炸力影响，更新位置
-	// 使用 myMath::Length 而不是全局的 Length 函数
+	// 如果受到力影响，更新位置
 	if (myMath::Length(velocity_) > 0.01f) {
+		// 使用缓动函数使速度逐渐减慢
+		float slowDownFactor = CalculateSlowDownFactor();
+		velocity_ = myMath::Multiply(slowDownFactor, velocity_);
 		worldTransform_.translation_ = myMath::Add(worldTransform_.translation_, velocity_);
-		// 模拟阻力，逐渐减小速度
-		velocity_ = myMath::Multiply(0.9f, velocity_);
 	}
 
 	// 更新旋转角度（无论是否悬停都更新，这样切换时旋转更平滑）
@@ -190,12 +220,44 @@ void Ball::Update() {
 		rotation_ -= 2 * 3.14159265f;
 	}
 
-
-
-
 	worldTransform_.UpdateMatrix();
 }
 
+// 计算减速因子
+float Ball::CalculateSlowDownFactor() {
+	if (isKnockedBack_) {
+		float progress = knockbackTimer_ / knockbackDuration_;
+
+		if (isExplosionKnockback_) {
+			// 爆炸击飞：初始很快，然后快速减速
+			return 0.9f - (progress * 0.2f); // 0.9 → 0.7
+		}
+		else {
+			// 相撞击飞：相对平稳的减速
+			return 0.95f - (progress * 0.15f); // 0.95 → 0.8
+		}
+	}
+	else {
+		// 普通移动：较快减速
+		return 0.9f;
+	}
+}
+
+// 更新击飞状态
+void Ball::UpdateKnockback() {
+	if (!isKnockedBack_) return;
+
+	knockbackTimer_ += 1.0f / 60.0f;
+
+	if (knockbackTimer_ >= knockbackDuration_) {
+		// 击飞结束
+		isKnockedBack_ = false;
+		knockbackTimer_ = 0.0f;
+		knockbackDuration_ = 0.5f;
+		knockbackForce_ = { 0, 0, 0 };
+		isExplosionKnockback_ = false;
+	}
+}
 
 // 更新击退锁定状态
 void Ball::UpdateKnockbackLock() {
@@ -218,15 +280,49 @@ void Ball::UpdateKnockbackLock() {
 
 // 更新拖尾特效
 void Ball::UpdateTrail() {
+	// 决定使用哪种拖尾参数
+	float currentSpawnInterval = trailSpawnInterval_;
+	int currentMaxPoints = maxTrailPoints_;
+	float currentTrailSize = trailSize_;
+	Vector4 trailColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float trailLifetime = 0.5f;
+
+	if (isKnockedBack_) {
+		if (isExplosionKnockback_) {
+			// 爆炸击飞配置
+			currentSpawnInterval = 0.02f;
+			currentMaxPoints = 20;
+			currentTrailSize = 80.0f;
+			trailColor = { 1.0f, 0.7f, 0.3f, 1.0f }; // 橙黄色
+			trailLifetime = 0.7f;
+		}
+		else {
+			// 相撞击飞配置
+			currentSpawnInterval = 0.03f;
+			currentMaxPoints = 15;
+			currentTrailSize = 70.0f;
+			trailColor = { 0.8f, 0.9f, 1.0f, 1.0f }; // 淡蓝色
+			trailLifetime = 0.6f;
+		}
+	}
+
 	// 只有在移动且活跃状态下才生成拖尾
 	if (isActive_ && myMath::Length(velocity_) > 0.1f) {
 		trailSpawnTimer_ += 1.0f / 60.0f;
 
 		// 达到生成间隔时添加新的拖尾点
-		if (trailSpawnTimer_ >= trailSpawnInterval_) {
+		if (trailSpawnTimer_ >= currentSpawnInterval) {
 			trailSpawnTimer_ = 0.0f;
-			AddTrailPoint();
+
+			// 根据配置添加拖尾点
+			AddTrailPointWithConfig(currentTrailSize, trailColor, trailLifetime);
+
+			// 爆炸击飞时生成更密集的拖尾
+			if (isExplosionKnockback_ && myMath::Length(velocity_) > 1.5f) {
+				AddTrailPointWithConfig(currentTrailSize * 0.8f, trailColor, trailLifetime);
+			}
 		}
+
 		// 更新所有拖尾点的生命周期
 		for (auto it = trailPoints_.begin(); it != trailPoints_.end(); ) {
 			it->lifetime += 1.0f / 60.0f;
@@ -246,7 +342,7 @@ void Ball::UpdateTrail() {
 		}
 
 		// 限制拖尾点数量
-		if (trailPoints_.size() > maxTrailPoints_) {
+		if (trailPoints_.size() > currentMaxPoints) {
 			// 移除最旧的拖尾点
 			auto& oldest = trailPoints_.front();
 			if (oldest.sprite) {
@@ -257,7 +353,7 @@ void Ball::UpdateTrail() {
 		}
 	}
 
-	// 更新所有拖尾点的生命周期
+	// 更新所有拖尾点的生命周期（不活跃时的更新）
 	for (auto it = trailPoints_.begin(); it != trailPoints_.end(); ) {
 		it->lifetime += 1.0f / 60.0f;
 		it->alpha = 1.0f - (it->lifetime / it->maxLifetime);
@@ -271,30 +367,35 @@ void Ball::UpdateTrail() {
 		}
 	}
 
-	// 限制拖尾点数量
-	if (trailPoints_.size() > maxTrailPoints_) {
+	// 限制拖尾点数量（不活跃时的限制）
+	if (trailPoints_.size() > currentMaxPoints) {
 		trailPoints_.erase(trailPoints_.begin());
 	}
 }
 
-// 添加拖尾点
-void Ball::AddTrailPoint() {
+// 带配置的拖尾点添加方法
+void Ball::AddTrailPointWithConfig(float size, const Vector4& color, float lifetime) {
 	TrailPoint newPoint;
 	newPoint.position = worldTransform_.translation_;
 	newPoint.lifetime = 0.0f;
-	newPoint.maxLifetime = 0.5f; // 拖尾点存在0.5秒
+	newPoint.maxLifetime = lifetime;
 	newPoint.alpha = 1.0f;
 
 	// 为每个拖尾点创建独立的精灵
 	Vector3 screenPos = WorldToScreen(newPoint.position);
 	newPoint.sprite = Sprite::Create(trailTextureHandle_, { screenPos.x, screenPos.y });
 	if (newPoint.sprite) {
-		newPoint.sprite->SetSize({ trailSize_, trailSize_ });
+		newPoint.sprite->SetSize({ size, size });
 		newPoint.sprite->SetAnchorPoint({ 0.5f, 0.5f });
-		newPoint.sprite->SetColor({ 1.0f, 1.0f, 1.0f, newPoint.alpha });
+		newPoint.sprite->SetColor({ color.x, color.y, color.z, newPoint.alpha });
 	}
 
 	trailPoints_.push_back(newPoint);
+}
+
+// 添加拖尾点
+void Ball::AddTrailPoint(float size) {
+	AddTrailPointWithConfig(size, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5f);
 }
 
 // 绘制拖尾特效
@@ -306,7 +407,12 @@ void Ball::DrawTrail() {
 			trailPoint.sprite->SetPosition({ screenPos.x, screenPos.y });
 
 			// 更新透明度
-			trailPoint.sprite->SetColor({ 1.0f, 1.0f, 1.0f, trailPoint.alpha });
+			trailPoint.sprite->SetColor({
+				trailPoint.sprite->GetColor().x,
+				trailPoint.sprite->GetColor().y,
+				trailPoint.sprite->GetColor().z,
+				trailPoint.alpha
+				});
 
 			// 绘制
 			trailPoint.sprite->Draw();
@@ -351,7 +457,7 @@ KamataEngine::Vector3 Ball::WorldToScreen(const KamataEngine::Vector3& worldPos)
 	return { screenX, screenY, clipPos.z };
 }
 
-//使用屏幕坐标更新爆炸范围位置
+// 使用屏幕坐标更新爆炸范围位置
 void Ball::UpdateExplosionRangePosition(const KamataEngine::Vector3& screenPos) {
 	if (isMouseOver_ && isActive_ && !isExploded_ && explosionRangeSprite_ != nullptr) {
 		// 由于设置了中心锚点，现在可以直接使用屏幕坐标作为位置
@@ -367,15 +473,12 @@ void Ball::Draw() {
 	if (isActive_) {
 		model_->Draw(worldTransform_, *camera_);
 	}
-
 }
 
 void Ball::DrawExplosionRange() {
 	// 如果鼠标悬停且球体活跃且未爆炸，绘制爆炸范围
 	if (isMouseOver_ && isActive_ && !isExploded_ && explosionRangeSprite_ != nullptr) {
-		
-			explosionRangeSprite_->Draw();
-		
+		explosionRangeSprite_->Draw();
 	}
 
 	// 绘制爆炸特效（如果正在播放）
@@ -412,6 +515,13 @@ void Ball::Reset() {
 	// 重置击退锁定状态
 	isKnockbackLocked_ = false;
 	knockbackLockTimer_ = 0.0f;
+
+	// 重置击飞状态
+	isKnockedBack_ = false;
+	knockbackTimer_ = 0.0f;
+	knockbackDuration_ = 0.5f;
+	knockbackForce_ = { 0, 0, 0 };
+	isExplosionKnockback_ = false;
 
 	// 清空拖尾点
 	CleanupTrail();

@@ -43,10 +43,10 @@ void LevelManager::CreateLevels() {
         {-30.0f, 0.0f, 0.0f},
         {-20.0f, 0.0f, 0.0f},
         { 0.0f, 0.0f, 0.0f},
-        {15.0f, 0.0f, 0.0f}
+        {20.0f, 0.0f, 0.0f}
     };
     std::vector<KamataEngine::Vector3> level1GoalPositions = {
-       {25.0f, 0.0f, 0.0f}  // 单个终点
+       {30.0f, 0.0f, 0.0f}  // 单个终点
     };
     std::vector<int> level1GoalRequiredCounts = { 1 };
     // 第1-1关终点不移动
@@ -126,7 +126,7 @@ void LevelManager::CreateLevels() {
     std::vector<KamataEngine::Vector3> level1_4BallPositions = {
         {20.0f, 0.0f, 0.0f},
         {10.0f, 0.0f, 0.0f},
-        {5.0f, 2.0f, 0.0f},
+        {0.0f, 3.0f, 0.0f},
         {-10.0f, 0.0f, 0.0f}
     };
     std::vector<KamataEngine::Vector3> level1_4GoalPositions = {
