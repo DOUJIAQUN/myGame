@@ -60,5 +60,10 @@ private:
     void HandleMouseClick();
     bool IsMouseOverBall(Ball* ball, const KamataEngine::Vector2& mousePos);
     KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
+
+    //球体间碰撞检测相关
+    void HandleBallCollisions();
+    bool CheckBallBallCollision(Ball* ball1, Ball* ball2);
+    void ResolveBallCollision(Ball* ball1, Ball* ball2);
    
 };

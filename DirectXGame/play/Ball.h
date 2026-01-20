@@ -52,6 +52,19 @@ public:
 	void SetKnockbackLocked(bool locked) { isKnockbackLocked_ = locked; }
 	bool IsKnockbackLocked() const { return isKnockbackLocked_; }
 
+
+	// 获取速度
+	KamataEngine::Vector3 GetVelocity() const { return velocity_; }
+
+	// 应用力（用于碰撞后的速度变化）
+	void ApplyForce(const KamataEngine::Vector3& force) {
+		velocity_ = myMath::Add(velocity_, force);
+	}
+
+	// 设置速度
+	void SetVelocity(const KamataEngine::Vector3& vel) { velocity_ = vel; }
+
+
 	void Reset();
 	
 private:

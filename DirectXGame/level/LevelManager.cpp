@@ -27,7 +27,8 @@ std::string LevelManager::GetCurrentLevelName() const {
     switch (levelNumber) {
     case 1: return "1-1";
     case 2: return "1-2";
-    case 3: return "2-1";
+    case 3: return "1-3";
+    case 4: return "1-4";
     default: return "Unknown";
     }
 }
@@ -86,9 +87,9 @@ void LevelManager::CreateLevels() {
     levels_.push_back(level1_2);
   
 
-    // 第2-1关配置
-    GameScene* level2_1 = new GameScene();
-    std::vector<KamataEngine::Vector3> level2_1BallPositions = {
+    // 第1-3关配置
+    GameScene* level1_3 = new GameScene();
+    std::vector<KamataEngine::Vector3> level1_3BallPositions = {
         {-30.0f, 10.0f, 0.0f},
         {-30.0f, 0.0f, 0.0f},
         {-10.0f, 10.0f, 0.0f},
@@ -98,28 +99,51 @@ void LevelManager::CreateLevels() {
         {30.0f, 10.0f, 0.0f },
         {30.0f, 0.0f, 0.0f }
     };
-    std::vector<KamataEngine::Vector3> level2_1GoalPositions = {
+    std::vector<KamataEngine::Vector3> level1_3GoalPositions = {
         {0.0f, -10.0f, 0.0f}  
     };
-    std::vector<int> level2_1GoalRequiredCounts = {
+    std::vector<int> level1_3GoalRequiredCounts = {
         4  
     };
 
-    // 第2-1关终点水平移动
-    std::vector<GoalMovementConfig> level2_1MovementConfigs = {
+    // 第1-3关终点水平移动
+    std::vector<GoalMovementConfig> level1_3MovementConfigs = {
         GoalMovementConfig(true, MoveDirection::Horizontal, 30.0f, 0.7f)
     };
 
-    level2_1->SetLevelConfig(3, level2_1BallPositions, level2_1GoalPositions, level2_1GoalRequiredCounts);
+    level1_3->SetLevelConfig(3, level1_3BallPositions, level1_3GoalPositions, level1_3GoalRequiredCounts);
     
         // 确保调用的是正确的SetLevelConfig重载
-    level2_1->SetLevelConfig(3, 
-        level2_1BallPositions, 
-        level2_1GoalPositions, 
-        level2_1GoalRequiredCounts, 
-        level2_1MovementConfigs);  // 确保传递了移动配置
-    levels_.push_back(level2_1);
+    level1_3->SetLevelConfig(3, 
+        level1_3BallPositions, 
+        level1_3GoalPositions, 
+        level1_3GoalRequiredCounts, 
+        level1_3MovementConfigs);  // 确保传递了移动配置
+    levels_.push_back(level1_3);
+
+    // 第1-4关配置
+    GameScene* level1_4 = new GameScene();
+    std::vector<KamataEngine::Vector3> level1_4BallPositions = {
+        {20.0f, 0.0f, 0.0f},
+        {10.0f, 0.0f, 0.0f},
+        {5.0f, 2.0f, 0.0f},
+        {-10.0f, 0.0f, 0.0f}
+    };
+    std::vector<KamataEngine::Vector3> level1_4GoalPositions = {
+        {-20.0f, 0.0f, 0.0f}
+    };
+    std::vector<int> level1_4GoalRequiredCounts = { 1 };
+    std::vector<GoalMovementConfig> level1_4MovementConfigs = {
+        GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
+    };
+    level1_4->SetLevelConfig(4,
+        level1_4BallPositions,
+        level1_4GoalPositions,
+        level1_4GoalRequiredCounts,
+        level1_4MovementConfigs);
+    levels_.push_back(level1_4);
 }
+
 
 
 void LevelManager::SetCurrentLevel(int level) {

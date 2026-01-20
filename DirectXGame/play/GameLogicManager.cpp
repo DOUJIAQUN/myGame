@@ -4,6 +4,10 @@
 
 using namespace KamataEngine;
 
+
+const float ballRadius = 5.0f;
+
+
 GameLogicManager::GameLogicManager()
     : balls_(nullptr), goals_(nullptr), camera_(nullptr) {
     input_ = Input::GetInstance();
@@ -32,6 +36,9 @@ void GameLogicManager::Update() {
     if (input_->IsTriggerMouse(0)) {
         HandleMouseClick();
     }
+
+    // 处理球体间的碰撞
+    HandleBallCollisions();
 
     // 检测小球与终点的碰撞
     if (!isGameOver_) {
@@ -116,7 +123,7 @@ bool GameLogicManager::CheckBallGoalCollision() {
     return allCompleted;
 }
 
-// 新增更新完成状态的方法
+//更新完成状态的方法
 void GameLogicManager::UpdateCompletionStatus() {
     // 检查每个球和每个终点的碰撞
     for (size_t g = 0; g < goals_->size(); g++) {
@@ -164,6 +171,94 @@ bool GameLogicManager::CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal) 
     float collisionRadius = ballRadius + goalRadius;
 
     return distance <= collisionRadius;
+}
+
+
+// 处理球体间碰撞的方法
+void GameLogicManager::HandleBallCollisions() {
+    if (!balls_ || balls_->empty()) return;
+
+    // 遍历所有球体对，检测碰撞
+    for (size_t i = 0; i < balls_->size(); i++) {
+        Ball* ball1 = (*balls_)[i];
+
+        // 只检查活跃且未爆炸的球体
+        if (!ball1 || !ball1->IsActive() || ball1->IsExploded()) {
+            continue;
+        }
+
+        for (size_t j = i + 1; j < balls_->size(); j++) {
+            Ball* ball2 = (*balls_)[j];
+
+            // 只检查活跃且未爆炸的球体
+            if (!ball2 || !ball2->IsActive() || ball2->IsExploded()) {
+                continue;
+            }
+
+            // 检测碰撞
+            if (CheckBallBallCollision(ball1, ball2)) {
+                ResolveBallCollision(ball1, ball2);
+            }
+        }
+    }
+}
+
+// 检测两个球体是否碰撞
+bool GameLogicManager::CheckBallBallCollision(Ball* ball1, Ball* ball2) {
+    Vector3 pos1 = ball1->GetPosition();
+    Vector3 pos2 = ball2->GetPosition();
+
+    // 计算距离
+    float distance = myMath::Distance(pos1, pos2);
+
+    // 碰撞半径（根据球体大小调整）
+    float ballRadius = 2.0f;  // 球体半径
+    float collisionDistance = ballRadius * 2.0f;  // 两个球体半径之和
+
+    return distance <= collisionDistance;
+}
+
+// 解析碰撞，应用物理逻辑
+void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
+    Vector3 pos1 = ball1->GetPosition();
+    Vector3 pos2 = ball2->GetPosition();
+    Vector3 vel1 = ball1->GetVelocity();  // 需要给Ball类添加GetVelocity方法
+    Vector3 vel2 = ball2->GetVelocity();  // 需要给Ball类添加GetVelocity方法
+
+    // 计算碰撞法线
+    Vector3 collisionNormal = myMath::Subtract(pos2, pos1);
+    collisionNormal = myMath::Normalize(collisionNormal);
+
+    // 计算相对速度
+    Vector3 relativeVelocity = myMath::Subtract(vel1, vel2);
+    float velocityAlongNormal = Dot(relativeVelocity, collisionNormal);
+
+    // 如果球体正在分开，不需要处理
+    if (velocityAlongNormal > 0) {
+        return;
+    }
+
+    // 恢复系数（弹性系数，0.8表示有轻微能量损失）
+    float restitution = 0.8f;
+
+    // 计算冲量
+    float impulseScalar = -(1.0f + restitution) * velocityAlongNormal;
+
+    // 应用冲量
+    Vector3 impulse1 = myMath::Multiply(-impulseScalar * 0.5f, collisionNormal);
+    Vector3 impulse2 = myMath::Multiply(impulseScalar * 0.5f, collisionNormal);
+
+    // 分离球体，防止重叠
+    float penetration = (2.0f * ballRadius) - myMath::Distance(pos1, pos2);
+    if (penetration > 0) {
+        Vector3 separation = myMath::Multiply(penetration * 0.5f, collisionNormal);
+        ball1->SetPosition(myMath::Subtract(pos1, separation));
+        ball2->SetPosition(myMath::Add(pos2, separation));
+    }
+
+    // 应用速度变化
+    ball1->ApplyForce(impulse1);  // 需要给Ball类添加ApplyForce方法
+    ball2->ApplyForce(impulse2);
 }
 
 bool GameLogicManager::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {
