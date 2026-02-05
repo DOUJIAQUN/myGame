@@ -160,5 +160,11 @@
     <ClInclude Include="play\GoalMovementConfig.h">
       <Filter>play</Filter>
     </ClInclude>
+    <ClInclude Include="play\IGoalMoveStrategy.h">
+      <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="play\GoalMoveStrategies.h">
+      <Filter>play</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

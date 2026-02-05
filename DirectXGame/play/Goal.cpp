@@ -1,6 +1,10 @@
 #include "Goal.h"
 #include <cmath>
-#include "../DebugLogger.h" 
+#include <memory>
+
+#include "../DebugLogger.h"
+#include "../play/GoalMoveStrategies.h"
+
 using namespace KamataEngine;
 
 Goal::~Goal() { delete model_; }
@@ -10,71 +14,66 @@ void Goal::Initialize(Camera* camera) {
 	worldTransform_.Initialize();
 	model_ = Model::CreateFromOBJ("cube", true);
 	input_ = Input::GetInstance();
-	worldTransform_.translation_ = {-30, 0, 0};
-	worldTransform_.scale_ = {2, 2, 2};
+	worldTransform_.translation_ = { -30, 0, 0 };
+	worldTransform_.scale_ = { 2, 2, 2 };
 
 	// 初始化移动相关变量
 	movementConfig_ = GoalMovementConfig(); // 默认配置（不移动）
 	moveTimer_ = 0.0f;
 	initialPosition_ = worldTransform_.translation_;
+
+	// 默认策略：不移动
+	moveStrategy_ = std::make_unique<NoMoveStrategy>();
 }
 
 // 设置移动配置
 void Goal::SetMovementConfig(const GoalMovementConfig& config) {
 	movementConfig_ = config;
 	initialPosition_ = worldTransform_.translation_; // 更新初始位置
+	moveTimer_ = 0.0f;                               // 重新计时（可选，但更符合“从初始位置开始移动”）
+	SetMoveStrategyByConfig();
+}
+
+// Strategy 选择（只负责“选择”，具体移动算法放在策略类里）
+void Goal::SetMoveStrategyByConfig() {
+	if (!movementConfig_.shouldMove) {
+		moveStrategy_ = std::make_unique<NoMoveStrategy>();
+		return;
+	}
+
+	switch (movementConfig_.direction) {
+	case MoveDirection::Horizontal:
+		moveStrategy_ = std::make_unique<HorizontalMoveStrategy>();
+		break;
+	case MoveDirection::Vertical:
+		moveStrategy_ = std::make_unique<VerticalMoveStrategy>();
+		break;
+	case MoveDirection::Circular:
+		moveStrategy_ = std::make_unique<CircularMoveStrategy>();
+		break;
+	default:
+		moveStrategy_ = std::make_unique<NoMoveStrategy>();
+		break;
+	}
 }
 
 // SetPosition 方法的实现
 void Goal::SetPosition(const KamataEngine::Vector3& position) {
 	worldTransform_.translation_ = position;
 	initialPosition_ = position; // 同时设置初始位置
-	// 如果需要立即更新矩阵，可以调用 UpdateMatrix
 	worldTransform_.UpdateMatrix();
 }
 
-
-
-
-
 void Goal::Update() {
-
-	// 如果需要移动，更新位置
-	if (movementConfig_.shouldMove) {
-
-
-
+	// 如果需要移动且策略存在，更新位置
+	if (movementConfig_.shouldMove && moveStrategy_) {
 		moveTimer_ += 1.0f / 60.0f; // 假设60帧
-
-		// 根据移动方向计算移动距离（使用正弦波实现平滑的来回移动）
-		float moveDistance = sin(moveTimer_ * movementConfig_.moveSpeed) * movementConfig_.moveRange;
-
-		// 根据方向更新位置
-		switch (movementConfig_.direction) {
-		case MoveDirection::Horizontal:
-			// 水平移动（左右）
-			worldTransform_.translation_.x = initialPosition_.x + moveDistance;
-			break;
-
-		case MoveDirection::Vertical:
-			// 垂直移动（上下）
-			worldTransform_.translation_.y = initialPosition_.y + moveDistance;
-			break;
-
-		case MoveDirection::Circular:
-			// 圆形移动（可选扩展）
-			// 使用正弦和余弦实现圆形轨迹
-			worldTransform_.translation_.x = initialPosition_.x + cos(moveTimer_ * movementConfig_.moveSpeed) * movementConfig_.moveRange;
-			worldTransform_.translation_.y = initialPosition_.y + sin(moveTimer_ * movementConfig_.moveSpeed) * movementConfig_.moveRange;
-			break;
-		}
+		moveStrategy_->Apply(worldTransform_, initialPosition_, moveTimer_, movementConfig_);
 	}
 
 	worldTransform_.UpdateMatrix();
 }
 
 void Goal::Draw() {
-
-		model_->Draw(worldTransform_, *camera_);
-	
+	model_->Draw(worldTransform_, *camera_);
 }
