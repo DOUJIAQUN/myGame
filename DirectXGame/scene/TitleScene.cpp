@@ -39,25 +39,22 @@ void TitleScene::Initialize() {
 void TitleScene::Update() {
     frameCount_++;
 
-    // 上下に揺らす（sin波でY座標を変更）
     float offsetY = std::sin(frameCount_ * 0.05f) * 10.0f;
     titleSprite_->SetPosition({ 20, 20 + offsetY });
 
-    // 更新按钮状态（检测鼠标悬停）
     UpdateButtonStates();
 
-    // 获取鼠标位置
     Vector2 mousePos = input_->GetMousePosition();
 
     if (input_->IsTriggerMouse(0)) {
         if (IsMouseOverButton(mousePos, startButtonSprite_)) {
-            // 开始游戏（直接第一关）
             selectedLevel_ = 1;
+            nextSceneState_ = LOADING;   // 直接开始游戏
             isSceneEnd_ = true;
         }
         else if (IsMouseOverButton(mousePos, stageSelectButtonSprite_)) {
-            // 进入关卡选择界面
-            selectedLevel_ = 0; // 0 表示进入关卡选择
+            selectedLevel_ = 0;
+            nextSceneState_ = STAGE_SELECT; // 进入关卡选择
             isSceneEnd_ = true;
         }
     }
@@ -153,6 +150,4 @@ bool TitleScene::IsMouseOverButton(const Vector2& mousePos, Sprite* buttonSprite
         mousePos.y >= position.y && mousePos.y <= position.y + size.y);
 }
 
-bool TitleScene::IsSceneEnd() {
-    return isSceneEnd_;
-}
+

@@ -53,37 +53,32 @@ void StageSelectScene::Initialize() {
 void StageSelectScene::Update() {
     Vector2 mousePos = input_->GetMousePosition();
 
-    // 更新按钮状态（检测鼠标悬停）
     UpdateButtonStates();
 
-    // 更新 GameUI
     if (gameUI_) {
         gameUI_->Update();
     }
-    // 检测返回标题按钮点击
     if (gameUI_ && gameUI_->IsReturnToTitleClicked()) {
-      
-        selectedLevel_ = 0; // 0 表示返回标题
+        selectedLevel_ = 0;
+        nextSceneState_ = TITLE;
         isSceneEnd_ = true;
         return;
     }
-    // 检测关卡选择
+
     if (input_->IsTriggerMouse(0)) {
-     
         if (IsMouseOverButton(mousePos, stage1ButtonSprite_)) {
-          
-            selectedLevel_ = 1;  // Stage1按钮对应第1-1关（关卡号1）
+            selectedLevel_ = 1;
+            nextSceneState_ = LOADING;
             isSceneEnd_ = true;
         }
         else if (IsMouseOverButton(mousePos, stage2ButtonSprite_)) {
-          
-
-            selectedLevel_ = 5;  // Stage2按钮对应第2-1关（关卡号3）
+            selectedLevel_ = 5;
+            nextSceneState_ = LOADING;
             isSceneEnd_ = true;
         }
-       
     }
 }
+
 //更新按钮状态方法
 void StageSelectScene::UpdateButtonStates() {
     // 获取鼠标位置

@@ -2,20 +2,21 @@
 #include "../scene/GameScene.h"
 #include "../scene/SceneState.h"
 #include "../scene/LoadingScene.h"
+#include "../scene/IScene.h"
 #include <vector>
 
-class LevelManager {
+class LevelManager : public IScene {
 public:
     LevelManager();
     ~LevelManager();
 
-    void Initialize();
-    void Update();
-    void Draw();
+    void Initialize() override;
+    void Update() override;
+    void Draw() override;
 
     // 场景状态相关
-    bool IsSceneEnd() const { return isSceneEnd_; }
-    SceneState GetNextSceneState() const { return shouldReturnToTitle_ ? TITLE : RESULT; }
+    bool IsSceneEnd() const override { return isSceneEnd_; }
+    SceneState GetNextSceneState() const override { return shouldReturnToTitle_ ? TITLE : RESULT; }
 
     //关卡切换状态
     enum class LevelState {

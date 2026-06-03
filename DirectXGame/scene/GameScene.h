@@ -8,13 +8,14 @@
 #include "../play/GoalMovementConfig.h" 
 #include <vector> 
 #include "SceneState.h"
+#include "IScene.h"
 
 
 using namespace KamataEngine;
 /// <summary>
 /// ゲームシーン
 /// </summary>
-class GameScene {
+class GameScene : public IScene {
 
 public: // メンバ関数
 	/// <summary>
@@ -30,26 +31,26 @@ public: // メンバ関数
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize();
+	void Initialize() override;
 
 	/// <summary>
 	/// 毎フレーム処理
 	/// </summary>
-	void Update();
+	void Update() override;
 
 	/// <summary>
 	/// 描画
 	/// </summary>
-	void Draw();
+	void Draw() override;
 
 
 
 	// 添加游戏结束状态获取方法
 	bool IsGameOver() const { return gameState_ == GameState::GameOver; }
-	bool IsSceneEnd() const { return isSceneEnd_; }
+	bool IsSceneEnd() const override { return isSceneEnd_; }
 
 	// 获取下一个场景状态
-	SceneState GetNextSceneState() const {
+	SceneState GetNextSceneState() const override {
 		return returnToTitle_ ? TITLE : RESULT;
 	}
 

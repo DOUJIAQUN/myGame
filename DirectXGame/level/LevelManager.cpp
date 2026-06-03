@@ -286,8 +286,8 @@ void LevelManager::UpdatePlayingState() {
 }
 
 void LevelManager::UpdateLoadingState() {
-    loadingScene_->Updata();
-    if (loadingScene_->isLoadingComplete()) {
+    loadingScene_->Update();
+    if (loadingScene_->IsSceneEnd()) {
         // 加载完成，进入下一关
         currentLevelIndex_++;
         if (currentLevelIndex_ < levels_.size()) {
@@ -310,8 +310,8 @@ void LevelManager::UpdateTransitionState() {
 }
 
 void LevelManager::UpdateGameCompleteState() {
-    loadingScene_->Updata();
-    if (loadingScene_->isLoadingComplete()) {
+    loadingScene_->Update();
+    if (loadingScene_->IsSceneEnd()) {
         // 游戏完成Loading结束，设置场景结束
         isSceneEnd_ = true;
     }

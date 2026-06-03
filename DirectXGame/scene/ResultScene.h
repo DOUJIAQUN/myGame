@@ -1,18 +1,21 @@
 #pragma once
 #include "KamataEngine.h"
+#include "IScene.h"
+#include "SceneState.h"
 
 using namespace KamataEngine;
 
-class ResultScene {
+class ResultScene : public IScene {
 public:
     ResultScene();
     ~ResultScene();
 
-    void Initialize();
-    void Update();
-    void Draw();
+    void Initialize() override;
+    void Update() override;
+    void Draw() override;
 
-    bool IsSceneEnd() const { return isSceneEnd_; }
+    bool IsSceneEnd() const override { return isSceneEnd_; }
+    SceneState GetNextSceneState() const override { return TITLE; }
     void SetScore(int score) { score_ = score; }
 
 private:

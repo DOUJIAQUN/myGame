@@ -1,192 +1,101 @@
 #include "KamataEngine.h"
-#include "level/LevelManager.h"  
-#include "scene/ResultScene.h"  
+#include "level/LevelManager.h"
+#include "scene/ResultScene.h"
 #include <Windows.h>
 #include "scene/TitleScene.h"
 #include "scene/LoadingScene.h"
 #include "scene/StageSelectScene.h"
 #include "scene/SceneState.h"
+#include "scene/IScene.h"
 #include "DebugLogger.h"
 
 using namespace KamataEngine;
 
-
-
-// Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
+    KamataEngine::Initialize(L"LE3C_17_トウ_カグン");
+    DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	KamataEngine::Initialize(L"LE3C_17_トウ_カグン");
-	LevelManager* levelManager = nullptr;
-	TitleScene* titleScene = nullptr;
-	LoadingScene* loadingScene = nullptr;
-	ResultScene* resultScene = nullptr;
-	StageSelectScene* stageSelectScene = nullptr;
+    IScene* currentScene = nullptr;
+    SceneState currentState = TITLE;
+    int selectedLevel = 1;  // 用于 LevelManager 初始化
 
-	SceneState currentSceneState = TITLE;
-	// 保存关卡选择信息
-	int selectedLevel = 1;// 默认第一关
+    // 场景循环
+    while (true) {
+        if (KamataEngine::Update()) {
+            break;
+        }
 
-	// DirectXCommonインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+        // 场景切换：如果当前场景为空或已结束，则创建下一个场景
+        if (currentScene == nullptr || currentScene->IsSceneEnd()) {
+            SceneState nextState = (currentScene == nullptr) ? TITLE : currentScene->GetNextSceneState();
+            delete currentScene;
+            currentScene = nullptr;
 
-	titleScene = new TitleScene();
-	titleScene->Initialize();
+            switch (nextState) {
+            case TITLE:
+                currentScene = new TitleScene();
+                break;
+            case STAGE_SELECT:
+                currentScene = new StageSelectScene();
+                break;
+            case LOADING:
+                currentScene = new LoadingScene();
+                // LoadingScene 开始加载
+                static_cast<LoadingScene*>(currentScene)->StartLoading();
+                break;
+            case GAME:
+                currentScene = new LevelManager();
+                // 传递选中的关卡号
+                static_cast<LevelManager*>(currentScene)->SetCurrentLevel(selectedLevel);
+                break;
+            case RESULT:
+                currentScene = new ResultScene();
+                break;
+            }
 
-	loadingScene = new LoadingScene();
-	loadingScene->Initialize();
+            if (currentScene) {
+                currentScene->Initialize();
+                // 如果是从 Title 或 StageSelect 获取了 selectedLevel，需要传递给 LevelManager
+                // 但 LevelManager 在 GAME 状态才创建，所以上面已经处理
+                // 对于从其他状态得到 selectedLevel 的情况，例如 Title 结束时要记录
+                if (nextState == LOADING && (currentState == TITLE || currentState == STAGE_SELECT)) {
+                    // selectedLevel 已经在上层状态中更新，这里无需额外操作
+                }
+            }
+        }
 
-	while (true) {
-		if (KamataEngine::Update()) {
-			break;
-		}
-		
-		switch (currentSceneState) { 
-		case TITLE:
-			if (titleScene&&!titleScene->IsSceneEnd()) {
-				titleScene->Update();
-			} 
-			else {
-				selectedLevel = titleScene->GetSelectedLevel();
-				delete titleScene;
-				titleScene = nullptr;
+        // 更新当前场景
+        if (currentScene) {
+            currentScene->Update();
+        }
 
-				if (selectedLevel == 0) {
-					// 进入关卡选择界面
-					stageSelectScene = new StageSelectScene();
-					stageSelectScene->Initialize();
-					currentSceneState = STAGE_SELECT;
-				}
-				else {
-					// 直接开始第一关
-					loadingScene->StartLoading();
-					currentSceneState = LOADING;
-				}
-				
-			}
-			break;
-		case STAGE_SELECT:  // 新增：关卡选择状态
-			if (stageSelectScene && !stageSelectScene->IsSceneEnd()) {
-				stageSelectScene->Update();
-			}
-			else {
-				selectedLevel = stageSelectScene->GetSelectedLevel();
-				delete stageSelectScene;
-				stageSelectScene = nullptr;
+        // 描画開始
+        dxCommon->PreDraw();
 
-				if (selectedLevel == 0) {
-					// 返回标题
-					titleScene = new TitleScene();
-					titleScene->Initialize();
-					currentSceneState = TITLE;
-				}
-				else {
-					// 开始选定的关卡
-					loadingScene->StartLoading();
-					currentSceneState = LOADING;
-					
-				}
-			}
-			break;
-		case LOADING:
-			loadingScene->Updata();
-			if (loadingScene->isLoadingComplete()) 
-			 {
-				levelManager = new LevelManager();  
-				
-	
-				// 新增：如果从关卡选择界面选择了特定关卡，设置当前关卡
-				levelManager->SetCurrentLevel(selectedLevel);
-			
-				levelManager->Initialize();
-				currentSceneState = GAME;
-			}
-			break;
-		case GAME:
-			if (levelManager && !levelManager->IsSceneEnd()) {
-				levelManager->Update();
-				if (levelManager->IsSceneEnd()) {
-					SceneState nextState = levelManager->GetNextSceneState();
+        if (currentScene) {
+            currentScene->Draw();
+        }
 
-					delete levelManager;
-					levelManager = nullptr;
+        // 描画終了
+        dxCommon->PostDraw();
 
-					if (nextState == TITLE) {
-						titleScene = new TitleScene();
-						titleScene->Initialize();
-						currentSceneState = TITLE;
-					}
-					else {
-						resultScene = new ResultScene();
-						resultScene->Initialize();
-						currentSceneState = RESULT;
-					}
-				}
-			}
-			break;
-		case RESULT:
-			if (resultScene) {
-				resultScene->Update();
-				if (resultScene->IsSceneEnd()) {
-					delete resultScene;
-					resultScene = nullptr;
+        // 记录当前状态用于下次循环（实际上通过 nextState 已经确定）
+        // 但需要更新 selectedLevel 信息（从 TitleScene 或 StageSelectScene 获取）
+        if (currentScene && currentScene->IsSceneEnd()) {
+            SceneState endingState = currentScene->GetNextSceneState();
+            if (endingState == LOADING) {
+                // 尝试从当前场景获取 selectedLevel
+                if (dynamic_cast<TitleScene*>(currentScene)) {
+                    selectedLevel = static_cast<TitleScene*>(currentScene)->GetSelectedLevel();
+                }
+                else if (dynamic_cast<StageSelectScene*>(currentScene)) {
+                    selectedLevel = static_cast<StageSelectScene*>(currentScene)->GetSelectedLevel();
+                }
+            }
+        }
+    }
 
-					// 重新开始游戏或返回标题
-					// 这里简单处理为返回标题
-					titleScene = new TitleScene();
-					titleScene->Initialize();
-					currentSceneState = TITLE;
-				}
-			}
-			break;
-		}
-
-
-
-
-		// 描画開始
-		dxCommon->PreDraw();
-
-
-		switch (currentSceneState) {
-		case TITLE:
-			if (titleScene) {
-				titleScene->Draw();
-			}
-			break;
-
-		case STAGE_SELECT:  // 新增：关卡选择绘制
-			if (stageSelectScene) {
-				stageSelectScene->Draw();
-			}
-			break;
-
-		case LOADING:
-			loadingScene->Draw();
-			break;
-
-		case GAME:
-			if (levelManager) {
-				levelManager->Draw();
-			}
-			break;
-		case RESULT:
-			if (resultScene) {
-				resultScene->Draw();
-			}
-			break;
-		}
-
-
-		// 描画終了
-		dxCommon->PostDraw();
-	}
-
-	if (levelManager) delete levelManager;
-	if (titleScene) delete titleScene;
-	if (stageSelectScene) delete stageSelectScene;
-	if (loadingScene) delete loadingScene;
-	if (resultScene) delete resultScene;
-	KamataEngine::Finalize();
-
-	return 0;
+    delete currentScene;
+    KamataEngine::Finalize();
+    return 0;
 }

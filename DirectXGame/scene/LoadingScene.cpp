@@ -11,7 +11,7 @@ void LoadingScene::Initialize() {
 	loadingBGSprtie_ = Sprite::Create(loadingBGTextureHandle_, {0.0});
 }
 
-void LoadingScene::Updata() { 
+void LoadingScene::Update() { 
 	frameCount_++;
 
 	if (frameCount_ >= loadingDuration_) {
