@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include <functional>
 #include "../math/myMath.h"
+#include "../play/Goal.h"
 
 class Ball
 {
@@ -67,6 +68,7 @@ public:
 	bool IsKnockedBack() const { return isKnockedBack_; }
 	KamataEngine::Vector3 GetKnockbackForce() const { return knockbackForce_; }
 
+	void OnEnterGoal(Goal* goal);
 private:
 	KamataEngine::Model* model_;
 	KamataEngine::WorldTransform worldTransform_;
