@@ -3,8 +3,9 @@
 #include "../play/GameOverState.h"
 #include <cassert>
 #include "../DebugLogger.h"
+#include "../play/ConcreteBallFactory.h"
 
-GameScene::GameScene() {}
+GameScene::GameScene() { ballFactory_ = new ConcreteBallFactory(); }
 
 GameScene::~GameScene() {
     delete stage_;
@@ -17,6 +18,7 @@ GameScene::~GameScene() {
     delete startSprite_;
     delete gameUI_;
     if (currentState_) delete currentState_;
+    delete ballFactory_;
 }
 
 void GameScene::Initialize() {
@@ -293,8 +295,9 @@ void GameScene::InitializeLevelObjects() {
     for (Goal* goal : goals_) delete goal;
     goals_.clear();
 
+    // 使用工厂创建球
     for (const auto& pos : levelBallPositions_) {
-        Ball* ball = new Ball();
+        Ball* ball = ballFactory_->CreateBall(pos, levelNumber_);
         ball->Initialize(&camera_);
         ball->SetInitialPosition(pos);
         balls_.push_back(ball);
@@ -323,4 +326,9 @@ void GameScene::CheckLevelCompletion() {
     if (IsLevelComplete()) {
         GameOver();
     }
+}
+
+void GameScene::SetBallFactory(IBallFactory* factory) {
+    if (ballFactory_) delete ballFactory_;
+    ballFactory_ = factory;
 }

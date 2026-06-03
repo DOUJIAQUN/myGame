@@ -10,7 +10,7 @@
 #include "SceneState.h"
 #include "IScene.h"
 #include "../play/IGameState.h"
-
+#include "../play/IBallFactory.h"
 
 using namespace KamataEngine;
 /// <summary>
@@ -82,6 +82,8 @@ public: // メンバ関数
 	bool IsTutorialFinished() const { return currentTutorialIndex_ >= tutorialSprites_.size(); }
 	void ResetTutorial() { currentTutorialIndex_ = 0; }
 
+	void SetBallFactory(IBallFactory* factory);
+
 private: // メンバ変数
 	
 	DirectXCommon* dxCommon_ = nullptr;
@@ -89,6 +91,7 @@ private: // メンバ変数
 	Stage* stage_ = nullptr;
 	GameUI* gameUI_ = nullptr;
 	GameLogicManager gameLogicManager_;
+	IBallFactory* ballFactory_ = nullptr;
 
 	std::vector<Ball*> balls_; // 改为存储多个 Ball 的向量
 	std::vector<Goal*> goals_; 

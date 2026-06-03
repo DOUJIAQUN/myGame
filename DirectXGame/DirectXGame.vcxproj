@@ -110,6 +110,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math\myMath.cpp" />
     <ClCompile Include="play\Ball.cpp" />
+    <ClCompile Include="play\ConcreteBallFactory.cpp" />
     <ClCompile Include="play\GameLogicManager.cpp" />
     <ClCompile Include="play\GameOverState.cpp" />
     <ClCompile Include="play\GameUI.cpp" />
@@ -203,12 +204,14 @@
     <ClInclude Include="level\LevelManager.h" />
     <ClInclude Include="math\myMath.h" />
     <ClInclude Include="play\Ball.h" />
+    <ClInclude Include="play\ConcreteBallFactory.h" />
     <ClInclude Include="play\GameLogicManager.h" />
     <ClInclude Include="play\GameOverState.h" />
     <ClInclude Include="play\GameUI.h" />
     <ClInclude Include="play\Goal.h" />
     <ClInclude Include="play\GoalMovementConfig.h" />
     <ClInclude Include="play\GoalMoveStrategies.h" />
+    <ClInclude Include="play\IBallFactory.h" />
     <ClInclude Include="play\IGameState.h" />
     <ClInclude Include="play\IGoalMoveStrategy.h" />
     <ClInclude Include="play\PlayingState.h" />
