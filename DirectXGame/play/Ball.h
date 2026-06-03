@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include <functional>
 #include "../math/myMath.h"
+#include "Goal.h"
 
 class Ball
 {
@@ -10,6 +11,8 @@ public:
 	void Initialize(KamataEngine::Camera* camera);
 	void Update();
 	void Draw();
+
+	void OnEnterGoal(Goal* goal);
 
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 

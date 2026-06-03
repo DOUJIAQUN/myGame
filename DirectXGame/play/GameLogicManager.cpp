@@ -148,14 +148,7 @@ void GameLogicManager::UpdateCompletionStatus() {
             // 如果当前帧碰撞而上一帧没有碰撞，说明是刚进入
             if (isColliding && !wasColliding) {
                
-                // 球体刚进入终点，增加计数
-                goal->IncrementCount();
-
-                ball->SetActive(false);
-
-                ball->SetMouseOver(false);
-
-                previousCollisionStates_[g][b] = false;
+                ball->OnEnterGoal(goal);
             }
 
             // 更新碰撞状态

@@ -530,3 +530,18 @@ void Ball::Reset() {
 	// 更新变换矩阵
 	worldTransform_.UpdateMatrix();
 }
+
+void Ball::OnEnterGoal(Goal* goal) {
+	// 如果球已经不活跃或已爆炸，不再重复处理
+	if (!isActive_ || isExploded_) return;
+
+	// 通知目标增加计数
+	goal->IncrementCount();
+
+	// 球体自身变为非活跃（消失）
+	isActive_ = false;
+	isMouseOver_ = false;
+
+	// 清理拖尾效果
+	CleanupTrail();
+}
