@@ -64,6 +64,12 @@
     <ClCompile Include="scene\StageSelectScene.cpp">
       <Filter>scene</Filter>
     </ClCompile>
+    <ClCompile Include="play\PlayingState.cpp">
+      <Filter>play</Filter>
+    </ClCompile>
+    <ClCompile Include="play\GameOverState.cpp">
+      <Filter>play</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
@@ -164,6 +170,18 @@
       <Filter>play</Filter>
     </ClInclude>
     <ClInclude Include="play\GoalMoveStrategies.h">
+      <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="play\IGameState.h">
+      <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\IScene.h">
+      <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="play\PlayingState.h">
+      <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="play\GameOverState.h">
       <Filter>play</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,6 +9,7 @@
 #include <vector> 
 #include "SceneState.h"
 #include "IScene.h"
+#include "../play/IGameState.h"
 
 
 using namespace KamataEngine;
@@ -46,7 +47,7 @@ public: // メンバ関数
 
 
 	// 添加游戏结束状态获取方法
-	bool IsGameOver() const { return gameState_ == GameState::GameOver; }
+	
 	bool IsSceneEnd() const override { return isSceneEnd_; }
 
 	// 获取下一个场景状态
@@ -63,6 +64,24 @@ public: // メンバ関数
 
 	int GetLevelNumber() const { return levelNumber_; }
 
+	void ChangeState(IGameState* newState);
+
+	// 供状态类调用的公共接口
+	void UpdateStageInternal();          // 更新背景
+	void UpdateUIInternal();             // 更新UI（检测按钮点击等）
+	void UpdateGameLogicInternal();      // 更新碰撞检测等
+	void UpdateBallsAndGoalsInternal();  // 更新所有球体和目标
+	bool IsLevelComplete() const;        // 检查是否通关
+	void SetSceneEndFlag();              // 设置 isSceneEnd_ = true
+
+	// 供状态类调用的其他公共方法
+	void RestartLevel();
+	void ReturnToTitle();
+
+	// 教程相关（供 UpdateTutorial 等使用）
+	bool IsTutorialFinished() const { return currentTutorialIndex_ >= tutorialSprites_.size(); }
+	void ResetTutorial() { currentTutorialIndex_ = 0; }
+
 private: // メンバ変数
 	
 	DirectXCommon* dxCommon_ = nullptr;
@@ -78,14 +97,12 @@ private: // メンバ変数
 	Camera camera_;
 
 	// 游戏状态枚举
-	enum class GameState {
+	enum class GameFlowState {
 		Tutorial,  // 教程图片播放
 		StartWait, // 等待开始
 		StartAnim, // 开始动画（缩小动画）
-		Playing,   // 游戏进行中
-		GameOver   // 游戏结束
 	};
-	GameState gameState_ = GameState::Tutorial;
+	GameFlowState gameFlowState_ = GameFlowState::Tutorial;
 
     std::vector<uint32_t> tutorialTextureHandles_; // 教程图片纹理句柄
 	std::vector<KamataEngine::Sprite*> tutorialSprites_; 
@@ -98,45 +115,36 @@ private: // メンバ変数
 	Vector2 startSize_ = {3840.0f, 2160.0f}; // 开始图片的初始尺寸（3倍：1280*3, 720*3）
 	Vector2 targetSize_ = {1280.0f, 720.0f}; // 开始图片的目标尺寸
 	const float animDuration_ = 1.0f;        // 动画持续时间（秒）
-	const float displayDuration_ = 1.0f;     // 显示持续时间（秒）
+	const float displayDuration_ = 0.0f;     // 显示持续时间（秒）
 	
 
-	// 教程系统方法
-	void LoadTutorialTextures();
-	void UpdateTutorial();
-	void UpdateStartWait();
-	void UpdateStartAnim();
-	void DrawTutorial();
-	void StartGame();
-	void RestartLevel();
-	void ReturnToTitle();
-	void GameOver();
+	// 关卡数据
+	int levelNumber_ = 1;
+	std::vector<KamataEngine::Vector3> levelBallPositions_;
+	std::vector<KamataEngine::Vector3> levelGoalPositions_;
+	std::vector<int> levelGoalRequiredCounts_;
+	std::vector<GoalMovementConfig> levelGoalMovementConfigs_;
 
 
 	
 	bool isSceneEnd_ = false;  // 场景是否结束
 	bool returnToTitle_ = false;
 
-	// 新增关卡相关变量
-	int levelNumber_ = 1;
-	std::vector<KamataEngine::Vector3> levelBallPositions_;
-	std::vector<KamataEngine::Vector3> levelGoalPositions_; 
-	std::vector<int> levelGoalRequiredCounts_;
-	std::vector<GoalMovementConfig> levelGoalMovementConfigs_;  //终点移动配置
 
-	// 通关条件相关变量
-	int requiredGoalsReached_ = 1;  // 需要达成的终点数量
-	int currentGoalsReached_ = 0;   // 当前已达成的终点数量
-	
 
-	// 新增方法
-	void CheckLevelCompletion();    // 检查关卡完成条件
-	void ResetLevelCompletion();    // 重置完成状态
+	// 状态模式成员
+	IGameState* currentState_ = nullptr;
 
-	// 新增初始化方法
+	// 内部辅助函数
+	void LoadTutorialTextures();
+	void UpdateTutorial();
+	void UpdateStartWait();
+	void UpdateStartAnim();
+	void StartGame();           // 从动画切换到 Playing 状态
+	void DrawTutorial();
+
 	void InitializeLevelObjects();
-
-	/// <summary>
-	/// ゲームシーン用
-	/// </summary>
+	void CheckLevelCompletion();
+	void ResetLevelCompletion();
+	void GameOver();           // 旧式 GameOver，现在内部调用 ChangeState
 };
