@@ -1,0 +1,167 @@
+{
+  "levels": [
+    {
+      "levelNumber": 1,
+      "levelName": "1-1",
+      "balls": [
+        { "x": -30.0, "y": 0.0, "z": 0.0 },
+        { "x": -20.0, "y": 0.0, "z": 0.0 },
+        { "x": 0.0, "y": 0.0, "z": 0.0 },
+        { "x": 20.0, "y": 0.0, "z": 0.0 }
+      ],
+      "goals": [
+        {
+          "position": { "x": 30.0, "y": 0.0, "z": 0.0 },
+          "requiredCount": 1,
+          "movement": {
+            "shouldMove": false,
+            "direction": "Horizontal",
+            "range": 0.0,
+            "speed": 0.0
+          }
+        }
+      ]
+    },
+
+    {
+      "levelNumber": 2,
+      "levelName": "1-2",
+      "balls": [
+        { "x": -12.0, "y": 0.0, "z": 0.0 },
+        { "x": -7.0, "y": -5.0, "z": 0.0 },
+        { "x": -7.0, "y": 5.0, "z": 0.0 },
+        { "x": 7.0, "y": -5.0, "z": 0.0 },
+        { "x": 7.0, "y": 5.0, "z": 0.0 },
+        { "x": 12.0, "y": 0.0, "z": 0.0 }
+      ],
+      "goals": [
+        {
+          "position": { "x": 0.0, "y": 12.0, "z": 0.0 },
+          "requiredCount": 2,
+          "movement": {
+            "shouldMove": false,
+            "direction": "Horizontal",
+            "range": 0.0,
+            "speed": 0.0
+          }
+        },
+        {
+          "position": { "x": 0.0, "y": -12.0, "z": 0.0 },
+          "requiredCount": 2,
+          "movement": {
+            "shouldMove": false,
+            "direction": "Horizontal",
+            "range": 0.0,
+            "speed": 0.0
+          }
+        }
+      ]
+    },
+
+    {
+      "levelNumber": 3,
+      "levelName": "1-3",
+      "balls": [
+        { "x": -30.0, "y": 10.0, "z": 0.0 },
+        { "x": -30.0, "y": 0.0, "z": 0.0 },
+        { "x": -10.0, "y": 10.0, "z": 0.0 },
+        { "x": -10.0, "y": 0.0, "z": 0.0 },
+        { "x": 10.0, "y": 10.0, "z": 0.0 },
+        { "x": 10.0, "y": 0.0, "z": 0.0 },
+        { "x": 30.0, "y": 10.0, "z": 0.0 },
+        { "x": 30.0, "y": 0.0, "z": 0.0 }
+      ],
+      "goals": [
+        {
+          "position": { "x": 0.0, "y": -10.0, "z": 0.0 },
+          "requiredCount": 4,
+          "movement": {
+            "shouldMove": true,
+            "direction": "Horizontal",
+            "range": 30.0,
+            "speed": 0.7
+          }
+        }
+      ]
+    },
+
+    {
+      "levelNumber": 4,
+      "levelName": "1-4",
+      "balls": [
+        { "x": 20.0, "y": 0.0, "z": 0.0 },
+        { "x": 10.0, "y": 0.0, "z": 0.0 },
+        { "x": 0.0, "y": 1.5, "z": 0.0 },
+        { "x": -10.0, "y": 0.0, "z": 0.0 }
+      ],
+      "goals": [
+        {
+          "position": { "x": -20.0, "y": 0.0, "z": 0.0 },
+          "requiredCount": 1,
+          "movement": {
+            "shouldMove": false,
+            "direction": "Horizontal",
+            "range": 0.0,
+            "speed": 0.0
+          }
+        }
+      ]
+    },
+
+    {
+      "levelNumber": 5,
+      "levelName": "1-5",
+      "balls": [
+        { "x": 0.0, "y": 12.0, "z": 0.0 },
+        { "x": -5.0, "y": 7.0, "z": 0.0 },
+        { "x": 5.0, "y": 7.0, "z": 0.0 },
+        { "x": -10.0, "y": 6.4, "z": 0.0 },
+        { "x": 10.0, "y": 6.4, "z": 0.0 },
+        { "x": -5.5, "y": -5.0, "z": 0.0 },
+        { "x": 5.5, "y": -5.0, "z": 0.0 },
+        { "x": -13.0, "y": -10.0, "z": 0.0 },
+        { "x": 13.0, "y": -10.0, "z": 0.0 }
+      ],
+      "goals": [
+        {
+          "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+          "requiredCount": 4,
+          "movement": {
+            "shouldMove": false,
+            "direction": "Horizontal",
+            "range": 0.0,
+            "speed": 0.0
+          }
+        }
+      ]
+    },
+
+    {
+      "levelNumber": 6,
+      "levelName": "1-6",
+      "balls": [
+        { "x": 0.0, "y": 12.0, "z": 0.0 },
+        { "x": -5.0, "y": 7.0, "z": 0.0 },
+        { "x": 5.0, "y": 7.0, "z": 0.0 },
+        { "x": -10.0, "y": 6.4, "z": 0.0 },
+        { "x": 10.0, "y": 6.4, "z": 0.0 },
+        { "x": -5.5, "y": -5.0, "z": 0.0 },
+        { "x": 5.5, "y": -5.0, "z": 0.0 },
+        { "x": -13.0, "y": -10.0, "z": 0.0 },
+        { "x": 13.0, "y": -10.0, "z": 0.0 }
+      ],
+      "goals": [
+        {
+          "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+          "requiredCount": 4,
+          "movement": {
+            "shouldMove": false,
+            "direction": "Horizontal",
+            "range": 0.0,
+            "speed": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}

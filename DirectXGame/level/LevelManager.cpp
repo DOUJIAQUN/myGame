@@ -1,7 +1,14 @@
 #include "LevelManager.h"
 
 #include <cassert>
+#include <fstream>
+#include <string>
+#include <vector>
+
 #include "../DebugLogger.h"
+#include "../external/nlohmann/json.hpp"
+
+using json = nlohmann::json;
 
 LevelManager::LevelManager()
     : currentLevelIndex_(0),
@@ -32,205 +39,83 @@ std::string LevelManager::GetCurrentLevelName() const {
     return levelNames_[currentLevelIndex_];
 }
 
-std::vector<LevelManager::LevelConfig> LevelManager::CreateLevelConfigs() const {
-    std::vector<LevelConfig> configs = {
-        {
-            1,
-            "1-1",
-
-            // Ball positions
-            {
-                {-30.0f, 0.0f, 0.0f},
-                {-20.0f, 0.0f, 0.0f},
-                {  0.0f, 0.0f, 0.0f},
-                { 20.0f, 0.0f, 0.0f}
-            },
-
-        // Goal positions
-        {
-            {30.0f, 0.0f, 0.0f}
-        },
-
-        // Goal required counts
-        {
-            1
-        },
-
-        // Goal movement configs
-        {
-            GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
-        }
-    },
-
-    {
-        2,
-        "1-2",
-
-        // Ball positions
-        {
-            {-12.0f,  0.0f, 0.0f},
-            { -7.0f, -5.0f, 0.0f},
-            { -7.0f,  5.0f, 0.0f},
-            {  7.0f, -5.0f, 0.0f},
-            {  7.0f,  5.0f, 0.0f},
-            { 12.0f,  0.0f, 0.0f}
-        },
-
-        // Goal positions
-        {
-            {0.0f,  12.0f, 0.0f},
-            {0.0f, -12.0f, 0.0f}
-        },
-
-        // Goal required counts
-        {
-            2,
-            2
-        },
-
-        // Goal movement configs
-        {
-            GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f),
-            GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
-        }
-    },
-
-    {
-        3,
-        "1-3",
-
-        // Ball positions
-        {
-            {-30.0f, 10.0f, 0.0f},
-            {-30.0f,  0.0f, 0.0f},
-            {-10.0f, 10.0f, 0.0f},
-            {-10.0f,  0.0f, 0.0f},
-            { 10.0f, 10.0f, 0.0f},
-            { 10.0f,  0.0f, 0.0f},
-            { 30.0f, 10.0f, 0.0f},
-            { 30.0f,  0.0f, 0.0f}
-        },
-
-        // Goal positions
-        {
-            {0.0f, -10.0f, 0.0f}
-        },
-
-        // Goal required counts
-        {
-            4
-        },
-
-        // Goal movement configs
-        {
-            GoalMovementConfig(true, MoveDirection::Horizontal, 30.0f, 0.7f)
-        }
-    },
-
-    {
-        4,
-        "1-4",
-
-        // Ball positions
-        {
-            { 20.0f, 0.0f, 0.0f},
-            { 10.0f, 0.0f, 0.0f},
-            {  0.0f, 1.5f, 0.0f},
-            {-10.0f, 0.0f, 0.0f}
-        },
-
-        // Goal positions
-        {
-            {-20.0f, 0.0f, 0.0f}
-        },
-
-        // Goal required counts
-        {
-            1
-        },
-
-        // Goal movement configs
-        {
-            GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
-        }
-    },
-
-    {
-        5,
-        "1-5",
-
-        // Ball positions
-        {
-            // 第一行（上）
-            {  0.0f,  12.0f, 0.0f},
-
-            // 第二行（中）
-            { -5.0f,   7.0f, 0.0f},
-            {  5.0f,   7.0f, 0.0f},
-            {-10.0f,   6.4f, 0.0f},
-            { 10.0f,   6.4f, 0.0f},
-
-            // 第三行（下）
-            { -5.5f,  -5.0f, 0.0f},
-            {  5.5f,  -5.0f, 0.0f},
-            {-13.0f, -10.0f, 0.0f},
-            { 13.0f, -10.0f, 0.0f}
-        },
-
-        // Goal positions
-        {
-            {0.0f, 0.0f, 0.0f}
-        },
-
-        // Goal required counts
-        {
-            4
-        },
-
-        // Goal movement configs
-        {
-            GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
-        }
-    },
-
-    {
-        6,
-        "1-6",
-
-        // Ball positions
-        {
-            // 第一行（上）
-            {  0.0f,  12.0f, 0.0f},
-
-            // 第二行（中）
-            { -5.0f,   7.0f, 0.0f},
-            {  5.0f,   7.0f, 0.0f},
-            {-10.0f,   6.4f, 0.0f},
-            { 10.0f,   6.4f, 0.0f},
-
-            // 第三行（下）
-            { -5.5f,  -5.0f, 0.0f},
-            {  5.5f,  -5.0f, 0.0f},
-            {-13.0f, -10.0f, 0.0f},
-            { 13.0f, -10.0f, 0.0f}
-        },
-
-        // Goal positions
-        {
-            {0.0f, 0.0f, 0.0f}
-        },
-
-        // Goal required counts
-        {
-            4
-        },
-
-        // Goal movement configs
-        {
-            GoalMovementConfig(false, MoveDirection::Horizontal, 0.0f, 0.0f)
-        }
+MoveDirection LevelManager::StringToMoveDirection(const std::string& directionText) const {
+    if (directionText == "Horizontal") {
+        return MoveDirection::Horizontal;
     }
-    };
+
+    if (directionText == "Vertical") {
+        return MoveDirection::Vertical;
+    }
+
+    if (directionText == "Circular") {
+        return MoveDirection::Circular;
+    }
+
+    return MoveDirection::Horizontal;
+}
+
+std::vector<LevelManager::LevelConfig> LevelManager::LoadLevelConfigsFromJson(const std::string& filePath) const {
+    std::vector<LevelConfig> configs;
+
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+      
+        return configs;
+    }
+
+    json root;
+    file >> root;
+
+    for (const auto& levelJson : root["levels"]) {
+        LevelConfig config;
+
+        config.levelNumber = levelJson["levelNumber"].get<int>();
+        config.levelName = levelJson["levelName"].get<std::string>();
+
+        for (const auto& ballJson : levelJson["balls"]) {
+            KamataEngine::Vector3 position = {
+                ballJson["x"].get<float>(),
+                ballJson["y"].get<float>(),
+                ballJson["z"].get<float>()
+            };
+
+            config.ballPositions.push_back(position);
+        }
+
+        for (const auto& goalJson : levelJson["goals"]) {
+            const auto& positionJson = goalJson["position"];
+
+            KamataEngine::Vector3 goalPosition = {
+                positionJson["x"].get<float>(),
+                positionJson["y"].get<float>(),
+                positionJson["z"].get<float>()
+            };
+
+            config.goalPositions.push_back(goalPosition);
+
+            int requiredCount = goalJson["requiredCount"].get<int>();
+            config.goalRequiredCounts.push_back(requiredCount);
+
+            const auto& movementJson = goalJson["movement"];
+
+            bool shouldMove = movementJson["shouldMove"].get<bool>();
+            std::string directionText = movementJson["direction"].get<std::string>();
+            float range = movementJson["range"].get<float>();
+            float speed = movementJson["speed"].get<float>();
+
+            GoalMovementConfig movementConfig(
+                shouldMove,
+                StringToMoveDirection(directionText),
+                range,
+                speed
+            );
+
+            config.goalMovementConfigs.push_back(movementConfig);
+        }
+
+        configs.push_back(config);
+    }
 
     return configs;
 }
@@ -239,7 +124,7 @@ void LevelManager::CreateLevels() {
     CleanupLevels();
     levelNames_.clear();
 
-    std::vector<LevelConfig> configs = CreateLevelConfigs();
+    std::vector<LevelConfig> configs = LoadLevelConfigsFromJson("Resources/level_config.json");
 
     for (const LevelConfig& config : configs) {
         GameScene* level = new GameScene();

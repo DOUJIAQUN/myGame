@@ -79,7 +79,9 @@ private:
 
 private:
     void CreateLevels();
-    std::vector<LevelConfig> CreateLevelConfigs() const;
+
+    std::vector<LevelConfig> LoadLevelConfigsFromJson(const std::string& filePath) const;
+    MoveDirection StringToMoveDirection(const std::string& directionText) const;
 
     void CleanupLevels();
     void StartLevelTransition();
