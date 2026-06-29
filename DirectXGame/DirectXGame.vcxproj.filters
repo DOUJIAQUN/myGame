@@ -73,6 +73,9 @@
     <ClCompile Include="play\ConcreteBallFactory.cpp">
       <Filter>play</Filter>
     </ClCompile>
+    <ClCompile Include="scene\ButtonUtility.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
@@ -192,6 +195,9 @@
     </ClInclude>
     <ClInclude Include="play\ConcreteBallFactory.h">
       <Filter>play</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\ButtonUtility.h">
+      <Filter>scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

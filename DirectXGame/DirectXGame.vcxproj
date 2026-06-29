@@ -116,6 +116,7 @@
     <ClCompile Include="play\GameUI.cpp" />
     <ClCompile Include="play\Goal.cpp" />
     <ClCompile Include="play\PlayingState.cpp" />
+    <ClCompile Include="scene\ButtonUtility.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="scene\LoadingScene.cpp" />
     <ClCompile Include="scene\ResultScene.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="play\IGameState.h" />
     <ClInclude Include="play\IGoalMoveStrategy.h" />
     <ClInclude Include="play\PlayingState.h" />
+    <ClInclude Include="scene\ButtonUtility.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\IScene.h" />
     <ClInclude Include="scene\LoadingScene.h" />

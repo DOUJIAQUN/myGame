@@ -1,4 +1,6 @@
 #include "TitleScene.h"
+#include "ButtonUtility.h"
+
 using namespace KamataEngine;
 TitleScene::~TitleScene()
 {
@@ -73,50 +75,25 @@ void TitleScene::UpdateButtonStates() {
     isMouseOverStageSelect_ = IsMouseOverButton(mousePos, stageSelectButtonSprite_);
 
     // 如果Start按钮状态发生变化，更新按钮尺寸
-    if (isMouseOverStart_ != wasMouseOverStart && startButtonSprite_) {
-        if (isMouseOverStart_) {
-            // 鼠标进入：放大按钮
-            startButtonSprite_->SetSize(hoverButtonSize_);
-
-            // 调整位置保持中心点不变
-            Vector2 sizeDiff = {
-                (hoverButtonSize_.x - normalButtonSize_.x) / 2,
-                (hoverButtonSize_.y - normalButtonSize_.y) / 2
-            };
-            startButtonSprite_->SetPosition({
-                startButtonPosition_.x - sizeDiff.x,
-                startButtonPosition_.y - sizeDiff.y
-                });
-        }
-        else {
-            // 鼠标离开：恢复正常尺寸
-            startButtonSprite_->SetSize(normalButtonSize_);
-            startButtonSprite_->SetPosition(startButtonPosition_);
-        }
-    }
+    ButtonUtility::UpdateHoverSprite(
+    startButtonSprite_,
+    startButtonPosition_,
+    normalButtonSize_,
+    hoverButtonSize_,
+    isMouseOverStart_,
+    wasMouseOverStart
+);
 
     // 如果StageSelect按钮状态发生变化，更新按钮尺寸
-    if (isMouseOverStageSelect_ != wasMouseOverStageSelect && stageSelectButtonSprite_) {
-        if (isMouseOverStageSelect_) {
-            // 鼠标进入：放大按钮
-            stageSelectButtonSprite_->SetSize(hoverButtonSize_);
-
-            // 调整位置保持中心点不变
-            Vector2 sizeDiff = {
-                (hoverButtonSize_.x - normalButtonSize_.x) / 2,
-                (hoverButtonSize_.y - normalButtonSize_.y) / 2
-            };
-            stageSelectButtonSprite_->SetPosition({
-                stageSelectButtonPosition_.x - sizeDiff.x,
-                stageSelectButtonPosition_.y - sizeDiff.y
-                });
-        }
-        else {
-            // 鼠标离开：恢复正常尺寸
-            stageSelectButtonSprite_->SetSize(normalButtonSize_);
-            stageSelectButtonSprite_->SetPosition(stageSelectButtonPosition_);
-        }
-    }
+    ButtonUtility::UpdateHoverSprite(
+        stageSelectButtonSprite_,
+        stageSelectButtonPosition_,
+        normalButtonSize_,
+        hoverButtonSize_,
+        isMouseOverStageSelect_,
+        wasMouseOverStageSelect
+    );
+   
 }
 
 
