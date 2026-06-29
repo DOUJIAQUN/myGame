@@ -18,7 +18,7 @@ LevelManager::LevelManager()
 
     CreateLevels();
 
-    loadingScene_ = new LoadingScene();
+    loadingScene_ = std::make_unique<LoadingScene>();
     loadingScene_->Initialize();
 }
 
@@ -26,8 +26,7 @@ LevelManager::~LevelManager() {
     CleanupLevels();
 
     if (loadingScene_) {
-        delete loadingScene_;
-        loadingScene_ = nullptr;
+        CleanupLevels();
     }
 }
 
@@ -127,7 +126,7 @@ void LevelManager::CreateLevels() {
     std::vector<LevelConfig> configs = LoadLevelConfigsFromJson("Resources/level_config.json");
 
     for (const LevelConfig& config : configs) {
-        GameScene* level = new GameScene();
+        std::unique_ptr<GameScene> level = std::make_unique<GameScene>();
 
         level->SetLevelConfig(
             config.levelNumber,
@@ -187,7 +186,7 @@ void LevelManager::UpdatePlayingState() {
         return;
     }
 
-    GameScene* currentLevel = levels_[currentLevelIndex_];
+    GameScene* currentLevel = levels_[currentLevelIndex_].get();
     if (!currentLevel) {
         return;
     }
@@ -301,11 +300,6 @@ void LevelManager::ReturnToTitle() {
 }
 
 void LevelManager::CleanupLevels() {
-    for (GameScene* level : levels_) {
-        if (level) {
-            delete level;
-        }
-    }
-
+   
     levels_.clear();
 }

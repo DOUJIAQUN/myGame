@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 class LevelManager : public IScene {
 public:
@@ -38,7 +39,7 @@ public:
 
     // 获取当前关卡
     GameScene* GetCurrentLevel() const {
-        return (currentLevelIndex_ < levels_.size()) ? levels_[currentLevelIndex_] : nullptr;
+        return (currentLevelIndex_ < levels_.size()) ? levels_[currentLevelIndex_].get() : nullptr;
     }
 
     // 设置当前关卡
@@ -65,7 +66,7 @@ private:
     };
 
 private:
-    std::vector<GameScene*> levels_;
+    std::vector<std::unique_ptr<GameScene>> levels_;
     std::vector<std::string> levelNames_;
 
     size_t currentLevelIndex_ = 0;
@@ -74,7 +75,7 @@ private:
     bool isSceneEnd_ = false;
 
     // Loading场景
-    LoadingScene* loadingScene_ = nullptr;
+    std::unique_ptr<LoadingScene> loadingScene_;
     LevelState currentState_ = LevelState::Playing;
 
 private:
