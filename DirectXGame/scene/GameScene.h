@@ -56,6 +56,7 @@ public: // メンバ関数
 	}
 
 	// 关卡配置方法
+	//SR2_02_04
 	void SetLevelConfig(int levelNumber,
 		const std::vector<KamataEngine::Vector3>& ballPositions,
 		const std::vector<KamataEngine::Vector3>& goalPosition,

@@ -39,7 +39,7 @@ std::string LevelManager::GetCurrentLevelName() const {
     return levelNames_[currentLevelIndex_];
 }
 
-MoveDirection LevelManager::StringToMoveDirection(const std::string& directionText) const {
+MoveDirection LevelManager::StringToMoveDirection(const std::string& directionText) const {//SR2_02_04
     if (directionText == "Horizontal") {
         return MoveDirection::Horizontal;
     }
@@ -55,7 +55,7 @@ MoveDirection LevelManager::StringToMoveDirection(const std::string& directionTe
     return MoveDirection::Horizontal;
 }
 
-std::vector<LevelManager::LevelConfig> LevelManager::LoadLevelConfigsFromJson(const std::string& filePath) const {
+std::vector<LevelManager::LevelConfig> LevelManager::LoadLevelConfigsFromJson(const std::string& filePath) const {//SR2_02_04
     std::vector<LevelConfig> configs;
 
     std::ifstream file(filePath);
