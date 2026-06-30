@@ -7,15 +7,23 @@
 
 using namespace KamataEngine;
 
-Goal::~Goal() { delete model_; }
+namespace {
+	constexpr float kFrameDeltaTime = 1.0f / 60.0f;
+	constexpr float kDefaultPositionX = -30.0f;
+	constexpr float kDefaultPositionY = 0.0f;
+	constexpr float kDefaultPositionZ = 0.0f;
+	constexpr float kDefaultScale = 2.0f;
+}
+
+Goal::~Goal() = default;
 
 void Goal::Initialize(Camera* camera) {
 	camera_ = camera;
 	worldTransform_.Initialize();
-	model_ = Model::CreateFromOBJ("cube", true);
+	model_.reset(Model::CreateFromOBJ("cube", true));
 	input_ = Input::GetInstance();
-	worldTransform_.translation_ = { -30, 0, 0 };
-	worldTransform_.scale_ = { 2, 2, 2 };
+	worldTransform_.translation_ = { kDefaultPositionX, kDefaultPositionY, kDefaultPositionZ };
+	worldTransform_.scale_ = { kDefaultScale, kDefaultScale, kDefaultScale };
 
 	// 初始化移动相关变量
 	movementConfig_ = GoalMovementConfig(); // 默认配置（不移动）
@@ -67,7 +75,7 @@ void Goal::SetPosition(const KamataEngine::Vector3& position) {
 void Goal::Update() {
 	// 如果需要移动且策略存在，更新位置
 	if (movementConfig_.shouldMove && moveStrategy_) {
-		moveTimer_ += 1.0f / 60.0f; // 假设60帧
+		moveTimer_ += kFrameDeltaTime; // 假设60帧
 		moveStrategy_->Apply(worldTransform_, initialPosition_, moveTimer_, movementConfig_);
 	}
 

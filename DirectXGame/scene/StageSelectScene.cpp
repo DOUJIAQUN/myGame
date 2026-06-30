@@ -1,51 +1,55 @@
 #include "StageSelectScene.h"
 #include "ButtonUtility.h"
-#include "../DebugLogger.h" 
+#include "../DebugLogger.h"
+
 using namespace KamataEngine;
 
-StageSelectScene::StageSelectScene() {}
-
-StageSelectScene::~StageSelectScene() {
-    delete backgroundSprite_;
-    delete stage1ButtonSprite_;
-    delete stage2ButtonSprite_;
-    if (gameUI_) {
-        delete gameUI_;
-    }
+namespace {
+    const Vector2 kNormalButtonSize = {200.0f, 100.0f};
+    const Vector2 kHoverButtonSize = {220.0f, 110.0f};
+    const Vector2 kStage1ButtonPosition = {340.0f, 300.0f};
+    const Vector2 kStage2ButtonPosition = {740.0f, 300.0f};
+    constexpr int kLeftMouseButton = 0;
+    constexpr int kReturnTitleSelectedLevel = 0;
+    constexpr int kStage1StartLevel = 1;
+    constexpr int kStage2StartLevel = 5;
 }
+
+StageSelectScene::StageSelectScene() = default;
+StageSelectScene::~StageSelectScene() = default;
 
 void StageSelectScene::Initialize() {
     input_ = Input::GetInstance();
     dxCommon_ = DirectXCommon::GetInstance();
-  
-     gameUI_ = new GameUI();  
-     if (gameUI_) {
-         gameUI_->Initialize();
-         // 设置只显示 title 按钮，隐藏 restart 按钮
-         gameUI_->SetShowRestartButton(false);
-         gameUI_->SetShowTitleButton(true);
-     }
-   
-    // 加载背景
-    backgroundTextureHandle_ = TextureManager::Load("stageSelect/BackGround.png");
-    backgroundSprite_ = Sprite::Create(backgroundTextureHandle_, { 0, 0 });
 
-    // 加载关卡按钮
+    normalButtonSize_ = kNormalButtonSize;
+    hoverButtonSize_ = kHoverButtonSize;
+    stage1ButtonPosition_ = kStage1ButtonPosition;
+    stage2ButtonPosition_ = kStage2ButtonPosition;
+
+    gameUI_ = std::make_unique<GameUI>();
+    gameUI_->Initialize();
+    gameUI_->SetShowRestartButton(false);
+    gameUI_->SetShowTitleButton(true);
+
+    backgroundTextureHandle_ = TextureManager::Load("stageSelect/BackGround.png");
+    backgroundSprite_.reset(Sprite::Create(backgroundTextureHandle_, {0.0f, 0.0f}));
+
     stage1ButtonTextureHandle_ = TextureManager::Load("stageSelect/stage1.png");
-    stage1ButtonSprite_ = Sprite::Create(stage1ButtonTextureHandle_, stage1ButtonPosition_);
+    stage1ButtonSprite_.reset(Sprite::Create(stage1ButtonTextureHandle_, stage1ButtonPosition_));
     if (stage1ButtonSprite_) {
         stage1ButtonSprite_->SetSize(normalButtonSize_);
     }
 
     stage2ButtonTextureHandle_ = TextureManager::Load("stageSelect/stage2.png");
-    stage2ButtonSprite_ = Sprite::Create(stage2ButtonTextureHandle_, stage2ButtonPosition_);
+    stage2ButtonSprite_.reset(Sprite::Create(stage2ButtonTextureHandle_, stage2ButtonPosition_));
     if (stage2ButtonSprite_) {
         stage2ButtonSprite_->SetSize(normalButtonSize_);
     }
 
-  
     isSceneEnd_ = false;
-    selectedLevel_ = 0;
+    selectedLevel_ = kReturnTitleSelectedLevel;
+    nextSceneState_ = TITLE;
 
     isMouseOverStage1_ = false;
     isMouseOverStage2_ = false;
@@ -60,41 +64,37 @@ void StageSelectScene::Update() {
         gameUI_->Update();
     }
     if (gameUI_ && gameUI_->IsReturnToTitleClicked()) {
-        selectedLevel_ = 0;
+        selectedLevel_ = kReturnTitleSelectedLevel;
         nextSceneState_ = TITLE;
         isSceneEnd_ = true;
         return;
     }
 
-    if (input_->IsTriggerMouse(0)) {
-        if (IsMouseOverButton(mousePos, stage1ButtonSprite_)) {
-            selectedLevel_ = 1;
+    if (input_->IsTriggerMouse(kLeftMouseButton)) {
+        if (IsMouseOverButton(mousePos, stage1ButtonSprite_.get())) {
+            selectedLevel_ = kStage1StartLevel;
             nextSceneState_ = LOADING;
             isSceneEnd_ = true;
         }
-        else if (IsMouseOverButton(mousePos, stage2ButtonSprite_)) {
-            selectedLevel_ = 5;
+        else if (IsMouseOverButton(mousePos, stage2ButtonSprite_.get())) {
+            selectedLevel_ = kStage2StartLevel;
             nextSceneState_ = LOADING;
             isSceneEnd_ = true;
         }
     }
 }
 
-//更新按钮状态方法
 void StageSelectScene::UpdateButtonStates() {
-    // 获取鼠标位置
     Vector2 mousePos = input_->GetMousePosition();
 
-    // 检测鼠标是否在按钮上
     bool wasMouseOverStage1 = isMouseOverStage1_;
     bool wasMouseOverStage2 = isMouseOverStage2_;
 
-    isMouseOverStage1_ = IsMouseOverButton(mousePos, stage1ButtonSprite_);
-    isMouseOverStage2_ = IsMouseOverButton(mousePos, stage2ButtonSprite_);
+    isMouseOverStage1_ = IsMouseOverButton(mousePos, stage1ButtonSprite_.get());
+    isMouseOverStage2_ = IsMouseOverButton(mousePos, stage2ButtonSprite_.get());
 
-    // 如果Stage1按钮状态发生变化，更新按钮尺寸
     ButtonUtility::UpdateHoverSprite(
-        stage1ButtonSprite_,
+        stage1ButtonSprite_.get(),
         stage1ButtonPosition_,
         normalButtonSize_,
         hoverButtonSize_,
@@ -102,9 +102,8 @@ void StageSelectScene::UpdateButtonStates() {
         wasMouseOverStage1
     );
 
-    // 如果Stage2按钮状态发生变化，更新按钮尺寸
     ButtonUtility::UpdateHoverSprite(
-        stage2ButtonSprite_,
+        stage2ButtonSprite_.get(),
         stage2ButtonPosition_,
         normalButtonSize_,
         hoverButtonSize_,
@@ -112,15 +111,20 @@ void StageSelectScene::UpdateButtonStates() {
         wasMouseOverStage2
     );
 }
+
 void StageSelectScene::Draw() {
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
 
-    backgroundSprite_->Draw();
-
-    if (stage1ButtonSprite_) stage1ButtonSprite_->Draw();
-    if (stage2ButtonSprite_) stage2ButtonSprite_->Draw();
-    // 绘制 UI（返回按钮）
+    if (backgroundSprite_) {
+        backgroundSprite_->Draw();
+    }
+    if (stage1ButtonSprite_) {
+        stage1ButtonSprite_->Draw();
+    }
+    if (stage2ButtonSprite_) {
+        stage2ButtonSprite_->Draw();
+    }
     if (gameUI_) {
         gameUI_->Draw();
     }
@@ -130,7 +134,9 @@ void StageSelectScene::Draw() {
 }
 
 bool StageSelectScene::IsMouseOverButton(const Vector2& mousePos, Sprite* buttonSprite) {
-    if (!buttonSprite) return false;
+    if (!buttonSprite) {
+        return false;
+    }
 
     Vector2 position = buttonSprite->GetPosition();
     Vector2 size = buttonSprite->GetSize();

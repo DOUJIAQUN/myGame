@@ -2,34 +2,51 @@
 
 using namespace KamataEngine;
 
-void LoadingScene::Initialize() { 
-	dxCommon_ = DirectXCommon::GetInstance();
-	loadingTextureHandle_ = TextureManager::Load("loading/loading.png");
-	loadingSprtie_ = Sprite::Create(loadingTextureHandle_, {0.0});
-
-	loadingBGTextureHandle_ = TextureManager::Load("loading/loadingBG.png");
-	loadingBGSprtie_ = Sprite::Create(loadingBGTextureHandle_, {0.0});
+namespace {
+    constexpr float kLoadingSpriteX = 0.0f;
+    constexpr float kLoadingSpriteY = 0.0f;
+    constexpr int kLoadingDurationFrame = 120;
+    constexpr int kBlinkCycleFrame = 60;
+    constexpr int kBlinkVisibleStartFrame = 30;
 }
 
-void LoadingScene::Update() { 
-	frameCount_++;
+LoadingScene::~LoadingScene() = default;
 
-	if (frameCount_ >= loadingDuration_) {
-		isLoadingComplete_ = true;
-
-	}
-
+void LoadingScene::StartLoading() {
+    isLoadingComplete_ = false;
+    frameCount_ = 0;
 }
 
-void LoadingScene::Draw() { 
-	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
-	Sprite::PreDraw(commandList);
-	
-	loadingBGSprtie_->Draw();
-	if ((frameCount_ % 60) >= 30) {
-		loadingSprtie_->Draw();
-	}
-	Sprite::PostDraw();
+void LoadingScene::Initialize() {
+    dxCommon_ = DirectXCommon::GetInstance();
+    loadingDuration_ = kLoadingDurationFrame;
 
-	dxCommon_->ClearDepthBuffer();
+    loadingTextureHandle_ = TextureManager::Load("loading/loading.png");
+    loadingSprite_.reset(Sprite::Create(loadingTextureHandle_, {kLoadingSpriteX, kLoadingSpriteY}));
+
+    loadingBGTextureHandle_ = TextureManager::Load("loading/loadingBG.png");
+    loadingBGSprite_.reset(Sprite::Create(loadingBGTextureHandle_, {kLoadingSpriteX, kLoadingSpriteY}));
+}
+
+void LoadingScene::Update() {
+    frameCount_++;
+
+    if (frameCount_ >= loadingDuration_) {
+        isLoadingComplete_ = true;
+    }
+}
+
+void LoadingScene::Draw() {
+    ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
+    Sprite::PreDraw(commandList);
+
+    if (loadingBGSprite_) {
+        loadingBGSprite_->Draw();
+    }
+    if (loadingSprite_ && (frameCount_ % kBlinkCycleFrame) >= kBlinkVisibleStartFrame) {
+        loadingSprite_->Draw();
+    }
+
+    Sprite::PostDraw();
+    dxCommon_->ClearDepthBuffer();
 }

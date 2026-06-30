@@ -37,12 +37,12 @@ private:
 	void SetMoveStrategyByConfig();
 
 private:
-	KamataEngine::Model* model_;
+	std::unique_ptr<KamataEngine::Model> model_;
 	KamataEngine::WorldTransform worldTransform_;
 	KamataEngine::ObjectColor objectColor;
 	KamataEngine::Camera* camera_;
 	KamataEngine::Input* input_ = nullptr;
-	const float kSpeed = 0.2f;
+	static constexpr float kSpeed = 0.2f;
 
 	int enterCount_ = 0;        // 当前进入次数
 	int requiredCount_ = 1;     // 需要进入的次数

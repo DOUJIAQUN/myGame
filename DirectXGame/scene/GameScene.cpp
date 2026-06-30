@@ -9,6 +9,19 @@
 #include <memory>
 #include <utility>
 
+namespace {
+    const Vector2 kStartSpriteInitialSize = {3840.0f, 2160.0f};
+    const Vector2 kStartSpriteTargetSize = {1280.0f, 720.0f};
+    constexpr float kStartAnimDuration = 1.0f;
+    constexpr float kStartDisplayDuration = 0.0f;
+    constexpr float kScreenCenterX = 640.0f;
+    constexpr float kScreenCenterY = 360.0f;
+    constexpr float kHalf = 2.0f;
+    constexpr float kFrameDeltaTime = 1.0f / 60.0f;
+    constexpr float kStartWaitDuration = 0.01f;
+    constexpr int kLeftMouseButton = 0;
+}
+
 GameScene::GameScene() {
     ballFactory_ = std::make_unique<ConcreteBallFactory>();
 }
@@ -26,6 +39,11 @@ void GameScene::Initialize() {
 
     gameUI_ = std::make_unique<GameUI>();
     gameUI_->Initialize();
+
+    startSize_ = kStartSpriteInitialSize;
+    targetSize_ = kStartSpriteTargetSize;
+    animDuration_ = kStartAnimDuration;
+    displayDuration_ = kStartDisplayDuration;
 
     LoadTutorialTextures();
 
@@ -235,8 +253,8 @@ void GameScene::LoadTutorialTextures() {
 
     startTextureHandle_ = TextureManager::Load("gameTutorial/gameStart.png");
 
-    float startX = 640.0f - (startSize_.x / 2.0f);
-    float startY = 360.0f - (startSize_.y / 2.0f);
+    float startX = kScreenCenterX - (startSize_.x / kHalf);
+    float startY = kScreenCenterY - (startSize_.y / kHalf);
 
     startSprite_.reset(Sprite::Create(startTextureHandle_, { startX, startY }));
 
@@ -250,7 +268,7 @@ void GameScene::UpdateTutorial() {
         return;
     }
 
-    if (input_->IsTriggerMouse(0)) {
+    if (input_->IsTriggerMouse(kLeftMouseButton)) {
         currentTutorialIndex_++;
 
         if (currentTutorialIndex_ >= tutorialSprites_.size()) {
@@ -262,15 +280,15 @@ void GameScene::UpdateTutorial() {
 }
 
 void GameScene::UpdateStartWait() {
-    startTimer_ += 1.0f / 60.0f;
+    startTimer_ += kFrameDeltaTime;
 
-    if (input_->IsTriggerMouse(0) || startTimer_ >= 0.01f) {
+    if (input_->IsTriggerMouse(kLeftMouseButton) || startTimer_ >= kStartWaitDuration) {
         gameFlowState_ = GameFlowState::StartAnim;
         animTimer_ = 0.0f;
 
         if (startSprite_) {
-            float startX = 640.0f - (startSize_.x / 2.0f);
-            float startY = 360.0f - (startSize_.y / 2.0f);
+            float startX = kScreenCenterX - (startSize_.x / kHalf);
+            float startY = kScreenCenterY - (startSize_.y / kHalf);
 
             startSprite_->SetPosition({ startX, startY });
             startSprite_->SetSize(startSize_);
@@ -279,7 +297,7 @@ void GameScene::UpdateStartWait() {
 }
 
 void GameScene::UpdateStartAnim() {
-    animTimer_ += 1.0f / 60.0f;
+    animTimer_ += kFrameDeltaTime;
 
     if (!startSprite_) {
         StartGame();
@@ -296,8 +314,8 @@ void GameScene::UpdateStartAnim() {
     float currentSizeX = startSize_.x + (targetSize_.x - startSize_.x) * easeProgress;
     float currentSizeY = startSize_.y + (targetSize_.y - startSize_.y) * easeProgress;
 
-    float currentX = 640.0f - (currentSizeX / 2.0f);
-    float currentY = 360.0f - (currentSizeY / 2.0f);
+    float currentX = kScreenCenterX - (currentSizeX / kHalf);
+    float currentY = kScreenCenterY - (currentSizeY / kHalf);
 
     startSprite_->SetSize({ currentSizeX, currentSizeY });
     startSprite_->SetPosition({ currentX, currentY });

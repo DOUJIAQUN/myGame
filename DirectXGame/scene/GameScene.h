@@ -105,11 +105,11 @@ private:
     float animTimer_ = 0.0f;
     bool showStart_ = false;
 
-    Vector2 startSize_ = { 3840.0f, 2160.0f };
-    Vector2 targetSize_ = { 1280.0f, 720.0f };
+    Vector2 startSize_ = {};
+    Vector2 targetSize_ = {};
 
-    const float animDuration_ = 1.0f;
-    const float displayDuration_ = 0.0f;
+    float animDuration_ = 0.0f;
+    float displayDuration_ = 0.0f;
 
     // 关卡数据
     int levelNumber_ = 1;

@@ -10,6 +10,10 @@
 
 using json = nlohmann::json;
 
+namespace {
+    const std::string kLevelConfigPath = "Resources/level_config.json";
+}
+
 LevelManager::LevelManager()
     : currentLevelIndex_(0),
     shouldReturnToTitle_(false),
@@ -121,7 +125,7 @@ void LevelManager::CreateLevels() {
     CleanupLevels();
     levelNames_.clear();
 
-    std::vector<LevelConfig> configs = LoadLevelConfigsFromJson("Resources/level_config.json");
+    std::vector<LevelConfig> configs = LoadLevelConfigsFromJson(kLevelConfigPath);
 
     for (const LevelConfig& config : configs) {
         std::unique_ptr<GameScene> level = std::make_unique<GameScene>();

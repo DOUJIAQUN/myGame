@@ -1,7 +1,10 @@
 #pragma once
+
 #include "KamataEngine.h"
 #include "IScene.h"
 #include "SceneState.h"
+
+#include <memory>
 
 using namespace KamataEngine;
 
@@ -26,30 +29,26 @@ private:
     int score_ = 0;
 
     uint32_t resultBackgroundTextureHandle_ = 0;
-    Sprite* resultBackgroundSprite_ = nullptr;
+    std::unique_ptr<Sprite> resultBackgroundSprite_;
 
     uint32_t resultTextureHandle_ = 0;
-    Sprite* resultSprite_ = nullptr;
+    std::unique_ptr<Sprite> resultSprite_;
 
     uint32_t retryTextureHandle_ = 0;
-    Sprite* retrySprite_ = nullptr;
+    std::unique_ptr<Sprite> retrySprite_;
 
     uint32_t titleTextureHandle_ = 0;
-    Sprite* titleSprite_ = nullptr;
+    std::unique_ptr<Sprite> titleSprite_;
 
     int frameCount_ = 0;
 
-    // 新增：按钮状态相关变量
-    Vector2 normalButtonSize_ = { 200.0f, 90.0f };      // 正常尺寸
-    Vector2 hoverButtonSize_ = { 220.0f, 99.0f };       // 悬停时放大尺寸（约10%）
-    Vector2 buttonPosition_ = { 540.0f, 520.0f };       // 按钮位置
-    bool isMouseOverTitle_ = false;                      // 鼠标是否在按钮上
+    Vector2 normalButtonSize_ = {};
+    Vector2 hoverButtonSize_ = {};
+    Vector2 buttonPosition_ = {};
+    bool isMouseOverTitle_ = false;
 
-
-
+private:
     void LoadTextures();
-
     bool IsMouseOverTitle(const Vector2& mousePos);
-
-    void UpdateButtonState();  // 新增：更新按钮状态
+    void UpdateButtonState();
 };

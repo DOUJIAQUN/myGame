@@ -1,145 +1,117 @@
 #include "ResultScene.h"
+#include "ButtonUtility.h"
+
 #include <cassert>
+#include <cmath>
 
 using namespace KamataEngine;
 
-ResultScene::ResultScene() {}
-
-ResultScene::~ResultScene() {
-    if (resultSprite_) {
-        delete resultSprite_;
-    }
-    if (retrySprite_) {
-        delete retrySprite_;
-    }
-    if (titleSprite_) {
-        delete titleSprite_;
-    }
+namespace {
+    const Vector2 kNormalButtonSize = {200.0f, 90.0f};
+    const Vector2 kHoverButtonSize = {220.0f, 99.0f};
+    const Vector2 kTitleButtonPosition = {540.0f, 520.0f};
+    constexpr int kLeftMouseButton = 0;
+    constexpr float kTitleWaveSpeed = 0.05f;
+    constexpr float kTitleWaveAmplitude = 10.0f;
+    constexpr float kResultTitlePositionX = 20.0f;
+    constexpr float kResultTitlePositionY = 20.0f;
 }
+
+ResultScene::ResultScene() = default;
+ResultScene::~ResultScene() = default;
 
 void ResultScene::Initialize() {
     input_ = Input::GetInstance();
     dxCommon_ = DirectXCommon::GetInstance();
 
+    normalButtonSize_ = kNormalButtonSize;
+    hoverButtonSize_ = kHoverButtonSize;
+    buttonPosition_ = kTitleButtonPosition;
+
     isSceneEnd_ = false;
     score_ = 0;
     isMouseOverTitle_ = false;
+    frameCount_ = 0;
 
     LoadTextures();
 }
 
 void ResultScene::LoadTextures() {
-    // 加载结果背景图片
     resultBackgroundTextureHandle_ = TextureManager::Load("result/resultBackground.png");
-   
-    resultBackgroundSprite_ = Sprite::Create(resultBackgroundTextureHandle_, { 0, 0 });
-   
+    resultBackgroundSprite_.reset(Sprite::Create(resultBackgroundTextureHandle_, {0.0f, 0.0f}));
 
     resultTextureHandle_ = TextureManager::Load("result/resultTitle.png");
-    resultSprite_ = Sprite::Create(resultTextureHandle_, { 0, 0 });
+    resultSprite_.reset(Sprite::Create(resultTextureHandle_, {kResultTitlePositionX, kResultTitlePositionY}));
 
-    //// 加载重新开始按钮图片
-    //retryTextureHandle_ = TextureManager::Load("result/retryButton.png");
-    //if (retryTextureHandle_ != 0) {
-    //    retrySprite_ = Sprite::Create(retryTextureHandle_, { 440, 400 }); // 按钮位置
-    //    if (retrySprite_) {
-    //        retrySprite_->SetSize({ 400, 100 }); // 按钮大小
-    //    }
-    //}
-
-    // 加载返回标题按钮图片
     titleTextureHandle_ = TextureManager::Load("result/titleButton.png");
     if (titleTextureHandle_ != 0) {
-        titleSprite_ = Sprite::Create(titleTextureHandle_,  buttonPosition_ ); // 按钮位置
+        titleSprite_.reset(Sprite::Create(titleTextureHandle_, buttonPosition_));
         if (titleSprite_) {
-            titleSprite_->SetSize(normalButtonSize_); // 按钮大小
+            titleSprite_->SetSize(normalButtonSize_);
         }
     }
 }
 
 void ResultScene::Update() {
-    if (isSceneEnd_) return;
+    if (isSceneEnd_) {
+        return;
+    }
 
     frameCount_++;
 
-    // 上下に揺らす（sin波でY座標を変更）
-    float offsetY = std::sin(frameCount_ * 0.05f) * 10.0f;
-    resultSprite_->SetPosition({ 20, 20 + offsetY });
-  
+    float offsetY = std::sin(frameCount_ * kTitleWaveSpeed) * kTitleWaveAmplitude;
+    if (resultSprite_) {
+        resultSprite_->SetPosition({kResultTitlePositionX, kResultTitlePositionY + offsetY});
+    }
 
     UpdateButtonState();
 
-    // 检测鼠标点击
-    if (input_->IsTriggerMouse(0)) {
-        
+    if (input_->IsTriggerMouse(kLeftMouseButton)) {
         if (isMouseOverTitle_) {
-            // 返回标题
             isSceneEnd_ = true;
-           
         }
-        
-      
     }
 }
 
-
-// 新增：更新按钮状态方法
 void ResultScene::UpdateButtonState() {
-    // 获取鼠标位置
     Vector2 mousePos = input_->GetMousePosition();
 
-    // 检测鼠标是否在按钮上
     bool wasMouseOver = isMouseOverTitle_;
     isMouseOverTitle_ = IsMouseOverTitle(mousePos);
 
-    // 如果状态发生变化，更新按钮尺寸
-    if (isMouseOverTitle_ != wasMouseOver && titleSprite_) {
-        if (isMouseOverTitle_) {
-            // 鼠标进入：放大按钮
-            titleSprite_->SetSize(hoverButtonSize_);
-
-            // 调整位置保持中心点不变（可选）
-            Vector2 sizeDiff = {
-                (hoverButtonSize_.x - normalButtonSize_.x) / 2,
-                (hoverButtonSize_.y - normalButtonSize_.y) / 2
-            };
-            titleSprite_->SetPosition({
-                buttonPosition_.x - sizeDiff.x,
-                buttonPosition_.y - sizeDiff.y
-                });
-        }
-        else {
-            // 鼠标离开：恢复正常尺寸
-            titleSprite_->SetSize(normalButtonSize_);
-            titleSprite_->SetPosition(buttonPosition_);
-        }
-    }
+    ButtonUtility::UpdateHoverSprite(
+        titleSprite_.get(),
+        buttonPosition_,
+        normalButtonSize_,
+        hoverButtonSize_,
+        isMouseOverTitle_,
+        wasMouseOver
+    );
 }
 
 void ResultScene::Draw() {
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
-    // 绘制结果背景
-    resultBackgroundSprite_->Draw();
 
-    resultSprite_->Draw();
-    
-
-  
+    if (resultBackgroundSprite_) {
+        resultBackgroundSprite_->Draw();
+    }
+    if (resultSprite_) {
+        resultSprite_->Draw();
+    }
     if (titleSprite_) {
         titleSprite_->Draw();
     }
+
     Sprite::PostDraw();
     dxCommon_->ClearDepthBuffer();
 }
- 
-
-
 
 bool ResultScene::IsMouseOverTitle(const Vector2& mousePos) {
-    if (!titleSprite_) return false;
+    if (!titleSprite_) {
+        return false;
+    }
 
-    // 使用当前实际的精灵尺寸和位置进行检测
     Vector2 position = titleSprite_->GetPosition();
     Vector2 size = titleSprite_->GetSize();
 

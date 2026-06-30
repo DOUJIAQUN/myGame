@@ -3,25 +3,63 @@
 
 using namespace KamataEngine;
 
-Ball::~Ball() {
-	delete model_;
-	if (explosionRangeSprite_) {
-		delete explosionRangeSprite_;
-	}
-	if (explosionSprite_) {
-		delete explosionSprite_;
-	}
-	CleanupTrail();
+namespace {
+	constexpr float kFrameDeltaTime = 1.0f / 60.0f;
+	constexpr float kDefaultPositionX = -30.0f;
+	constexpr float kDefaultPositionY = 0.0f;
+	constexpr float kDefaultPositionZ = 0.0f;
+	constexpr float kDefaultScale = 2.0f;
+	constexpr float kDefaultRotationSpeed = 0.3f;
+	constexpr float kExplosionRangeSpriteSize = 400.0f;
+	constexpr float kExplosionSpriteSize = 300.0f;
+	constexpr float kSpriteAnchorCenter = 0.5f;
+	constexpr float kColorMin = 0.0f;
+	constexpr float kColorMax = 1.0f;
+	constexpr float kDefaultKnockbackDuration = 0.5f;
+	constexpr float kExplosionForceDuration = 0.4f;
+	constexpr float kDefaultForceMultiplier = 1.0f;
+	constexpr float kVelocityStopThreshold = 0.01f;
+	constexpr float kKnockbackStopThreshold = 0.1f;
+	constexpr float kPi = 3.14159265f;
+	constexpr float kFullRotation = 2.0f * kPi;
+	constexpr float kExplosionSlowDownBase = 0.9f;
+	constexpr float kExplosionSlowDownRange = 0.2f;
+	constexpr float kCollisionSlowDownBase = 0.95f;
+	constexpr float kCollisionSlowDownRange = 0.15f;
+	constexpr float kNormalSlowDown = 0.9f;
+	constexpr float kDefaultTrailLifetime = 0.5f;
+	constexpr float kExplosionTrailInterval = 0.02f;
+	constexpr int kExplosionTrailMaxPoints = 20;
+	constexpr float kExplosionTrailSize = 80.0f;
+	constexpr float kExplosionTrailLifetime = 0.7f;
+	constexpr float kCollisionTrailInterval = 0.03f;
+	constexpr int kCollisionTrailMaxPoints = 15;
+	constexpr float kCollisionTrailSize = 70.0f;
+	constexpr float kCollisionTrailLifetime = 0.6f;
+	constexpr float kAdditionalTrailSpeedThreshold = 1.5f;
+	constexpr float kAdditionalTrailSizeRate = 0.8f;
+	constexpr float kTrailExplosionColorR = 1.0f;
+	constexpr float kTrailExplosionColorG = 0.7f;
+	constexpr float kTrailExplosionColorB = 0.3f;
+	constexpr float kTrailCollisionColorR = 0.8f;
+	constexpr float kTrailCollisionColorG = 0.9f;
+	constexpr float kTrailCollisionColorB = 1.0f;
+	constexpr float kNdcOffset = 1.0f;
+	constexpr float kNdcToScreenScale = 0.5f;
+	constexpr float kScreenWidth = 1280.0f;
+	constexpr float kScreenHeight = 720.0f;
 }
+
+Ball::~Ball() = default;
 
 void Ball::Initialize(Camera* camera) {
 	camera_ = camera;
 	worldTransform_.Initialize();
-	model_ = Model::CreateFromOBJ("Player", true);
+	model_.reset(Model::CreateFromOBJ("Player", true));
 	input_ = Input::GetInstance();
 
-	worldTransform_.translation_ = { -30, 0, 0 };
-	worldTransform_.scale_ = { 2, 2, 2 };
+	worldTransform_.translation_ = { kDefaultPositionX, kDefaultPositionY, kDefaultPositionZ };
+	worldTransform_.scale_ = { kDefaultScale, kDefaultScale, kDefaultScale };
 	initialScale_ = worldTransform_.scale_;
 
 	isExploded_ = false;
@@ -32,20 +70,19 @@ void Ball::Initialize(Camera* camera) {
 	// 旋转初始化
 	rotation_ = 0.0f;
 	initialRotation_ = rotation_;
-	rotationSpeed_ = 0.3f; // 1弧度/秒，大约57度/秒
+	rotationSpeed_ = kDefaultRotationSpeed;
 
 	// 加载爆炸范围图片
 	explosionRangeTextureHandle_ = TextureManager::Load("ui/explosionRange.png");
 
 	// 创建爆炸范围精灵（初始位置设为0，0，在Update中更新位置）
-	explosionRangeSprite_ = Sprite::Create(explosionRangeTextureHandle_, { 0, 0 });
+	explosionRangeSprite_.reset(Sprite::Create(explosionRangeTextureHandle_, { kColorMin, kColorMin }));
 
 	// 设置爆炸范围大小（根据爆炸半径11.0f调整）
-	const float explosionRangeSize = 400.0f; // 示例值，需要根据实际调整
 	if (explosionRangeSprite_) {
-		explosionRangeSprite_->SetSize({ explosionRangeSize, explosionRangeSize });
+		explosionRangeSprite_->SetSize({ kExplosionRangeSpriteSize, kExplosionRangeSpriteSize });
 		// 设置锚点为图片中心 (0.5, 0.5)
-		explosionRangeSprite_->SetAnchorPoint({ 0.5f, 0.5f });
+		explosionRangeSprite_->SetAnchorPoint({ kSpriteAnchorCenter, kSpriteAnchorCenter });
 	}
 
 	// 初始化爆炸特效
@@ -55,12 +92,11 @@ void Ball::Initialize(Camera* camera) {
 	explosionTextureHandles_.push_back(TextureManager::Load("effect/boom4.png"));
 
 	// 创建爆炸特效精灵（初始位置设为0，0）
-	explosionSprite_ = Sprite::Create(explosionTextureHandles_[0], { 0, 0 });
+	explosionSprite_.reset(Sprite::Create(explosionTextureHandles_[0], { kColorMin, kColorMin }));
 	if (explosionSprite_) {
-		const float explosionSize = 300.0f; // 爆炸特效大小
-		explosionSprite_->SetSize({ explosionSize, explosionSize });
-		explosionSprite_->SetAnchorPoint({ 0.5f, 0.5f });
-		explosionSprite_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f }); // 初始完全透明
+		explosionSprite_->SetSize({ kExplosionSpriteSize, kExplosionSpriteSize });
+		explosionSprite_->SetAnchorPoint({ kSpriteAnchorCenter, kSpriteAnchorCenter });
+		explosionSprite_->SetColor({ kColorMax, kColorMax, kColorMax, kColorMin }); // 初始完全透明
 	}
 
 	isExplosionAnimPlaying_ = false;
@@ -82,7 +118,7 @@ void Ball::Initialize(Camera* camera) {
 	// 初始化击飞状态
 	isKnockedBack_ = false;
 	knockbackTimer_ = 0.0f;
-	knockbackDuration_ = 0.5f;
+	knockbackDuration_ = kDefaultKnockbackDuration;
 	knockbackForce_ = { 0, 0, 0 };
 	isExplosionKnockback_ = false;
 }
@@ -120,16 +156,18 @@ void Ball::Explode() {
 	if (explosionSprite_) {
 		Vector3 screenPos = WorldToScreen(worldTransform_.translation_);
 		explosionSprite_->SetPosition({ screenPos.x, screenPos.y });
-		explosionSprite_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 设置为不透明
+		explosionSprite_->SetColor({ kColorMax, kColorMax, kColorMax, kColorMax }); // 设置为不透明
 	}
 }
 
 void Ball::ApplyExplosionForce(const KamataEngine::Vector3& force) {
 	// 使用统一的击飞方法，爆炸击飞使用特定参数
-	StartKnockback(force,
-		0.4f,    // 持续时间
-		1.0f,    // 力倍增器
-		true);   // 是爆炸击飞
+	StartKnockback(
+		force,
+		kExplosionForceDuration,
+		kDefaultForceMultiplier,
+		true
+	);
 }
 
 // 统一的击飞方法
@@ -167,23 +205,23 @@ void Ball::StartKnockback(const KamataEngine::Vector3& force,
 void Ball::Update() {
 	// 更新爆炸动画
 	if (isExplosionAnimPlaying_) {
-		explosionAnimTimer_ += 1.0f / 60.0f; // 假设60帧
+		explosionAnimTimer_ += kFrameDeltaTime; // 假设60帧
 
 		// 检查是否需要切换到下一帧
-		if (explosionAnimTimer_ >= explosionFrameDuration_) {
+		if (explosionAnimTimer_ >= kExplosionFrameDuration) {
 			explosionAnimTimer_ = 0.0f;
 			currentExplosionFrame_++;
 
 			// 更新爆炸特效纹理
-			if (explosionSprite_ && currentExplosionFrame_ < explosionTotalFrames_) {
+			if (explosionSprite_ && currentExplosionFrame_ < kExplosionTotalFrames) {
 				explosionSprite_->SetTextureHandle(explosionTextureHandles_[currentExplosionFrame_]);
 			}
 
 			// 检查动画是否结束
-			if (currentExplosionFrame_ >= explosionTotalFrames_) {
+			if (currentExplosionFrame_ >= kExplosionTotalFrames) {
 				isExplosionAnimPlaying_ = false;
 				if (explosionSprite_) {
-					explosionSprite_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f }); // 动画结束后设置为透明
+					explosionSprite_->SetColor({ kColorMax, kColorMax, kColorMax, kColorMin }); // 动画结束后设置为透明
 				}
 			}
 		}
@@ -205,7 +243,7 @@ void Ball::Update() {
 	UpdateTrail();
 
 	// 如果受到力影响，更新位置
-	if (myMath::Length(velocity_) > 0.01f) {
+	if (myMath::Length(velocity_) > kVelocityStopThreshold) {
 		// 使用缓动函数使速度逐渐减慢
 		float slowDownFactor = CalculateSlowDownFactor();
 		velocity_ = myMath::Multiply(slowDownFactor, velocity_);
@@ -213,11 +251,11 @@ void Ball::Update() {
 	}
 
 	// 更新旋转角度（无论是否悬停都更新，这样切换时旋转更平滑）
-	rotation_ += rotationSpeed_ * (1.0f / 60.0f); // 假设60帧
+	rotation_ += rotationSpeed_ * kFrameDeltaTime; // 假设60帧
 
 	// 保持旋转角度在 0-2π 范围内
-	if (rotation_ > 2 * 3.14159265f) {
-		rotation_ -= 2 * 3.14159265f;
+	if (rotation_ > kFullRotation) {
+		rotation_ -= kFullRotation;
 	}
 
 	worldTransform_.UpdateMatrix();
@@ -230,16 +268,16 @@ float Ball::CalculateSlowDownFactor() {
 
 		if (isExplosionKnockback_) {
 			// 爆炸击飞：初始很快，然后快速减速
-			return 0.9f - (progress * 0.2f); // 0.9 → 0.7
+			return kExplosionSlowDownBase - (progress * kExplosionSlowDownRange); // 0.9 → 0.7
 		}
 		else {
 			// 相撞击飞：相对平稳的减速
-			return 0.95f - (progress * 0.15f); // 0.95 → 0.8
+			return kCollisionSlowDownBase - (progress * kCollisionSlowDownRange); // 0.95 → 0.8
 		}
 	}
 	else {
 		// 普通移动：较快减速
-		return 0.9f;
+		return kNormalSlowDown;
 	}
 }
 
@@ -247,13 +285,13 @@ float Ball::CalculateSlowDownFactor() {
 void Ball::UpdateKnockback() {
 	if (!isKnockedBack_) return;
 
-	knockbackTimer_ += 1.0f / 60.0f;
+	knockbackTimer_ += kFrameDeltaTime;
 
 	if (knockbackTimer_ >= knockbackDuration_) {
 		// 击飞结束
 		isKnockedBack_ = false;
 		knockbackTimer_ = 0.0f;
-		knockbackDuration_ = 0.5f;
+		knockbackDuration_ = kDefaultKnockbackDuration;
 		knockbackForce_ = { 0, 0, 0 };
 		isExplosionKnockback_ = false;
 	}
@@ -262,16 +300,16 @@ void Ball::UpdateKnockback() {
 // 更新击退锁定状态
 void Ball::UpdateKnockbackLock() {
 	if (isKnockbackLocked_) {
-		knockbackLockTimer_ += 1.0f / 60.0f;
+		knockbackLockTimer_ += kFrameDeltaTime;
 
 		// 检查锁定时间是否结束
-		if (knockbackLockTimer_ >= knockbackLockDuration_) {
+		if (knockbackLockTimer_ >= kKnockbackLockDuration) {
 			isKnockbackLocked_ = false;
 			knockbackLockTimer_ = 0.0f;
 		}
 
 		// 如果速度很小，也提前结束锁定
-		if (myMath::Length(velocity_) < 0.1f) {
+		if (myMath::Length(velocity_) < kKnockbackStopThreshold) {
 			isKnockbackLocked_ = false;
 			knockbackLockTimer_ = 0.0f;
 		}
@@ -281,34 +319,34 @@ void Ball::UpdateKnockbackLock() {
 // 更新拖尾特效
 void Ball::UpdateTrail() {
 	// 决定使用哪种拖尾参数
-	float currentSpawnInterval = trailSpawnInterval_;
-	int currentMaxPoints = maxTrailPoints_;
-	float currentTrailSize = trailSize_;
-	Vector4 trailColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float trailLifetime = 0.5f;
+	float currentSpawnInterval = kTrailSpawnInterval;
+	int currentMaxPoints = kMaxTrailPoints;
+	float currentTrailSize = kTrailSize;
+	Vector4 trailColor = { kColorMax, kColorMax, kColorMax, kColorMax };
+	float trailLifetime = kDefaultTrailLifetime;
 
 	if (isKnockedBack_) {
 		if (isExplosionKnockback_) {
 			// 爆炸击飞配置
-			currentSpawnInterval = 0.02f;
-			currentMaxPoints = 20;
-			currentTrailSize = 80.0f;
-			trailColor = { 1.0f, 0.7f, 0.3f, 1.0f }; // 橙黄色
-			trailLifetime = 0.7f;
+			currentSpawnInterval = kExplosionTrailInterval;
+			currentMaxPoints = kExplosionTrailMaxPoints;
+			currentTrailSize = kExplosionTrailSize;
+			trailColor = { kTrailExplosionColorR, kTrailExplosionColorG, kTrailExplosionColorB, kColorMax }; // 橙黄色
+			trailLifetime = kExplosionTrailLifetime;
 		}
 		else {
 			// 相撞击飞配置
-			currentSpawnInterval = 0.03f;
-			currentMaxPoints = 15;
-			currentTrailSize = 70.0f;
-			trailColor = { 0.8f, 0.9f, 1.0f, 1.0f }; // 淡蓝色
-			trailLifetime = 0.6f;
+			currentSpawnInterval = kCollisionTrailInterval;
+			currentMaxPoints = kCollisionTrailMaxPoints;
+			currentTrailSize = kCollisionTrailSize;
+			trailColor = { kTrailCollisionColorR, kTrailCollisionColorG, kTrailCollisionColorB, kColorMax }; // 淡蓝色
+			trailLifetime = kCollisionTrailLifetime;
 		}
 	}
 
 	// 只有在移动且活跃状态下才生成拖尾
-	if (isActive_ && myMath::Length(velocity_) > 0.1f) {
-		trailSpawnTimer_ += 1.0f / 60.0f;
+	if (isActive_ && myMath::Length(velocity_) > kKnockbackStopThreshold) {
+		trailSpawnTimer_ += kFrameDeltaTime;
 
 		// 达到生成间隔时添加新的拖尾点
 		if (trailSpawnTimer_ >= currentSpawnInterval) {
@@ -318,22 +356,18 @@ void Ball::UpdateTrail() {
 			AddTrailPointWithConfig(currentTrailSize, trailColor, trailLifetime);
 
 			// 爆炸击飞时生成更密集的拖尾
-			if (isExplosionKnockback_ && myMath::Length(velocity_) > 1.5f) {
-				AddTrailPointWithConfig(currentTrailSize * 0.8f, trailColor, trailLifetime);
+			if (isExplosionKnockback_ && myMath::Length(velocity_) > kAdditionalTrailSpeedThreshold) {
+				AddTrailPointWithConfig(currentTrailSize * kAdditionalTrailSizeRate, trailColor, trailLifetime);
 			}
 		}
 
 		// 更新所有拖尾点的生命周期
 		for (auto it = trailPoints_.begin(); it != trailPoints_.end(); ) {
-			it->lifetime += 1.0f / 60.0f;
-			it->alpha = 1.0f - (it->lifetime / it->maxLifetime);
+			it->lifetime += kFrameDeltaTime;
+			it->alpha = kColorMax - (it->lifetime / it->maxLifetime);
 
 			// 如果拖尾点生命周期结束，移除它
 			if (it->lifetime >= it->maxLifetime) {
-				if (it->sprite) {
-					delete it->sprite;
-					it->sprite = nullptr;
-				}
 				it = trailPoints_.erase(it);
 			}
 			else {
@@ -344,19 +378,14 @@ void Ball::UpdateTrail() {
 		// 限制拖尾点数量
 		if (trailPoints_.size() > currentMaxPoints) {
 			// 移除最旧的拖尾点
-			auto& oldest = trailPoints_.front();
-			if (oldest.sprite) {
-				delete oldest.sprite;
-				oldest.sprite = nullptr;
-			}
 			trailPoints_.erase(trailPoints_.begin());
 		}
 	}
 
 	// 更新所有拖尾点的生命周期（不活跃时的更新）
 	for (auto it = trailPoints_.begin(); it != trailPoints_.end(); ) {
-		it->lifetime += 1.0f / 60.0f;
-		it->alpha = 1.0f - (it->lifetime / it->maxLifetime);
+		it->lifetime += kFrameDeltaTime;
+		it->alpha = kColorMax - (it->lifetime / it->maxLifetime);
 
 		// 如果拖尾点生命周期结束，移除它
 		if (it->lifetime >= it->maxLifetime) {
@@ -377,25 +406,25 @@ void Ball::UpdateTrail() {
 void Ball::AddTrailPointWithConfig(float size, const Vector4& color, float lifetime) {
 	TrailPoint newPoint;
 	newPoint.position = worldTransform_.translation_;
-	newPoint.lifetime = 0.0f;
+	newPoint.lifetime = kColorMin;
 	newPoint.maxLifetime = lifetime;
-	newPoint.alpha = 1.0f;
+	newPoint.alpha = kColorMax;
 
 	// 为每个拖尾点创建独立的精灵
 	Vector3 screenPos = WorldToScreen(newPoint.position);
-	newPoint.sprite = Sprite::Create(trailTextureHandle_, { screenPos.x, screenPos.y });
+	newPoint.sprite.reset(Sprite::Create(trailTextureHandle_, { screenPos.x, screenPos.y }));
 	if (newPoint.sprite) {
 		newPoint.sprite->SetSize({ size, size });
-		newPoint.sprite->SetAnchorPoint({ 0.5f, 0.5f });
+		newPoint.sprite->SetAnchorPoint({ kSpriteAnchorCenter, kSpriteAnchorCenter });
 		newPoint.sprite->SetColor({ color.x, color.y, color.z, newPoint.alpha });
 	}
 
-	trailPoints_.push_back(newPoint);
+	trailPoints_.push_back(std::move(newPoint));
 }
 
 // 添加拖尾点
 void Ball::AddTrailPoint(float size) {
-	AddTrailPointWithConfig(size, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5f);
+	AddTrailPointWithConfig(size, { kColorMax, kColorMax, kColorMax, kColorMax }, kDefaultTrailLifetime);
 }
 
 // 绘制拖尾特效
@@ -422,12 +451,6 @@ void Ball::DrawTrail() {
 
 // 清理拖尾资源
 void Ball::CleanupTrail() {
-	for (auto& trailPoint : trailPoints_) {
-		if (trailPoint.sprite) {
-			delete trailPoint.sprite;
-			trailPoint.sprite = nullptr;
-		}
-	}
 	trailPoints_.clear();
 }
 
@@ -439,11 +462,11 @@ KamataEngine::Vector3 Ball::WorldToScreen(const KamataEngine::Vector3& worldPos)
 	Matrix4x4 viewProjectionMatrix = myMath::Multiply(viewMatrix, projectionMatrix);
 
 	// 变换到齐次裁剪空间
-	Vector4 worldPos4 = { worldPos.x, worldPos.y, worldPos.z, 1.0f };
+	Vector4 worldPos4 = { worldPos.x, worldPos.y, worldPos.z, kColorMax };
 	Vector4 clipPos = myMath::Transform(worldPos4, viewProjectionMatrix);
 
 	// 透视除法
-	if (clipPos.w != 0.0f) {
+	if (clipPos.w != kColorMin) {
 		clipPos.x /= clipPos.w;
 		clipPos.y /= clipPos.w;
 		clipPos.z /= clipPos.w;
@@ -451,8 +474,8 @@ KamataEngine::Vector3 Ball::WorldToScreen(const KamataEngine::Vector3& worldPos)
 
 	// 转换到屏幕坐标
 	// 假设屏幕分辨率为1280x720
-	float screenX = (clipPos.x + 1.0f) * 0.5f * 1280.0f;
-	float screenY = (1.0f - (clipPos.y + 1.0f) * 0.5f) * 720.0f;
+	float screenX = (clipPos.x + kNdcOffset) * kNdcToScreenScale * kScreenWidth;
+	float screenY = (kNdcOffset - (clipPos.y + kNdcOffset) * kNdcToScreenScale) * kScreenHeight;
 
 	return { screenX, screenY, clipPos.z };
 }
@@ -509,7 +532,7 @@ void Ball::Reset() {
 	currentExplosionFrame_ = 0;
 	explosionAnimTimer_ = 0.0f;
 	if (explosionSprite_) {
-		explosionSprite_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f }); // 重置为透明
+		explosionSprite_->SetColor({ kColorMax, kColorMax, kColorMax, kColorMin }); // 重置为透明
 	}
 
 	// 重置击退锁定状态
@@ -519,7 +542,7 @@ void Ball::Reset() {
 	// 重置击飞状态
 	isKnockedBack_ = false;
 	knockbackTimer_ = 0.0f;
-	knockbackDuration_ = 0.5f;
+	knockbackDuration_ = kDefaultKnockbackDuration;
 	knockbackForce_ = { 0, 0, 0 };
 	isExplosionKnockback_ = false;
 

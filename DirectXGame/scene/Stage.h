@@ -1,19 +1,22 @@
 #pragma once
+
 #include "KamataEngine.h"
+
+#include <memory>
 
 class Stage {
 public:
-	~Stage();
-	void Initialize();
-	void Update();
-	void Draw();
+    ~Stage();
+    void Initialize();
+    void Update();
+    void Draw();
 
 private:
-	KamataEngine::Sprite* bgSprite1_ = nullptr;
-	KamataEngine::Sprite* bgSprite2_ = nullptr;
+    std::unique_ptr<KamataEngine::Sprite> bgSprite1_;
+    std::unique_ptr<KamataEngine::Sprite> bgSprite2_;
 
-	float scrollX_ = 0.0f;
-	const float scrollSpeed_ = 2.0f;
-	const int screenWidth_ = 1280;
-	uint32_t textureHandle_ = 0;
+    float scrollX_ = 0.0f;
+    float scrollSpeed_ = 0.0f;
+    int screenWidth_ = 0;
+    uint32_t textureHandle_ = 0;
 };

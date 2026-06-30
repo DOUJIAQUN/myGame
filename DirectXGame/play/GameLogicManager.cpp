@@ -5,10 +5,24 @@
 using namespace KamataEngine;
 
 namespace {
-    // 碰撞相关常量
-    const float BALL_COLLISION_RADIUS = 1.5f;
-    const float GOAL_COLLISION_RADIUS = 1.5f;
-    const float SCREEN_BALL_RADIUS = 15.0f;
+    constexpr float kBallCollisionRadius = 1.5f;
+    constexpr float kGoalCollisionRadius = 1.5f;
+    constexpr float kScreenBallRadius = 15.0f;
+    constexpr int kLeftMouseButton = 0;
+    constexpr float kExplosionKnockbackDuration = 0.6f;
+    constexpr float kExplosionKnockbackMultiplier = 1.5f;
+    constexpr float kCollisionDistanceScale = 2.0f;
+    constexpr float kBallRadius = 2.0f;
+    constexpr float kRestitution = 0.9f;
+    constexpr float kImpulseScale = 1.2f;
+    constexpr float kImpulseDistribution = 0.6f;
+    constexpr float kCollisionKnockbackDuration = 0.6f;
+    constexpr float kCollisionFriction = 50.0f;
+    constexpr float kSeparationScale = 0.5f;
+    constexpr float kNdcOffset = 1.0f;
+    constexpr float kNdcToScreenScale = 0.5f;
+    constexpr float kScreenWidth = 1280.0f;
+    constexpr float kScreenHeight = 720.0f;
 }
 
 GameLogicManager::GameLogicManager()
@@ -48,7 +62,7 @@ void GameLogicManager::Update() {
 
     HandleMouseHover();
 
-    if (input_->IsTriggerMouse(0)) {
+    if (input_->IsTriggerMouse(kLeftMouseButton)) {
         HandleMouseClick();
     }
 
@@ -131,8 +145,8 @@ void GameLogicManager::HandleMouseClick() {
 
                         otherBall->StartKnockback(
                             force,
-                            0.6f,
-                            1.5f,
+                            kExplosionKnockbackDuration,
+                            kExplosionKnockbackMultiplier,
                             true
                         );
                     }
@@ -223,7 +237,7 @@ bool GameLogicManager::CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal) 
 
     float distance = myMath::Distance(ballPos, goalPos);
 
-    float collisionRadius = BALL_COLLISION_RADIUS + GOAL_COLLISION_RADIUS;
+    float collisionRadius = kBallCollisionRadius + kGoalCollisionRadius;
     return distance <= collisionRadius;
 }
 
@@ -263,7 +277,7 @@ bool GameLogicManager::CheckBallBallCollision(Ball* ball1, Ball* ball2) {
 
     float distance = myMath::Distance(pos1, pos2);
 
-    float collisionDistance = BALL_COLLISION_RADIUS * 2.0f;
+    float collisionDistance = kBallCollisionRadius * kCollisionDistanceScale;
     return distance <= collisionDistance;
 }
 
@@ -293,34 +307,31 @@ void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
         return;
     }
 
-    const float BALL_RADIUS = 2.0f;
-    const float MIN_DISTANCE = BALL_RADIUS * 2.0f;
+    const float minDistance = kBallRadius * kCollisionDistanceScale;
 
-    float restitution = 0.9f;
+    float impulseScalar = -(kNdcOffset + kRestitution) * velocityAlongNormal;
+    impulseScalar *= kImpulseScale;
 
-    float impulseScalar = -(1.0f + restitution) * velocityAlongNormal;
-    impulseScalar *= 1.2f;
-
-    Vector3 impulse1 = myMath::Multiply(-impulseScalar * 0.6f, collisionNormal);
-    Vector3 impulse2 = myMath::Multiply(impulseScalar * 0.6f, collisionNormal);
+    Vector3 impulse1 = myMath::Multiply(-impulseScalar * kImpulseDistribution, collisionNormal);
+    Vector3 impulse2 = myMath::Multiply(impulseScalar * kImpulseDistribution, collisionNormal);
 
     ball1->StartKnockback(
         impulse1,
-        0.6f,
-        50.0f,
+        kCollisionKnockbackDuration,
+        kCollisionFriction,
         false
     );
 
     ball2->StartKnockback(
         impulse2,
-        0.6f,
-        50.0f,
+        kCollisionKnockbackDuration,
+        kCollisionFriction,
         false
     );
 
-    if (distance < MIN_DISTANCE && distance > 0.0f) {
-        float overlap = MIN_DISTANCE - distance;
-        Vector3 separation = myMath::Multiply(overlap * 0.5f, collisionNormal);
+    if (distance < minDistance && distance > 0.0f) {
+        float overlap = minDistance - distance;
+        Vector3 separation = myMath::Multiply(overlap * kSeparationScale, collisionNormal);
 
         ball1->SetPosition(myMath::Subtract(pos1, separation));
         ball2->SetPosition(myMath::Add(pos2, separation));
@@ -340,7 +351,7 @@ bool GameLogicManager::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {
         std::pow(mousePos.y - screenPos.y, 2)
     );
 
-    return distance <= SCREEN_BALL_RADIUS;
+    return distance <= kScreenBallRadius;
 }
 
 Vector3 GameLogicManager::WorldToScreen(const Vector3& worldPos) {
@@ -358,7 +369,7 @@ Vector3 GameLogicManager::WorldToScreen(const Vector3& worldPos) {
         worldPos.x,
         worldPos.y,
         worldPos.z,
-        1.0f
+        kNdcOffset
     };
 
     Vector4 clipPos;
@@ -393,8 +404,8 @@ Vector3 GameLogicManager::WorldToScreen(const Vector3& worldPos) {
         clipPos.z /= clipPos.w;
     }
 
-    float screenX = (clipPos.x + 1.0f) * 0.5f * 1280.0f;
-    float screenY = (1.0f - (clipPos.y + 1.0f) * 0.5f) * 720.0f;
+    float screenX = (clipPos.x + kNdcOffset) * kNdcToScreenScale * kScreenWidth;
+    float screenY = (kNdcOffset - (clipPos.y + kNdcOffset) * kNdcToScreenScale) * kScreenHeight;
 
     return { screenX, screenY, clipPos.z };
 }
