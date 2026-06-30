@@ -9,13 +9,15 @@
 #include "scene/IScene.h"
 #include "DebugLogger.h"
 
+#include <memory>
+
 using namespace KamataEngine;
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
-    KamataEngine::Initialize(L"LE3C_17_トウ_カグン");
+    KamataEngine::Initialize(L"LE4C_08_トウ_カグン");
     DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-    IScene* currentScene = nullptr;
+    std::unique_ptr<IScene> currentScene = nullptr;
     SceneState currentState = TITLE;
     int selectedLevel = 1;  // 用于 LevelManager 初始化
 
@@ -28,28 +30,27 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
         // 场景切换：如果当前场景为空或已结束，则创建下一个场景
         if (currentScene == nullptr || currentScene->IsSceneEnd()) {
             SceneState nextState = (currentScene == nullptr) ? TITLE : currentScene->GetNextSceneState();
-            delete currentScene;
+            
             currentScene = nullptr;
 
             switch (nextState) {
             case TITLE:
-                currentScene = new TitleScene();
+                currentScene = std::make_unique<TitleScene>();
                 break;
             case STAGE_SELECT:
-                currentScene = new StageSelectScene();
+                currentScene = std::make_unique<StageSelectScene>();
                 break;
             case LOADING:
-                currentScene = new LoadingScene();
+                currentScene = std::make_unique<LoadingScene>();
                 // LoadingScene 开始加载
-                static_cast<LoadingScene*>(currentScene)->StartLoading();
+                static_cast<LoadingScene*>(currentScene.get())->StartLoading();
                 break;
             case GAME:
-                currentScene = new LevelManager();
-                // 传递选中的关卡号
-                static_cast<LevelManager*>(currentScene)->SetCurrentLevel(selectedLevel);
+                currentScene = std::make_unique<LevelManager>();
+                static_cast<LevelManager*>(currentScene.get())->SetCurrentLevel(selectedLevel);
                 break;
             case RESULT:
-                currentScene = new ResultScene();
+                currentScene = std::make_unique<ResultScene>();
                 break;
             }
 
@@ -85,17 +86,17 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
             SceneState endingState = currentScene->GetNextSceneState();
             if (endingState == LOADING) {
                 // 尝试从当前场景获取 selectedLevel
-                if (dynamic_cast<TitleScene*>(currentScene)) {
-                    selectedLevel = static_cast<TitleScene*>(currentScene)->GetSelectedLevel();
+                if (dynamic_cast<TitleScene*>(currentScene.get())) {
+                    selectedLevel = static_cast<TitleScene*>(currentScene.get())->GetSelectedLevel();
                 }
-                else if (dynamic_cast<StageSelectScene*>(currentScene)) {
-                    selectedLevel = static_cast<StageSelectScene*>(currentScene)->GetSelectedLevel();
+                else if (dynamic_cast<StageSelectScene*>(currentScene.get())) {
+                    selectedLevel = static_cast<StageSelectScene*>(currentScene.get())->GetSelectedLevel();
                 }
             }
         }
     }
 
-    delete currentScene;
+   
     KamataEngine::Finalize();
     return 0;
 }

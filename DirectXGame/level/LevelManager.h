@@ -81,8 +81,8 @@ private:
 private:
     void CreateLevels();
 
-    std::vector<LevelConfig> LoadLevelConfigsFromJson(const std::string& filePath) const;//SR2_02_04
-    MoveDirection StringToMoveDirection(const std::string& directionText) const;//SR2_02_04
+    std::vector<LevelConfig> LoadLevelConfigsFromJson(const std::string& filePath) const;
+    MoveDirection StringToMoveDirection(const std::string& directionText) const;
     
     void CleanupLevels();
     void StartLevelTransition();

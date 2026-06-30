@@ -1,6 +1,7 @@
 #include "PlayingState.h"
 #include "../scene/GameScene.h"
 #include "GameOverState.h"   // 通关后切换到 GameOverState
+#include <memory>
 
 void PlayingState::Enter(GameScene* scene) {
     // 可选：重置游戏相关的标志
@@ -16,7 +17,7 @@ void PlayingState::Update(GameScene* scene) {
 
     // 检查是否通关
     if (scene->IsLevelComplete()) {
-        scene->ChangeState(new GameOverState());
+        scene->ChangeState(std::make_unique<GameOverState>());
     }
 }
 

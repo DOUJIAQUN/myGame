@@ -25,9 +25,7 @@ LevelManager::LevelManager()
 LevelManager::~LevelManager() {
     CleanupLevels();
 
-    if (loadingScene_) {
-        CleanupLevels();
-    }
+   
 }
 
 std::string LevelManager::GetCurrentLevelName() const {
@@ -136,7 +134,7 @@ void LevelManager::CreateLevels() {
             config.goalMovementConfigs
         );
 
-        levels_.push_back(level);
+        levels_.push_back(std::move(level));
         levelNames_.push_back(config.levelName);
     }
 }
