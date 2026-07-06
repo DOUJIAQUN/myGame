@@ -9,6 +9,8 @@
 #include <memory>
 #include <utility>
 
+using namespace KamataEngine;
+
 namespace {
     const Vector2 kStartSpriteInitialSize = {3840.0f, 2160.0f};
     const Vector2 kStartSpriteTargetSize = {1280.0f, 720.0f};

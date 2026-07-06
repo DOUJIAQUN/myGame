@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+using namespace KamataEngine;
+
 namespace {
     const Vector2 kRestartButtonPosition = {1100.0f, 20.0f};
     const Vector2 kTitleButtonPosition = {1180.0f, 20.0f};
