@@ -346,10 +346,14 @@ bool GameLogicManager::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {
     Vector3 worldPos = ball->GetPosition();
     Vector3 screenPos = WorldToScreen(worldPos);
 
-    float distance = std::sqrt(
-        std::pow(mousePos.x - screenPos.x, 2) +
-        std::pow(mousePos.y - screenPos.y, 2)
-    );
+    float diffX = mousePos.x - screenPos.x;
+    float diffY = mousePos.y - screenPos.y;
+
+    float distance = static_cast<float>(
+        std::sqrt(
+            static_cast<double>(diffX * diffX + diffY * diffY)
+        )
+        );
 
     return distance <= kScreenBallRadius;
 }
