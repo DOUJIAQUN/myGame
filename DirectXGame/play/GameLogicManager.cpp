@@ -29,7 +29,9 @@ GameLogicManager::GameLogicManager()
     : balls_(nullptr),
     goals_(nullptr),
     camera_(nullptr),
+    // 関数コメント: input_ の処理を実行する。
     input_(Input::GetInstance()) {
+        // 処理コメント: 必要な状態確認やデータ更新を行い、input_ の役割を実現する。
 }
 
 void GameLogicManager::Initialize(
@@ -49,7 +51,9 @@ void GameLogicManager::Initialize(
     );
 }
 
+// 関数コメント: Update の処理を実行する。
 void GameLogicManager::Update() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
     if (isGameOver_) {
         return;
     }
@@ -73,7 +77,9 @@ void GameLogicManager::Update() {
     }
 }
 
+// 関数コメント: HandleMouseHover の処理を実行する。
 void GameLogicManager::HandleMouseHover() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、HandleMouseHover の役割を実現する。
     if (!balls_) {
         return;
     }
@@ -102,7 +108,9 @@ void GameLogicManager::HandleMouseHover() {
     }
 }
 
+// 関数コメント: HandleMouseClick の処理を実行する。
 void GameLogicManager::HandleMouseClick() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、HandleMouseClick の役割を実現する。
     if (!balls_) {
         return;
     }
@@ -158,7 +166,9 @@ void GameLogicManager::HandleMouseClick() {
     }
 }
 
+// 関数コメント: CheckBallGoalCollision の処理を実行する。
 bool GameLogicManager::CheckBallGoalCollision() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、CheckBallGoalCollision の役割を実現する。
     if (!goals_) {
         return false;
     }
@@ -181,7 +191,9 @@ bool GameLogicManager::CheckBallGoalCollision() {
     return allCompleted;
 }
 
+// 関数コメント: UpdateCompletionStatus の処理を実行する。
 void GameLogicManager::UpdateCompletionStatus() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateCompletionStatus の役割を実現する。
     if (!balls_ || !goals_) {
         return;
     }
@@ -227,7 +239,9 @@ void GameLogicManager::UpdateCompletionStatus() {
     }
 }
 
+// 関数コメント: CheckCollisionBetweenBallAndGoal の処理を実行する。
 bool GameLogicManager::CheckCollisionBetweenBallAndGoal(MyEngine::Ball* ball, MyEngine::Goal* goal) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、CheckCollisionBetweenBallAndGoal の役割を実現する。
     if (!ball || !goal) {
         return false;
     }
@@ -241,7 +255,9 @@ bool GameLogicManager::CheckCollisionBetweenBallAndGoal(MyEngine::Ball* ball, My
     return distance <= collisionRadius;
 }
 
+// 関数コメント: HandleBallCollisions の処理を実行する。
 void GameLogicManager::HandleBallCollisions() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、HandleBallCollisions の役割を実現する。
     if (!balls_ || balls_->empty()) {
         return;
     }
@@ -267,7 +283,9 @@ void GameLogicManager::HandleBallCollisions() {
     }
 }
 
+// 関数コメント: CheckBallBallCollision の処理を実行する。
 bool GameLogicManager::CheckBallBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、CheckBallBallCollision の役割を実現する。
     if (!ball1 || !ball2) {
         return false;
     }
@@ -281,7 +299,9 @@ bool GameLogicManager::CheckBallBallCollision(MyEngine::Ball* ball1, MyEngine::B
     return distance <= collisionDistance;
 }
 
+// 関数コメント: ResolveBallCollision の処理を実行する。
 void GameLogicManager::ResolveBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、ResolveBallCollision の役割を実現する。
     if (!ball1 || !ball2) {
         return;
     }
@@ -338,7 +358,9 @@ void GameLogicManager::ResolveBallCollision(MyEngine::Ball* ball1, MyEngine::Bal
     }
 }
 
+// 関数コメント: IsMouseOverBall の処理を実行する。
 bool GameLogicManager::IsMouseOverBall(MyEngine::Ball* ball, const Vector2& mousePos) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、IsMouseOverBall の役割を実現する。
     if (!ball) {
         return false;
     }
@@ -358,7 +380,9 @@ bool GameLogicManager::IsMouseOverBall(MyEngine::Ball* ball, const Vector2& mous
     return distance <= kScreenBallRadius;
 }
 
+// 関数コメント: WorldToScreen の処理を実行する。
 Vector3 GameLogicManager::WorldToScreen(const Vector3& worldPos) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、WorldToScreen の役割を実現する。
     if (!camera_) {
         return { 0.0f, 0.0f, 0.0f };
     }
@@ -414,7 +438,9 @@ Vector3 GameLogicManager::WorldToScreen(const Vector3& worldPos) {
     return { screenX, screenY, clipPos.z };
 }
 
+// 関数コメント: Reset の処理を実行する。
 void GameLogicManager::Reset() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Reset の役割を実現する。
     isGameOver_ = false;
     currentGoalsReached_ = 0;
 

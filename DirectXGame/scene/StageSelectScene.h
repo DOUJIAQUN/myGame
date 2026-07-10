@@ -8,13 +8,31 @@
 
 #include <memory>
 
+/// <summary>
+/// プレイヤーが開始ステージを選択する画面を管理するクラス。
+/// </summary>
 class StageSelectScene : public IScene {
 public:
+    /// <summary>
+    /// StageSelectScene に関する処理を行う。
+    /// </summary>
     StageSelectScene();
+    /// <summary>
+    /// ~StageSelectScene に関する処理を行う。
+    /// </summary>
     ~StageSelectScene();
 
+    /// <summary>
+    /// オブジェクトやシーンの初期化処理を行う。
+    /// </summary>
     void Initialize() override;
+    /// <summary>
+    /// 毎フレームの更新処理を行う。
+    /// </summary>
     void Update() override;
+    /// <summary>
+    /// 描画処理を行う。
+    /// </summary>
     void Draw() override;
     bool IsSceneEnd() const override { return isSceneEnd_; }
     SceneState GetNextSceneState() const override { return nextSceneState_; }
@@ -47,6 +65,12 @@ private:
     int selectedLevel_ = 0;
     SceneState nextSceneState_ = TITLE;
 
+    /// <summary>
+    /// IsMouseOverButton に関する処理を行う。
+    /// </summary>
     bool IsMouseOverButton(const KamataEngine::Vector2& mousePos, KamataEngine::Sprite* buttonSprite);
+    /// <summary>
+    /// UpdateButtonStates に関する処理を行う。
+    /// </summary>
     void UpdateButtonStates();
 };

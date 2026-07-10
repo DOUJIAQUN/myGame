@@ -7,6 +7,9 @@
 
 namespace MyEngine {
 
+/// <summary>
+/// プレイヤーがクリックして爆発させる球体を管理するクラス。位置、速度、爆発、ノックバック、描画処理を担当する。
+/// </summary>
 class Ball
 {
 public:
@@ -14,19 +17,40 @@ public:
 	static constexpr float kDefaultForceMultiplierParam = 1.0f;
 	static constexpr float kDefaultTrailSizeParam = 60.0f;
 
+	/// <summary>
+	/// ~Ball に関する処理を行う。
+	/// </summary>
 	~Ball();
+	/// <summary>
+	/// オブジェクトやシーンの初期化処理を行う。
+	/// </summary>
 	void Initialize(KamataEngine::Camera* camera);
+	/// <summary>
+	/// 毎フレームの更新処理を行う。
+	/// </summary>
 	void Update();
+	/// <summary>
+	/// 描画処理を行う。
+	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// OnEnterGoal に関する処理を行う。
+	/// </summary>
 	void OnEnterGoal(Goal* goal);
 
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 
 	// 接收屏幕坐标来更新爆炸范围位置
+	/// <summary>
+	/// UpdateExplosionRangePosition に関する処理を行う。
+	/// </summary>
 	void UpdateExplosionRangePosition(const KamataEngine::Vector3& screenPos);
 
 	// 爆炸相关方法
+	/// <summary>
+	/// Explode に関する処理を行う。
+	/// </summary>
 	void Explode();                                               // 触发爆炸
 	bool IsExploded() const { return isExploded_; }               // 是否已爆炸
 	bool IsActive() const { return isActive_; }                   // 是否活跃（未消失）
@@ -34,10 +58,19 @@ public:
 		isActive_ = active;
 		if (!active) {
 			// 球体不活跃时，立即清空拖尾
+			/// <summary>
+			/// CleanupTrail に関する処理を行う。
+			/// </summary>
 			CleanupTrail();
 		}
 	}           // 设置活跃状态
+	/// <summary>
+	/// ApplyExplosionForce に関する処理を行う。
+	/// </summary>
 	void ApplyExplosionForce(const KamataEngine::Vector3& force); // 应用爆炸力
+	/// <summary>
+	/// DrawExplosionRange に関する処理を行う。
+	/// </summary>
 	void DrawExplosionRange();
 
 	// 鼠标悬停相关方法
@@ -49,7 +82,13 @@ public:
 	float GetRotation() const { return rotation_; }
 
 	// SetPosition方法，同时更新初始位置
+	/// <summary>
+	/// SetInitialPosition に関する処理を行う。
+	/// </summary>
 	void SetInitialPosition(const KamataEngine::Vector3& position);
+	/// <summary>
+	/// SetPosition に関する処理を行う。
+	/// </summary>
 	void SetPosition(const KamataEngine::Vector3& position);
 
 	// 检查是否可被点击
@@ -59,6 +98,9 @@ public:
 	void SetKnockbackLocked(bool locked) { isKnockbackLocked_ = locked; }
 	bool IsKnockbackLocked() const { return isKnockbackLocked_; }
 
+	/// <summary>
+	/// Reset に関する処理を行う。
+	/// </summary>
 	void Reset();
 
 	// 物理相关方法
@@ -118,6 +160,9 @@ private:
 	static constexpr float kKnockbackLockDuration = 1.0f;      // 击退锁定持续时间（秒）
 
 	// 新增拖尾特效相关变量
+	/// <summary>
+	/// Ball の移動軌跡を表示するためのトレイル情報を保持する構造体。
+	/// </summary>
 	struct TrailPoint {
 		KamataEngine::Vector3 position;
 		float lifetime;
@@ -140,14 +185,41 @@ private:
 	bool isExplosionKnockback_ = false;         // 是否是爆炸击飞
 
 	// 私有方法
+	/// <summary>
+	/// WorldToScreen に関する処理を行う。
+	/// </summary>
 	KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
+	/// <summary>
+	/// UpdateKnockbackLock に関する処理を行う。
+	/// </summary>
 	void UpdateKnockbackLock();                     // 更新击退锁定状态
+	/// <summary>
+	/// UpdateTrail に関する処理を行う。
+	/// </summary>
 	void UpdateTrail();                            // 更新拖尾特效
+	/// <summary>
+	/// DrawTrail に関する処理を行う。
+	/// </summary>
 	void DrawTrail();                              // 绘制拖尾特效
+	/// <summary>
+	/// AddTrailPoint に関する処理を行う。
+	/// </summary>
 	void AddTrailPoint(float size = kDefaultTrailSizeParam);        // 添加拖尾点
+	/// <summary>
+	/// CleanupTrail に関する処理を行う。
+	/// </summary>
 	void CleanupTrail();                           // 清理拖尾资源
+	/// <summary>
+	/// UpdateKnockback に関する処理を行う。
+	/// </summary>
 	void UpdateKnockback();                        // 更新击飞状态
+	/// <summary>
+	/// CalculateSlowDownFactor に関する処理を行う。
+	/// </summary>
 	float CalculateSlowDownFactor();               // 计算减速因子
+	/// <summary>
+	/// AddTrailPointWithConfig に関する処理を行う。
+	/// </summary>
 	void AddTrailPointWithConfig(float size, const KamataEngine::Vector4& color, float lifetime); // 带配置的拖尾点
 };
 

@@ -13,7 +13,10 @@
 
 using namespace KamataEngine;
 
+// 関数コメント: WinMain の処理を実行する。
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、WinMain の役割を実現する。
+    // 処理コメント: 必要な状態確認やデータ更新を行い、WinMain の役割を実現する。
     KamataEngine::Initialize(L"LE4C_08_トウ_カグン");
     DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
@@ -89,7 +92,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
                 if (dynamic_cast<TitleScene*>(currentScene.get())) {
                     selectedLevel = static_cast<TitleScene*>(currentScene.get())->GetSelectedLevel();
                 }
+                // 関数コメント: if の処理を実行する。
                 else if (dynamic_cast<StageSelectScene*>(currentScene.get())) {
+                    // 処理コメント: 必要な状態確認やデータ更新を行い、if の役割を実現する。
+                    // 処理コメント: 必要な状態確認やデータ更新を行い、if の役割を実現する。
                     selectedLevel = static_cast<StageSelectScene*>(currentScene.get())->GetSelectedLevel();
                 }
             }

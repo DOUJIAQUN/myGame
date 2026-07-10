@@ -9,15 +9,33 @@
 
 namespace MyEngine {
 
+/// <summary>
+/// Ball が到達する目標地点を管理するクラス。到達回数、移動設定、達成判定を担当する。
+/// </summary>
 class Goal
 {
 public:
+	/// <summary>
+	/// ~Goal に関する処理を行う。
+	/// </summary>
 	~Goal();
+	/// <summary>
+	/// オブジェクトやシーンの初期化処理を行う。
+	/// </summary>
 	void Initialize(KamataEngine::Camera* camera);
+	/// <summary>
+	/// 毎フレームの更新処理を行う。
+	/// </summary>
 	void Update();
+	/// <summary>
+	/// 描画処理を行う。
+	/// </summary>
 	void Draw();
 
 	// 添加 SetPosition 方法
+	/// <summary>
+	/// SetPosition に関する処理を行う。
+	/// </summary>
 	void SetPosition(const KamataEngine::Vector3& position);
 
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
@@ -31,11 +49,17 @@ public:
 	int GetRequiredCount() const { return requiredCount_; }
 
 	// 移动相关方法，使用配置
+	/// <summary>
+	/// SetMovementConfig に関する処理を行う。
+	/// </summary>
 	void SetMovementConfig(const GoalMovementConfig& config);
 	const GoalMovementConfig& GetMovementConfig() const { return movementConfig_; }
 
 private:
 	// 根据配置选择 Strategy
+	/// <summary>
+	/// SetMoveStrategyByConfig に関する処理を行う。
+	/// </summary>
 	void SetMoveStrategyByConfig();
 
 private:

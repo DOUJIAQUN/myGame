@@ -7,8 +7,14 @@
 #include <memory>
 #include <vector>
 
+/// <summary>
+/// ゲーム中の入力判定、爆発処理、衝突判定、Goal 到達判定を管理するクラス。
+/// </summary>
 class GameLogicManager {
 public:
+    /// <summary>
+    /// GameLogicManager に関する処理を行う。
+    /// </summary>
     GameLogicManager();
     ~GameLogicManager() = default;
 
@@ -20,10 +26,19 @@ public:
     );
 
     // 更新逻辑
+    /// <summary>
+    /// 毎フレームの更新処理を行う。
+    /// </summary>
     void Update();
 
     // 碰撞检测
+    /// <summary>
+    /// CheckBallGoalCollision に関する処理を行う。
+    /// </summary>
     bool CheckBallGoalCollision();
+    /// <summary>
+    /// CheckCollisionBetweenBallAndGoal に関する処理を行う。
+    /// </summary>
     bool CheckCollisionBetweenBallAndGoal(MyEngine::Ball* ball, MyEngine::Goal* goal);
 
     int GetCurrentGoalsReached() const { return currentGoalsReached_; }
@@ -34,6 +49,9 @@ public:
     void SetGameOver(bool gameOver) { isGameOver_ = gameOver; }
 
     // 重置游戏状态
+    /// <summary>
+    /// Reset に関する処理を行う。
+    /// </summary>
     void Reset();
 
 private:
@@ -62,16 +80,40 @@ private:
     std::vector<std::vector<bool>> previousCollisionStates_;
 
 private:
+    /// <summary>
+    /// UpdateCompletionStatus に関する処理を行う。
+    /// </summary>
     void UpdateCompletionStatus();
 
+    /// <summary>
+    /// HandleMouseHover に関する処理を行う。
+    /// </summary>
     void HandleMouseHover();
+    /// <summary>
+    /// HandleMouseClick に関する処理を行う。
+    /// </summary>
     void HandleMouseClick();
 
+    /// <summary>
+    /// IsMouseOverBall に関する処理を行う。
+    /// </summary>
     bool IsMouseOverBall(MyEngine::Ball* ball, const KamataEngine::Vector2& mousePos);
+    /// <summary>
+    /// WorldToScreen に関する処理を行う。
+    /// </summary>
     KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 
     // 球体间碰撞
+    /// <summary>
+    /// HandleBallCollisions に関する処理を行う。
+    /// </summary>
     void HandleBallCollisions();
+    /// <summary>
+    /// CheckBallBallCollision に関する処理を行う。
+    /// </summary>
     bool CheckBallBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2);
+    /// <summary>
+    /// ResolveBallCollision に関する処理を行う。
+    /// </summary>
     void ResolveBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2);
 };

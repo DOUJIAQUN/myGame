@@ -12,12 +12,16 @@ namespace {
 
 LoadingScene::~LoadingScene() = default;
 
+// 関数コメント: StartLoading の処理を実行する。
 void LoadingScene::StartLoading() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、StartLoading の役割を実現する。
     isLoadingComplete_ = false;
     frameCount_ = 0;
 }
 
+// 関数コメント: Initialize の処理を実行する。
 void LoadingScene::Initialize() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Initialize の役割を実現する。
     dxCommon_ = DirectXCommon::GetInstance();
     loadingDuration_ = kLoadingDurationFrame;
 
@@ -28,7 +32,9 @@ void LoadingScene::Initialize() {
     loadingBGSprite_.reset(Sprite::Create(loadingBGTextureHandle_, {kLoadingSpriteX, kLoadingSpriteY}));
 }
 
+// 関数コメント: Update の処理を実行する。
 void LoadingScene::Update() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
     frameCount_++;
 
     if (frameCount_ >= loadingDuration_) {
@@ -36,7 +42,9 @@ void LoadingScene::Update() {
     }
 }
 
+// 関数コメント: Draw の処理を実行する。
 void LoadingScene::Draw() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Draw の役割を実現する。
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
 

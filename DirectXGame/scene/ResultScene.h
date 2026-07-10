@@ -8,13 +8,31 @@
 
 using namespace KamataEngine;
 
+/// <summary>
+/// ゲーム終了後のリザルト画面を管理するクラス。
+/// </summary>
 class ResultScene : public IScene {
 public:
+    /// <summary>
+    /// ResultScene に関する処理を行う。
+    /// </summary>
     ResultScene();
+    /// <summary>
+    /// ~ResultScene に関する処理を行う。
+    /// </summary>
     ~ResultScene();
 
+    /// <summary>
+    /// オブジェクトやシーンの初期化処理を行う。
+    /// </summary>
     void Initialize() override;
+    /// <summary>
+    /// 毎フレームの更新処理を行う。
+    /// </summary>
     void Update() override;
+    /// <summary>
+    /// 描画処理を行う。
+    /// </summary>
     void Draw() override;
 
     bool IsSceneEnd() const override { return isSceneEnd_; }
@@ -48,7 +66,16 @@ private:
     bool isMouseOverTitle_ = false;
 
 private:
+    /// <summary>
+    /// LoadTextures に関する処理を行う。
+    /// </summary>
     void LoadTextures();
+    /// <summary>
+    /// IsMouseOverTitle に関する処理を行う。
+    /// </summary>
     bool IsMouseOverTitle(const Vector2& mousePos);
+    /// <summary>
+    /// UpdateButtonState に関する処理を行う。
+    /// </summary>
     void UpdateButtonState();
 };

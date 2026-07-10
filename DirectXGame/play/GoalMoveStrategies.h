@@ -3,6 +3,9 @@
 #include "IGoalMoveStrategy.h"
 
 // 何もしない（移動なし）
+/// <summary>
+/// Goal を移動させない Strategy クラス。
+/// </summary>
 class NoMoveStrategy final : public IGoalMoveStrategy {
 public:
     void Apply(
@@ -16,6 +19,9 @@ public:
 };
 
 // 水平移動（左右）
+/// <summary>
+/// Goal を水平方向に移動させる Strategy クラス。
+/// </summary>
 class HorizontalMoveStrategy final : public IGoalMoveStrategy {
 public:
     void Apply(
@@ -30,6 +36,9 @@ public:
 };
 
 // 垂直移動（上下）
+/// <summary>
+/// Goal を垂直方向に移動させる Strategy クラス。
+/// </summary>
 class VerticalMoveStrategy final : public IGoalMoveStrategy {
 public:
     void Apply(
@@ -44,6 +53,9 @@ public:
 };
 
 // 円運動
+/// <summary>
+/// Goal を円運動させる Strategy クラス。
+/// </summary>
 class CircularMoveStrategy final : public IGoalMoveStrategy {
 public:
     void Apply(

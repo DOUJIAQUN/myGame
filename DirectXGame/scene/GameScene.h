@@ -23,11 +23,26 @@ using namespace KamataEngine;
 class GameScene : public IScene {
 
 public:
+    /// <summary>
+    /// GameScene に関する処理を行う。
+    /// </summary>
     GameScene();
+    /// <summary>
+    /// ~GameScene に関する処理を行う。
+    /// </summary>
     ~GameScene() override;
 
+    /// <summary>
+    /// オブジェクトやシーンの初期化処理を行う。
+    /// </summary>
     void Initialize() override;
+    /// <summary>
+    /// 毎フレームの更新処理を行う。
+    /// </summary>
     void Update() override;
+    /// <summary>
+    /// 描画処理を行う。
+    /// </summary>
     void Draw() override;
 
     bool IsSceneEnd() const override { return isSceneEnd_; }
@@ -47,18 +62,45 @@ public:
     int GetLevelNumber() const { return levelNumber_; }
 
     // 状態変更
+    /// <summary>
+    /// 現在のゲーム状態を別の状態へ切り替える。
+    /// </summary>
     void ChangeState(std::unique_ptr<IGameState> newState);
 
     // 供状态类调用的公共接口
+    /// <summary>
+    /// UpdateStageInternal に関する処理を行う。
+    /// </summary>
     void UpdateStageInternal();
+    /// <summary>
+    /// UpdateUIInternal に関する処理を行う。
+    /// </summary>
     void UpdateUIInternal();
+    /// <summary>
+    /// UpdateGameLogicInternal に関する処理を行う。
+    /// </summary>
     void UpdateGameLogicInternal();
+    /// <summary>
+    /// UpdateBallsAndGoalsInternal に関する処理を行う。
+    /// </summary>
     void UpdateBallsAndGoalsInternal();
+    /// <summary>
+    /// IsLevelComplete に関する処理を行う。
+    /// </summary>
     bool IsLevelComplete() const;
+    /// <summary>
+    /// SetSceneEndFlag に関する処理を行う。
+    /// </summary>
     void SetSceneEndFlag();
 
     // 供状态类调用的其他公共方法
+    /// <summary>
+    /// 現在のステージを初期状態に戻す。
+    /// </summary>
     void RestartLevel();
+    /// <summary>
+    /// タイトル画面へ戻るための終了フラグを設定する。
+    /// </summary>
     void ReturnToTitle();
 
     // 教程相关
@@ -70,6 +112,9 @@ public:
         currentTutorialIndex_ = 0;
     }
 
+    /// <summary>
+    /// SetBallFactory に関する処理を行う。
+    /// </summary>
     void SetBallFactory(std::unique_ptr<IBallFactory> factory);
 
 private:
@@ -86,6 +131,9 @@ private:
 
     Camera camera_;
 
+    /// <summary>
+    /// チュートリアル、開始待機、開始演出の流れを表す列挙型。
+    /// </summary>
     enum class GameFlowState {
         Tutorial,
         StartWait,
@@ -124,15 +172,45 @@ private:
     std::unique_ptr<IGameState> currentState_;
 
 private:
+    /// <summary>
+    /// LoadTutorialTextures に関する処理を行う。
+    /// </summary>
     void LoadTutorialTextures();
+    /// <summary>
+    /// UpdateTutorial に関する処理を行う。
+    /// </summary>
     void UpdateTutorial();
+    /// <summary>
+    /// UpdateStartWait に関する処理を行う。
+    /// </summary>
     void UpdateStartWait();
+    /// <summary>
+    /// UpdateStartAnim に関する処理を行う。
+    /// </summary>
     void UpdateStartAnim();
+    /// <summary>
+    /// StartGame に関する処理を行う。
+    /// </summary>
     void StartGame();
+    /// <summary>
+    /// DrawTutorial に関する処理を行う。
+    /// </summary>
     void DrawTutorial();
 
+    /// <summary>
+    /// InitializeLevelObjects に関する処理を行う。
+    /// </summary>
     void InitializeLevelObjects();
+    /// <summary>
+    /// CheckLevelCompletion に関する処理を行う。
+    /// </summary>
     void CheckLevelCompletion();
+    /// <summary>
+    /// ResetLevelCompletion に関する処理を行う。
+    /// </summary>
     void ResetLevelCompletion();
+    /// <summary>
+    /// GameOver に関する処理を行う。
+    /// </summary>
     void GameOver();
 };

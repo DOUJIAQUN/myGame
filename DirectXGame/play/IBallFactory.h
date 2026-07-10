@@ -4,6 +4,9 @@
 
 #include <memory>
 
+/// <summary>
+/// Ball 生成処理を抽象化するための Factory インターフェース。
+/// </summary>
 class IBallFactory {
 public:
     virtual ~IBallFactory() = default;

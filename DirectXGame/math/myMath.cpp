@@ -6,7 +6,9 @@ using namespace KamataEngine;
 namespace MyEngine {
 
 // アフィン変換行列の作成
+// 関数コメント: MakeAffineMatrix の処理を実行する。
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rot, const Vector3& translate) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MakeAffineMatrix の役割を実現する。
 
 	Matrix4x4 ScallMat, RotateMat, RotateMatX, RotateMatY, RotateMatZ, TranslateMat, returnMat;
 
@@ -36,7 +38,9 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rot, const Vecto
 }
 
 // 行列の掛け算
+// 関数コメント: MatrixMultiply の処理を実行する。
 Matrix4x4 MatrixMultiply(const Matrix4x4& m1, const Matrix4x4& m2) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MatrixMultiply の役割を実現する。
 
 	Matrix4x4 result;
 	result.m[0][0] = m1.m[0][0] * m2.m[0][0] + m1.m[0][1] * m2.m[1][0] + m1.m[0][2] * m2.m[2][0] + m1.m[0][3] * m2.m[3][0];
@@ -59,7 +63,9 @@ Matrix4x4 MatrixMultiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return result;
 }
 
+// 関数コメント: Multiply の処理を実行する。
 Matrix4x4 myMath::Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Multiply の役割を実現する。
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -73,7 +79,9 @@ Matrix4x4 myMath::Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 }
 
 // 1. 平行移動行列
+// 関数コメント: MakeTranslateMatrix の処理を実行する。
 Matrix4x4 myMath::MakeTranslateMatrix(const Vector3& translate) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MakeTranslateMatrix の役割を実現する。
 	Matrix4x4 result;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -91,7 +99,9 @@ Matrix4x4 myMath::MakeTranslateMatrix(const Vector3& translate) {
 	return result;
 }
 // 2. 拡大縮小行列
+// 関数コメント: MakeScaleMatrix の処理を実行する。
 Matrix4x4 myMath::MakeScaleMatrix(const Vector3& scale) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MakeScaleMatrix の役割を実現する。
 	Matrix4x4 result;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -109,7 +119,9 @@ Matrix4x4 myMath::MakeScaleMatrix(const Vector3& scale) {
 	return result;
 }
 // 1. X軸回転行列
+// 関数コメント: MakeRotateXMatrix の処理を実行する。
 Matrix4x4 myMath::MakeRotateXMatrix(float radius) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MakeRotateXMatrix の役割を実現する。
 	Matrix4x4 result;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -129,7 +141,9 @@ Matrix4x4 myMath::MakeRotateXMatrix(float radius) {
 	return result;
 }
 // 2. Y軸回転行列
+// 関数コメント: MakeRotateYMatrix の処理を実行する。
 Matrix4x4 myMath::MakeRotateYMatrix(float radius) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MakeRotateYMatrix の役割を実現する。
 	Matrix4x4 result;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -149,7 +163,9 @@ Matrix4x4 myMath::MakeRotateYMatrix(float radius) {
 	return result;
 }
 // 3. Z軸回転行列
+// 関数コメント: MakeRotateZMatrix の処理を実行する。
 Matrix4x4 myMath::MakeRotateZMatrix(float radius) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MakeRotateZMatrix の役割を実現する。
 	Matrix4x4 result;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -169,7 +185,9 @@ Matrix4x4 myMath::MakeRotateZMatrix(float radius) {
 	return result;
 }
 
+// 関数コメント: MakeAffineMatrix の処理を実行する。
 Matrix4x4 myMath::MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、MakeAffineMatrix の役割を実現する。
 	Matrix4x4 translateMatrix = MakeTranslateMatrix(translate);
 	Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
 	Matrix4x4 rotateMatrix = Multiply(MakeRotateXMatrix(rotate.x), Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z)));
@@ -179,7 +197,9 @@ Matrix4x4 myMath::MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, 
 	return SRTResult;
 }
 
+// 関数コメント: Transform の処理を実行する。
 Vector3 myMath::Transform(const Vector3& vector, const Matrix4x4& matrix) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Transform の役割を実現する。
 	Vector3 result;
 	result.x = matrix.m[0][0] * vector.x + matrix.m[1][0] * vector.y + matrix.m[2][0] * vector.z + matrix.m[3][0];
 	result.y = matrix.m[0][1] * vector.x + matrix.m[1][1] * vector.y + matrix.m[2][1] * vector.z + matrix.m[3][1];
@@ -193,7 +213,9 @@ Vector3 myMath::Transform(const Vector3& vector, const Matrix4x4& matrix) {
 }
 
 // Vector4 版本的 Transform 函数
+// 関数コメント: Transform の処理を実行する。
 Vector4 myMath::Transform(const Vector4& vector, const Matrix4x4& matrix) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Transform の役割を実現する。
 	Vector4 result;
 	result.x = matrix.m[0][0] * vector.x + matrix.m[1][0] * vector.y + matrix.m[2][0] * vector.z + matrix.m[3][0] * vector.w;
 	result.y = matrix.m[0][1] * vector.x + matrix.m[1][1] * vector.y + matrix.m[2][1] * vector.z + matrix.m[3][1] * vector.w;
@@ -236,19 +258,27 @@ KamataEngine::Vector3 myMath::Add(const KamataEngine::Vector3& vec1, const Kamat
 }
 
 // 減算
+// 関数コメント: Subtract の処理を実行する。
 KamataEngine::Vector3 myMath::Subtract(const KamataEngine::Vector3& v1, const KamataEngine::Vector3& v2) { return { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z }; }
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Subtract の役割を実現する。
 
+// 関数コメント: Multiply の処理を実行する。
 KamataEngine::Vector3 myMath::Multiply(float scalar, const KamataEngine::Vector3& vector) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Multiply の役割を実現する。
 	return { scalar * vector.x, scalar * vector.y, scalar * vector.z };
 }
 
+// 関数コメント: Length の処理を実行する。
 float myMath::Length(const KamataEngine::Vector3& v) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Length の役割を実現する。
 	return std::sqrt(Dot(v, v));
 }
 
 
 // 添加距离计算函数实现
+// 関数コメント: Distance の処理を実行する。
 float myMath::Distance(const KamataEngine::Vector3& v1, const KamataEngine::Vector3& v2) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Distance の役割を実現する。
 	float dx = v1.x - v2.x;
 	float dy = v1.y - v2.y;
 	float dz = v1.z - v2.z;

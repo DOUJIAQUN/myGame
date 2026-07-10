@@ -21,7 +21,9 @@ namespace {
 
 TitleScene::~TitleScene() = default;
 
+// 関数コメント: Initialize の処理を実行する。
 void TitleScene::Initialize() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Initialize の役割を実現する。
     input_ = Input::GetInstance();
     dxCommon_ = DirectXCommon::GetInstance();
 
@@ -56,7 +58,9 @@ void TitleScene::Initialize() {
     isMouseOverStageSelect_ = false;
 }
 
+// 関数コメント: Update の処理を実行する。
 void TitleScene::Update() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
     frameCount_++;
 
     float offsetY = std::sin(frameCount_ * kTitleWaveSpeed) * kTitleWaveAmplitude;
@@ -74,7 +78,9 @@ void TitleScene::Update() {
             nextSceneState_ = LOADING;
             isSceneEnd_ = true;
         }
+        // 関数コメント: if の処理を実行する。
         else if (IsMouseOverButton(mousePos, stageSelectButtonSprite_.get())) {
+            // 処理コメント: 必要な状態確認やデータ更新を行い、if の役割を実現する。
             selectedLevel_ = kStageSelectSelectedLevel;
             nextSceneState_ = STAGE_SELECT;
             isSceneEnd_ = true;
@@ -82,7 +88,9 @@ void TitleScene::Update() {
     }
 }
 
+// 関数コメント: UpdateButtonStates の処理を実行する。
 void TitleScene::UpdateButtonStates() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateButtonStates の役割を実現する。
     Vector2 mousePos = input_->GetMousePosition();
 
     bool wasMouseOverStart = isMouseOverStart_;
@@ -110,7 +118,9 @@ void TitleScene::UpdateButtonStates() {
     );
 }
 
+// 関数コメント: Draw の処理を実行する。
 void TitleScene::Draw() {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、Draw の役割を実現する。
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
 
@@ -131,7 +141,9 @@ void TitleScene::Draw() {
     dxCommon_->ClearDepthBuffer();
 }
 
+// 関数コメント: IsMouseOverButton の処理を実行する。
 bool TitleScene::IsMouseOverButton(const Vector2& mousePos, Sprite* buttonSprite) {
+    // 処理コメント: 必要な状態確認やデータ更新を行い、IsMouseOverButton の役割を実現する。
     if (!buttonSprite) {
         return false;
     }

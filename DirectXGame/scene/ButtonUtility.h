@@ -2,6 +2,9 @@
 
 #include <KamataEngine.h>
 
+/// <summary>
+/// ボタン用 Sprite の共通処理をまとめたユーティリティクラス。
+/// </summary>
 class ButtonUtility {
 public:
     static void UpdateHoverSprite(

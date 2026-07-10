@@ -7,11 +7,26 @@
 
 #include <memory>
 
+/// <summary>
+/// タイトル画面の表示、ボタン入力、次シーンへの遷移を管理するクラス。
+/// </summary>
 class TitleScene : public IScene {
 public:
+    /// <summary>
+    /// ~TitleScene に関する処理を行う。
+    /// </summary>
     ~TitleScene();
+    /// <summary>
+    /// オブジェクトやシーンの初期化処理を行う。
+    /// </summary>
     void Initialize() override;
+    /// <summary>
+    /// 毎フレームの更新処理を行う。
+    /// </summary>
     void Update() override;
+    /// <summary>
+    /// 描画処理を行う。
+    /// </summary>
     void Draw() override;
     bool IsSceneEnd() const override { return isSceneEnd_; }
     SceneState GetNextSceneState() const override { return nextSceneState_; }
@@ -47,6 +62,12 @@ private:
     int selectedLevel_ = 1;
     SceneState nextSceneState_ = LOADING;
 
+    /// <summary>
+    /// IsMouseOverButton に関する処理を行う。
+    /// </summary>
     bool IsMouseOverButton(const KamataEngine::Vector2& mousePos, KamataEngine::Sprite* buttonSprite);
+    /// <summary>
+    /// UpdateButtonStates に関する処理を行う。
+    /// </summary>
     void UpdateButtonStates();
 };

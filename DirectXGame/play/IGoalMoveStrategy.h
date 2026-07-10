@@ -3,6 +3,9 @@
 #include "GoalMovementConfig.h"
 
 // ゴールの移動アルゴリズムを差し替えるための Strategy インターフェース
+/// <summary>
+/// Goal の移動アルゴリズムを差し替えるための Strategy インターフェース。
+/// </summary>
 class IGoalMoveStrategy {
 public:
     virtual ~IGoalMoveStrategy() = default;
