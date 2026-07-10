@@ -2,8 +2,11 @@
 
 #include <KamataEngine.h>
 
+
+namespace MyEngine {
+
 /// <summary>
-/// ボタン用 Sprite の共通処理をまとめたユーティリティクラス。
+/// ボタン用 KamataEngine::Sprite の共通処理をまとめたユーティリティクラス。
 /// </summary>
 class ButtonUtility {
 public:
@@ -16,3 +19,5 @@ public:
         bool wasMouseOver
     );
 };
+
+} // namespace MyEngine

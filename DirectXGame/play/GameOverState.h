@@ -1,6 +1,9 @@
 #pragma once
 #include "IGameState.h"
 
+
+namespace MyEngine {
+
 /// <summary>
 /// ゲームクリア後、リザルトへ遷移するまでの状態を管理するクラス。
 /// </summary>
@@ -19,3 +22,5 @@ public:
     /// </summary>
     void Exit(GameScene* scene) override;
 };
+
+} // namespace MyEngine

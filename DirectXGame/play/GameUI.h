@@ -4,7 +4,7 @@
 
 #include <memory>
 
-using namespace KamataEngine;
+namespace MyEngine {
 
 /// <summary>
 /// ゲーム中のリスタートボタンやタイトルへ戻るボタンなどの UI を管理するクラス。
@@ -12,12 +12,12 @@ using namespace KamataEngine;
 class GameUI {
 public:
     /// <summary>
-    /// GameUI に関する処理を行う。
-    /// </summary>
+/// リスタートボタンとタイトルボタンの Sprite、入力判定、クリック状態を管理する。
+/// </summary>
     GameUI();
     /// <summary>
-    /// ~GameUI に関する処理を行う。
-    /// </summary>
+/// GameUI が所有する Sprite を unique_ptr により自動解放する。
+/// </summary>
     ~GameUI();
 
     /// <summary>
@@ -40,27 +40,27 @@ public:
     void SetShowTitleButton(bool show) { showTitleButton_ = show; }
 
     /// <summary>
-    /// ResetClicks に関する処理を行う。
-    /// </summary>
+/// 前フレームの UI クリック状態を消去し、次フレームの入力判定に備える。
+/// </summary>
     void ResetClicks();
 
 private:
-    DirectXCommon* dxCommon_ = nullptr;
-    Input* input_ = nullptr;
+    KamataEngine::DirectXCommon* dxCommon_ = nullptr;
+    KamataEngine::Input* input_ = nullptr;
 
     bool isRestartClicked_ = false;
     bool isReturnToTitleClicked_ = false;
 
     uint32_t restartTextureHandle_ = 0;
-    std::unique_ptr<Sprite> restartSprite_;
+    std::unique_ptr<KamataEngine::Sprite> restartSprite_;
 
     uint32_t titleTextureHandle_ = 0;
-    std::unique_ptr<Sprite> titleSprite_;
+    std::unique_ptr<KamataEngine::Sprite> titleSprite_;
 
-    Vector2 restartPosition_ = {};
-    Vector2 titlePosition_ = {};
-    Vector2 normalButtonSize_ = {};
-    Vector2 hoverButtonSize_ = {};
+    KamataEngine::Vector2 restartPosition_ = {};
+    KamataEngine::Vector2 titlePosition_ = {};
+    KamataEngine::Vector2 normalButtonSize_ = {};
+    KamataEngine::Vector2 hoverButtonSize_ = {};
 
     bool showRestartButton_ = true;
     bool showTitleButton_ = true;
@@ -70,19 +70,21 @@ private:
 
 private:
     /// <summary>
-    /// LoadTextures に関する処理を行う。
-    /// </summary>
+/// UI ボタン用テクスチャを読み込み、対応する Sprite を生成する。
+/// </summary>
     void LoadTextures();
     /// <summary>
-    /// IsMouseOverRestart に関する処理を行う。
-    /// </summary>
-    bool IsMouseOverRestart(const Vector2& mousePos);
+/// マウス座標がリスタートボタンの矩形内にあるか判定する。
+/// </summary>
+    bool IsMouseOverRestart(const KamataEngine::Vector2& mousePos);
     /// <summary>
-    /// IsMouseOverTitle に関する処理を行う。
-    /// </summary>
-    bool IsMouseOverTitle(const Vector2& mousePos);
+/// マウス座標がタイトルボタンの矩形内にあるか判定する。
+/// </summary>
+    bool IsMouseOverTitle(const KamataEngine::Vector2& mousePos);
     /// <summary>
-    /// UpdateButtonStates に関する処理を行う。
-    /// </summary>
+/// 各ボタンのホバー状態を更新し、クリックされたボタンのフラグを立てる。
+/// </summary>
     void UpdateButtonStates();
 };
+
+} // namespace MyEngine

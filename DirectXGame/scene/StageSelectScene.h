@@ -8,18 +8,22 @@
 
 #include <memory>
 
+namespace MyEngine {
+
+
 /// <summary>
 /// プレイヤーが開始ステージを選択する画面を管理するクラス。
 /// </summary>
+
 class StageSelectScene : public IScene {
 public:
     /// <summary>
-    /// StageSelectScene に関する処理を行う。
-    /// </summary>
+/// ステージ選択画面のボタン、背景、選択結果の初期状態を準備する。
+/// </summary>
     StageSelectScene();
     /// <summary>
-    /// ~StageSelectScene に関する処理を行う。
-    /// </summary>
+/// StageSelectScene が所有する Sprite と UI を unique_ptr により解放する。
+/// </summary>
     ~StageSelectScene();
 
     /// <summary>
@@ -66,11 +70,13 @@ private:
     SceneState nextSceneState_ = TITLE;
 
     /// <summary>
-    /// IsMouseOverButton に関する処理を行う。
-    /// </summary>
+/// 指定された Sprite の矩形範囲内にマウス座標があるか判定する。
+/// </summary>
     bool IsMouseOverButton(const KamataEngine::Vector2& mousePos, KamataEngine::Sprite* buttonSprite);
     /// <summary>
-    /// UpdateButtonStates に関する処理を行う。
-    /// </summary>
+/// 各ボタンのホバー状態を更新し、クリックされたボタンのフラグを立てる。
+/// </summary>
     void UpdateButtonStates();
 };
+
+} // namespace MyEngine

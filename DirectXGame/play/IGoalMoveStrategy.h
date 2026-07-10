@@ -2,6 +2,9 @@
 #include "KamataEngine.h"
 #include "GoalMovementConfig.h"
 
+
+namespace MyEngine {
+
 // ゴールの移動アルゴリズムを差し替えるための Strategy インターフェース
 /// <summary>
 /// Goal の移動アルゴリズムを差し替えるための Strategy インターフェース。
@@ -19,3 +22,5 @@ public:
         const GoalMovementConfig& config
     ) = 0;
 };
+
+} // namespace MyEngine

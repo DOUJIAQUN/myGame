@@ -9,18 +9,21 @@
 #include <string>
 #include <memory>
 
+
+namespace MyEngine {
+
 /// <summary>
 /// 複数の GameScene を保持し、ステージ進行とシーン遷移を管理するクラス。
 /// </summary>
 class LevelManager : public IScene {
 public:
     /// <summary>
-    /// LevelManager に関する処理を行う。
-    /// </summary>
+/// ステージ一覧と LoadingScene を生成し、最初のステージから進行できる状態にする。
+/// </summary>
     LevelManager();
     /// <summary>
-    /// ~LevelManager に関する処理を行う。
-    /// </summary>
+/// 保持しているステージ一覧を破棄し、レベル管理で確保したリソースを解放する。
+/// </summary>
     ~LevelManager();
 
     /// <summary>
@@ -55,12 +58,12 @@ public:
 
     // 关卡控制
     /// <summary>
-    /// GoToNextLevel に関する処理を行う。
-    /// </summary>
+/// 現在のステージ番号を次へ進め、存在する場合は次の GameScene を初期化する。
+/// </summary>
     void GoToNextLevel();
     /// <summary>
-    /// RestartCurrentLevel に関する処理を行う。
-    /// </summary>
+/// 現在プレイ中の GameScene を再初期化し、同じステージを最初からやり直す。
+/// </summary>
     void RestartCurrentLevel();
     /// <summary>
     /// タイトル画面へ戻るための終了フラグを設定する。
@@ -74,8 +77,9 @@ public:
 
     // 设置当前关卡
     /// <summary>
-    /// SetCurrentLevel に関する処理を行う。
-    /// </summary>
+/// ステージ選択画面から受け取った番号を、開始するステージ index に変換して保存する。
+/// </summary>
+/// <param name="level">1 始まりのステージ番号。</param>
     void SetCurrentLevel(int level);
 
     // 获取关卡信息
@@ -84,8 +88,8 @@ public:
     }
 
     /// <summary>
-    /// GetCurrentLevelName に関する処理を行う。
-    /// </summary>
+/// 現在のステージインデックスに対応する表示用ステージ名を返す。
+/// </summary>
     std::string GetCurrentLevelName() const;
 
 private:
@@ -119,42 +123,48 @@ private:
 
 private:
     /// <summary>
-    /// CreateLevels に関する処理を行う。
-    /// </summary>
+/// JSON から読み込んだステージ設定をもとに、GameScene の一覧を生成する。
+/// </summary>
     void CreateLevels();
 
     /// <summary>
-    /// LoadLevelConfigsFromJson に関する処理を行う。
-    /// </summary>
+/// 外部 JSON ファイルを読み込み、各ステージの生成に必要な LevelConfig 配列へ変換する。
+/// </summary>
+/// <param name="filePath">読み込む level_config.json のパス。</param>
+/// <returns>読み込みに成功したステージ設定の配列。失敗時は空配列。</returns>
     std::vector<LevelConfig> LoadLevelConfigsFromJson(const std::string& filePath) const;
     /// <summary>
-    /// StringToMoveDirection に関する処理を行う。
-    /// </summary>
+/// JSON 内の移動方向文字列を MoveDirection enum に変換する。
+/// </summary>
+/// <param name="directionText">Horizontal、Vertical、Circular のいずれかの文字列。</param>
+/// <returns>対応する MoveDirection。未知の文字列は Horizontal として扱う。</returns>
     MoveDirection StringToMoveDirection(const std::string& directionText) const;
     
     /// <summary>
-    /// CleanupLevels に関する処理を行う。
-    /// </summary>
+/// 保持している GameScene の一覧をクリアし、unique_ptr にリソース解放を任せる。
+/// </summary>
     void CleanupLevels();
     /// <summary>
-    /// StartLevelTransition に関する処理を行う。
-    /// </summary>
+/// 次ステージまたはリザルトへ進むために Loading 状態へ切り替える。
+/// </summary>
     void StartLevelTransition();
 
     /// <summary>
-    /// UpdatePlayingState に関する処理を行う。
-    /// </summary>
+/// 現在の GameScene を更新し、ステージ終了時の遷移先を判定する。
+/// </summary>
     void UpdatePlayingState();
     /// <summary>
-    /// UpdateLoadingState に関する処理を行う。
-    /// </summary>
+/// LoadingScene の完了を監視し、次のステージ開始または全クリア処理へ進める。
+/// </summary>
     void UpdateLoadingState();
     /// <summary>
-    /// UpdateTransitionState に関する処理を行う。
-    /// </summary>
+/// ステージ切り替え中の追加演出が必要になった場合に使用する更新枠。
+/// </summary>
     void UpdateTransitionState();
     /// <summary>
-    /// UpdateGameCompleteState に関する処理を行う。
-    /// </summary>
+/// 全ステージクリア後の Loading を更新し、完了したら Result へ遷移できる状態にする。
+/// </summary>
     void UpdateGameCompleteState();
 };
+
+} // namespace MyEngine

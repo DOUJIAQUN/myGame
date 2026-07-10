@@ -4,6 +4,9 @@
 
 #include <memory>
 
+
+namespace MyEngine {
+
 /// <summary>
 /// Ball オブジェクトの生成処理を具体的に実装する Factory クラス。
 /// </summary>
@@ -14,3 +17,5 @@ public:
         int levelNumber
     ) override;
 };
+
+} // namespace MyEngine

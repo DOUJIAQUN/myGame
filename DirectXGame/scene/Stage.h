@@ -4,14 +4,17 @@
 
 #include <memory>
 
+
+namespace MyEngine {
+
 /// <summary>
 /// ゲーム背景やステージ表示を管理するクラス。
 /// </summary>
 class Stage {
 public:
     /// <summary>
-    /// ~Stage に関する処理を行う。
-    /// </summary>
+/// Stage が所有する背景 Sprite を unique_ptr により解放する。
+/// </summary>
     ~Stage();
     /// <summary>
     /// オブジェクトやシーンの初期化処理を行う。
@@ -35,3 +38,5 @@ private:
     int screenWidth_ = 0;
     uint32_t textureHandle_ = 0;
 };
+
+} // namespace MyEngine

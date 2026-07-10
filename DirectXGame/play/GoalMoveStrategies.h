@@ -2,6 +2,9 @@
 #include <cmath>
 #include "IGoalMoveStrategy.h"
 
+
+namespace MyEngine {
+
 // 何もしない（移動なし）
 /// <summary>
 /// Goal を移動させない Strategy クラス。
@@ -30,7 +33,7 @@ public:
         float timer,
         const GoalMovementConfig& config
     ) override {
-        float moveDistance = std::sin(timer * config.moveSpeed) * config.moveRange;
+        float moveDistance = static_cast<float>(std::sin(static_cast<double>(timer * config.moveSpeed))) * config.moveRange;
         worldTransform.translation_.x = initialPosition.x + moveDistance;
     }
 };
@@ -47,7 +50,7 @@ public:
         float timer,
         const GoalMovementConfig& config
     ) override {
-        float moveDistance = std::sin(timer * config.moveSpeed) * config.moveRange;
+        float moveDistance = static_cast<float>(std::sin(static_cast<double>(timer * config.moveSpeed))) * config.moveRange;
         worldTransform.translation_.y = initialPosition.y + moveDistance;
     }
 };
@@ -67,6 +70,8 @@ public:
         worldTransform.translation_.x =
             initialPosition.x + std::cos(timer * config.moveSpeed) * config.moveRange;
         worldTransform.translation_.y =
-            initialPosition.y + std::sin(timer * config.moveSpeed) * config.moveRange;
+            initialPosition.y + static_cast<float>(std::sin(static_cast<double>(timer * config.moveSpeed))) * config.moveRange;
     }
 };
+
+} // namespace MyEngine

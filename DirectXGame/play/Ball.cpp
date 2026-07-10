@@ -54,9 +54,8 @@ namespace MyEngine {
 
 Ball::~Ball() = default;
 
-// 関数コメント: Initialize の処理を実行する。
 void Ball::Initialize(Camera* camera) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Initialize の役割を実現する。
+	// Model と Sprite を生成し、クリック前の初期位置・速度・表示状態をまとめて初期化する。
 	camera_ = camera;
 	worldTransform_.Initialize();
 	model_.reset(Model::CreateFromOBJ("Player", true));
@@ -128,25 +127,20 @@ void Ball::Initialize(Camera* camera) {
 }
 
 // 设置初始位置
-// 関数コメント: SetInitialPosition の処理を実行する。
 void Ball::SetInitialPosition(const KamataEngine::Vector3& position) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、SetInitialPosition の役割を実現する。
 	initialPosition_ = position;
 	worldTransform_.translation_ = position;
 	worldTransform_.UpdateMatrix();
 }
 
 // SetPosition 方法的实现
-// 関数コメント: SetPosition の処理を実行する。
 void Ball::SetPosition(const KamataEngine::Vector3& position) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、SetPosition の役割を実現する。
 	worldTransform_.translation_ = position;
 	worldTransform_.UpdateMatrix();
 }
 
-// 関数コメント: Explode の処理を実行する。
 void Ball::Explode() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Explode の役割を実現する。
+	// 爆発済みの Ball は再度クリックできないため、状態フラグを先に切り替える。
 	// 如果已经爆炸或是不活跃状态，不重复爆炸
 	if (isExploded_ || !isActive_) return;
 
@@ -170,9 +164,7 @@ void Ball::Explode() {
 	}
 }
 
-// 関数コメント: ApplyExplosionForce の処理を実行する。
 void Ball::ApplyExplosionForce(const KamataEngine::Vector3& force) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、ApplyExplosionForce の役割を実現する。
 	// 使用统一的击飞方法，爆炸击飞使用特定参数
 	StartKnockback(
 		force,
@@ -214,9 +206,8 @@ void Ball::StartKnockback(const KamataEngine::Vector3& force,
 	}
 }
 
-// 関数コメント: Update の処理を実行する。
 void Ball::Update() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
+	// Ball の状態に応じて、爆発アニメーション、ノックバック、トレイル、回転を順番に更新する。
 	// 更新爆炸动画
 	if (isExplosionAnimPlaying_) {
 		explosionAnimTimer_ += kFrameDeltaTime; // 假设60帧
@@ -276,9 +267,8 @@ void Ball::Update() {
 }
 
 // 计算减速因子
-// 関数コメント: CalculateSlowDownFactor の処理を実行する。
 float Ball::CalculateSlowDownFactor() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、CalculateSlowDownFactor の役割を実現する。
+	// ノックバックの種類によって減速率を変え、爆発時と衝突時の手触りを分ける。
 	if (isKnockedBack_) {
 		float progress = knockbackTimer_ / knockbackDuration_;
 
@@ -298,9 +288,8 @@ float Ball::CalculateSlowDownFactor() {
 }
 
 // 更新击飞状态
-// 関数コメント: UpdateKnockback の処理を実行する。
 void Ball::UpdateKnockback() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateKnockback の役割を実現する。
+	// ノックバック力を速度として位置に加算し、経過時間に応じて徐々に減速させる。
 	if (!isKnockedBack_) return;
 
 	knockbackTimer_ += kFrameDeltaTime;
@@ -316,9 +305,7 @@ void Ball::UpdateKnockback() {
 }
 
 // 更新击退锁定状态
-// 関数コメント: UpdateKnockbackLock の処理を実行する。
 void Ball::UpdateKnockbackLock() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateKnockbackLock の役割を実現する。
 	if (isKnockbackLocked_) {
 		knockbackLockTimer_ += kFrameDeltaTime;
 
@@ -337,9 +324,8 @@ void Ball::UpdateKnockbackLock() {
 }
 
 // 更新拖尾特效
-// 関数コメント: UpdateTrail の処理を実行する。
 void Ball::UpdateTrail() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateTrail の役割を実現する。
+	// 移動中だけ一定間隔でトレイル点を追加し、寿命を超えた点から順に削除する。
 	// 决定使用哪种拖尾参数
 	float currentSpawnInterval = kTrailSpawnInterval;
 	int currentMaxPoints = kMaxTrailPoints;
@@ -425,9 +411,8 @@ void Ball::UpdateTrail() {
 }
 
 // 带配置的拖尾点添加方法
-// 関数コメント: AddTrailPointWithConfig の処理を実行する。
 void Ball::AddTrailPointWithConfig(float size, const Vector4& color, float lifetime) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、AddTrailPointWithConfig の役割を実現する。
+	// 3D 座標を画面座標へ変換し、その位置にトレイル用 Sprite を生成する。
 	TrailPoint newPoint;
 	newPoint.position = worldTransform_.translation_;
 	newPoint.lifetime = kColorMin;
@@ -447,16 +432,12 @@ void Ball::AddTrailPointWithConfig(float size, const Vector4& color, float lifet
 }
 
 // 添加拖尾点
-// 関数コメント: AddTrailPoint の処理を実行する。
 void Ball::AddTrailPoint(float size) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、AddTrailPoint の役割を実現する。
 	AddTrailPointWithConfig(size, { kColorMax, kColorMax, kColorMax, kColorMax }, kDefaultTrailLifetime);
 }
 
 // 绘制拖尾特效
-// 関数コメント: DrawTrail の処理を実行する。
 void Ball::DrawTrail() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、DrawTrail の役割を実現する。
 	for (const auto& trailPoint : trailPoints_) {
 		if (trailPoint.sprite) {
 			// 更新位置（因为相机可能移动了）
@@ -478,16 +459,13 @@ void Ball::DrawTrail() {
 }
 
 // 清理拖尾资源
-// 関数コメント: CleanupTrail の処理を実行する。
 void Ball::CleanupTrail() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、CleanupTrail の役割を実現する。
 	trailPoints_.clear();
 }
 
 // 世界坐标转屏幕坐标的辅助函数
-// 関数コメント: WorldToScreen の処理を実行する。
 KamataEngine::Vector3 Ball::WorldToScreen(const KamataEngine::Vector3& worldPos) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、WorldToScreen の役割を実現する。
+	// Camera の view-projection 行列でクリップ座標へ変換し、NDC から画面座標へ写像する。
 	// 使用相机的视图投影矩阵进行坐标转换
 	const Matrix4x4& viewMatrix = camera_->matView;
 	const Matrix4x4& projectionMatrix = camera_->matProjection;
@@ -513,9 +491,7 @@ KamataEngine::Vector3 Ball::WorldToScreen(const KamataEngine::Vector3& worldPos)
 }
 
 // 使用屏幕坐标更新爆炸范围位置
-// 関数コメント: UpdateExplosionRangePosition の処理を実行する。
 void Ball::UpdateExplosionRangePosition(const KamataEngine::Vector3& screenPos) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateExplosionRangePosition の役割を実現する。
 	if (isMouseOver_ && isActive_ && !isExploded_ && explosionRangeSprite_ != nullptr) {
 		// 由于设置了中心锚点，现在可以直接使用屏幕坐标作为位置
 		// 锚点为(0.5, 0.5)时，Sprite的位置就是图片的中心点
@@ -526,17 +502,13 @@ void Ball::UpdateExplosionRangePosition(const KamataEngine::Vector3& screenPos) 
 	}
 }
 
-// 関数コメント: Draw の処理を実行する。
 void Ball::Draw() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Draw の役割を実現する。
 	if (isActive_) {
 		model_->Draw(worldTransform_, *camera_);
 	}
 }
 
-// 関数コメント: DrawExplosionRange の処理を実行する。
 void Ball::DrawExplosionRange() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、DrawExplosionRange の役割を実現する。
 	// 如果鼠标悬停且球体活跃且未爆炸，绘制爆炸范围
 	if (isMouseOver_ && isActive_ && !isExploded_ && explosionRangeSprite_ != nullptr) {
 		explosionRangeSprite_->Draw();
@@ -550,9 +522,7 @@ void Ball::DrawExplosionRange() {
 	DrawTrail();
 }
 
-// 関数コメント: Reset の処理を実行する。
 void Ball::Reset() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Reset の役割を実現する。
 	// 重置位置到各自独特的初始位置
 	worldTransform_.translation_ = initialPosition_;
 
@@ -594,9 +564,8 @@ void Ball::Reset() {
 	worldTransform_.UpdateMatrix();
 }
 
-// 関数コメント: OnEnterGoal の処理を実行する。
 void Ball::OnEnterGoal(Goal* goal) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、OnEnterGoal の役割を実現する。
+	// 同じ Ball が Goal 内に居続けても重複カウントしないよう、接触開始時だけ呼ばれる。
 	// 如果球已经不活跃或已爆炸，不再重复处理
 	if (!isActive_ || isExploded_) return;
 

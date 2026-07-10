@@ -9,6 +9,8 @@
 #include <memory>
 #include <utility>
 
+
+using namespace KamataEngine;
 namespace {
     const Vector2 kStartSpriteInitialSize = {3840.0f, 2160.0f};
     const Vector2 kStartSpriteTargetSize = {1280.0f, 720.0f};
@@ -22,17 +24,16 @@ namespace {
     constexpr int kLeftMouseButton = 0;
 }
 
-// 関数コメント: GameScene の処理を実行する。
+
+namespace MyEngine {
+
 GameScene::GameScene() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、GameScene の役割を実現する。
     ballFactory_ = std::make_unique<ConcreteBallFactory>();
 }
 
 GameScene::~GameScene() = default;
 
-// 関数コメント: Initialize の処理を実行する。
 void GameScene::Initialize() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Initialize の役割を実現する。
     dxCommon_ = DirectXCommon::GetInstance();
     input_ = Input::GetInstance();
 
@@ -74,9 +75,7 @@ void GameScene::Initialize() {
     gameLogicManager_.Initialize(balls_, goals_, &camera_);
 }
 
-// 関数コメント: Update の処理を実行する。
 void GameScene::Update() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
     switch (gameFlowState_) {
     case GameFlowState::Tutorial:
         UpdateTutorial();
@@ -98,9 +97,7 @@ void GameScene::Update() {
     camera_.UpdateMatrix();
 }
 
-// 関数コメント: Draw の処理を実行する。
 void GameScene::Draw() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Draw の役割を実現する。
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
     Sprite::PreDraw(commandList);
@@ -142,9 +139,7 @@ void GameScene::Draw() {
     Sprite::PostDraw();
 }
 
-// 関数コメント: ChangeState の処理を実行する。
 void GameScene::ChangeState(std::unique_ptr<IGameState> newState) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、ChangeState の役割を実現する。
     if (currentState_) {
         currentState_->Exit(this);
     }
@@ -156,17 +151,13 @@ void GameScene::ChangeState(std::unique_ptr<IGameState> newState) {
     }
 }
 
-// 関数コメント: UpdateStageInternal の処理を実行する。
 void GameScene::UpdateStageInternal() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateStageInternal の役割を実現する。
     if (stage_) {
         stage_->Update();
     }
 }
 
-// 関数コメント: UpdateUIInternal の処理を実行する。
 void GameScene::UpdateUIInternal() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateUIInternal の役割を実現する。
     if (!gameUI_) {
         return;
     }
@@ -176,22 +167,16 @@ void GameScene::UpdateUIInternal() {
     if (gameUI_->IsRestartClicked()) {
         RestartLevel();
     }
-    // 関数コメント: if の処理を実行する。
     else if (gameUI_->IsReturnToTitleClicked()) {
-        // 処理コメント: 必要な状態確認やデータ更新を行い、if の役割を実現する。
         ReturnToTitle();
     }
 }
 
-// 関数コメント: UpdateGameLogicInternal の処理を実行する。
 void GameScene::UpdateGameLogicInternal() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateGameLogicInternal の役割を実現する。
     gameLogicManager_.Update();
 }
 
-// 関数コメント: UpdateBallsAndGoalsInternal の処理を実行する。
 void GameScene::UpdateBallsAndGoalsInternal() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateBallsAndGoalsInternal の役割を実現する。
     for (const auto& ball : balls_) {
         if (ball) {
             ball->Update();
@@ -205,9 +190,7 @@ void GameScene::UpdateBallsAndGoalsInternal() {
     }
 }
 
-// 関数コメント: IsLevelComplete の処理を実行する。
 bool GameScene::IsLevelComplete() const {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、IsLevelComplete の役割を実現する。
     for (const auto& goal : goals_) {
         if (goal && !goal->IsCompleted()) {
             return false;
@@ -217,15 +200,11 @@ bool GameScene::IsLevelComplete() const {
     return true;
 }
 
-// 関数コメント: SetSceneEndFlag の処理を実行する。
 void GameScene::SetSceneEndFlag() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、SetSceneEndFlag の役割を実現する。
     isSceneEnd_ = true;
 }
 
-// 関数コメント: RestartLevel の処理を実行する。
 void GameScene::RestartLevel() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、RestartLevel の役割を実現する。
     gameFlowState_ = GameFlowState::StartWait;
 
     if (currentState_) {
@@ -244,33 +223,25 @@ void GameScene::RestartLevel() {
     gameLogicManager_.Initialize(balls_, goals_, &camera_);
 }
 
-// 関数コメント: ReturnToTitle の処理を実行する。
 void GameScene::ReturnToTitle() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、ReturnToTitle の役割を実現する。
     isSceneEnd_ = true;
     returnToTitle_ = true;
 }
 
-// 関数コメント: GameOver の処理を実行する。
 void GameScene::GameOver() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、GameOver の役割を実現する。
     if (dynamic_cast<GameOverState*>(currentState_.get()) == nullptr) {
         ChangeState(std::make_unique<GameOverState>());
     }
 }
 
-// 関数コメント: StartGame の処理を実行する。
 void GameScene::StartGame() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、StartGame の役割を実現する。
     showStart_ = false;
     gameFlowState_ = GameFlowState::Tutorial;
 
     ChangeState(std::make_unique<PlayingState>());
 }
 
-// 関数コメント: LoadTutorialTextures の処理を実行する。
 void GameScene::LoadTutorialTextures() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、LoadTutorialTextures の役割を実現する。
     tutorialTextureHandles_.clear();
     tutorialSprites_.clear();
 
@@ -297,9 +268,7 @@ void GameScene::LoadTutorialTextures() {
     }
 }
 
-// 関数コメント: UpdateTutorial の処理を実行する。
 void GameScene::UpdateTutorial() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateTutorial の役割を実現する。
     if (currentTutorialIndex_ >= tutorialSprites_.size()) {
         return;
     }
@@ -315,9 +284,7 @@ void GameScene::UpdateTutorial() {
     }
 }
 
-// 関数コメント: UpdateStartWait の処理を実行する。
 void GameScene::UpdateStartWait() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateStartWait の役割を実現する。
     startTimer_ += kFrameDeltaTime;
 
     if (input_->IsTriggerMouse(kLeftMouseButton) || startTimer_ >= kStartWaitDuration) {
@@ -334,9 +301,7 @@ void GameScene::UpdateStartWait() {
     }
 }
 
-// 関数コメント: UpdateStartAnim の処理を実行する。
 void GameScene::UpdateStartAnim() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateStartAnim の役割を実現する。
     animTimer_ += kFrameDeltaTime;
 
     if (!startSprite_) {
@@ -365,9 +330,7 @@ void GameScene::UpdateStartAnim() {
     }
 }
 
-// 関数コメント: DrawTutorial の処理を実行する。
 void GameScene::DrawTutorial() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、DrawTutorial の役割を実現する。
     if (gameFlowState_ == GameFlowState::Tutorial &&
         currentTutorialIndex_ < tutorialSprites_.size() &&
         tutorialSprites_[currentTutorialIndex_]) {
@@ -405,9 +368,7 @@ void GameScene::SetLevelConfig(
     }
 }
 
-// 関数コメント: InitializeLevelObjects の処理を実行する。
 void GameScene::InitializeLevelObjects() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、InitializeLevelObjects の役割を実現する。
     balls_.clear();
     goals_.clear();
 
@@ -440,9 +401,7 @@ void GameScene::InitializeLevelObjects() {
     ResetLevelCompletion();
 }
 
-// 関数コメント: ResetLevelCompletion の処理を実行する。
 void GameScene::ResetLevelCompletion() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、ResetLevelCompletion の役割を実現する。
     for (const auto& goal : goals_) {
         if (goal) {
             goal->ResetCount();
@@ -450,16 +409,14 @@ void GameScene::ResetLevelCompletion() {
     }
 }
 
-// 関数コメント: CheckLevelCompletion の処理を実行する。
 void GameScene::CheckLevelCompletion() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、CheckLevelCompletion の役割を実現する。
     if (IsLevelComplete()) {
         GameOver();
     }
 }
 
-// 関数コメント: SetBallFactory の処理を実行する。
 void GameScene::SetBallFactory(std::unique_ptr<IBallFactory> factory) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、SetBallFactory の役割を実現する。
     ballFactory_ = std::move(factory);
 }
+
+} // namespace MyEngine

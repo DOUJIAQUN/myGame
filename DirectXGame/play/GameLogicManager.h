@@ -7,14 +7,20 @@
 #include <memory>
 #include <vector>
 
+
+namespace MyEngine {
+
 /// <summary>
 /// ゲーム中の入力判定、爆発処理、衝突判定、Goal 到達判定を管理するクラス。
 /// </summary>
 class GameLogicManager {
 public:
     /// <summary>
-    /// GameLogicManager に関する処理を行う。
-    /// </summary>
+/// GameScene が所有する Ball / Goal の配列とカメラを登録し、判定状態を初期化する。
+/// </summary>
+/// <param name="balls">GameScene が所有する Ball 配列。所有権は受け取らない。</param>
+/// <param name="goals">GameScene が所有する Goal 配列。所有権は受け取らない。</param>
+/// <param name="camera">マウス判定用の座標変換に使用するカメラ。</param>
     GameLogicManager();
     ~GameLogicManager() = default;
 
@@ -33,12 +39,15 @@ public:
 
     // 碰撞检测
     /// <summary>
-    /// CheckBallGoalCollision に関する処理を行う。
-    /// </summary>
+/// すべての Goal の達成状態を更新し、ステージクリア済みかどうかを返す。
+/// </summary>
     bool CheckBallGoalCollision();
     /// <summary>
-    /// CheckCollisionBetweenBallAndGoal に関する処理を行う。
-    /// </summary>
+/// Ball と Goal の中心距離を調べ、接触しているかを返す。
+/// </summary>
+/// <param name="ball">判定対象の Ball。</param>
+/// <param name="goal">判定対象の Goal。</param>
+/// <returns>接触半径内に入っていれば true。</returns>
     bool CheckCollisionBetweenBallAndGoal(MyEngine::Ball* ball, MyEngine::Goal* goal);
 
     int GetCurrentGoalsReached() const { return currentGoalsReached_; }
@@ -50,8 +59,8 @@ public:
 
     // 重置游戏状态
     /// <summary>
-    /// Reset に関する処理を行う。
-    /// </summary>
+/// Ball の爆発状態、速度、座標、トレイルを初期状態へ戻す。
+/// </summary>
     void Reset();
 
 private:
@@ -81,39 +90,46 @@ private:
 
 private:
     /// <summary>
-    /// UpdateCompletionStatus に関する処理を行う。
-    /// </summary>
+/// 前フレームの接触状態と比較し、Goal へ新しく入った Ball だけをカウントする。
+/// </summary>
     void UpdateCompletionStatus();
 
     /// <summary>
-    /// HandleMouseHover に関する処理を行う。
-    /// </summary>
+/// マウス位置に最も近いクリック可能な Ball を判定し、爆発範囲表示を更新する。
+/// </summary>
     void HandleMouseHover();
     /// <summary>
-    /// HandleMouseClick に関する処理を行う。
-    /// </summary>
+/// クリックされた Ball を爆発させ、範囲内の他の Ball へ距離に応じた力を加える。
+/// </summary>
     void HandleMouseClick();
 
     /// <summary>
-    /// IsMouseOverBall に関する処理を行う。
-    /// </summary>
+/// 指定した Ball がマウスカーソルの選択範囲内にあるか判定する。
+/// </summary>
+/// <param name="ball">判定対象の Ball。</param>
+/// <param name="mousePos">現在のマウス座標。</param>
+/// <returns>マウスが Ball の画面上半径内にあれば true。</returns>
     bool IsMouseOverBall(MyEngine::Ball* ball, const KamataEngine::Vector2& mousePos);
     /// <summary>
-    /// WorldToScreen に関する処理を行う。
-    /// </summary>
+/// 3D ワールド座標を UI 判定に使うスクリーン座標へ変換する。
+/// </summary>
+/// <param name="worldPos">変換したい 3D ワールド座標。</param>
+/// <returns>x, y に画面座標、z に奥行きを持つ Vector3。</returns>
     KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 
     // 球体间碰撞
     /// <summary>
-    /// HandleBallCollisions に関する処理を行う。
-    /// </summary>
+/// 有効な Ball の全組み合わせを調べ、重なっているものだけ衝突解決する。
+/// </summary>
     void HandleBallCollisions();
     /// <summary>
-    /// CheckBallBallCollision に関する処理を行う。
-    /// </summary>
+/// 2つの Ball の中心距離を使い、半径同士が重なっているか判定する。
+/// </summary>
     bool CheckBallBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2);
     /// <summary>
-    /// ResolveBallCollision に関する処理を行う。
-    /// </summary>
+/// 衝突法線と相対速度から反発方向を求め、2つの Ball を押し戻す。
+/// </summary>
     void ResolveBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2);
 };
+
+} // namespace MyEngine

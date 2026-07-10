@@ -17,12 +17,13 @@ namespace {
     constexpr float kResultTitlePositionY = 20.0f;
 }
 
+
+namespace MyEngine {
+
 ResultScene::ResultScene() = default;
 ResultScene::~ResultScene() = default;
 
-// 関数コメント: Initialize の処理を実行する。
 void ResultScene::Initialize() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Initialize の役割を実現する。
     input_ = Input::GetInstance();
     dxCommon_ = DirectXCommon::GetInstance();
 
@@ -38,9 +39,7 @@ void ResultScene::Initialize() {
     LoadTextures();
 }
 
-// 関数コメント: LoadTextures の処理を実行する。
 void ResultScene::LoadTextures() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、LoadTextures の役割を実現する。
     resultBackgroundTextureHandle_ = TextureManager::Load("result/resultBackground.png");
     resultBackgroundSprite_.reset(Sprite::Create(resultBackgroundTextureHandle_, {0.0f, 0.0f}));
 
@@ -56,16 +55,14 @@ void ResultScene::LoadTextures() {
     }
 }
 
-// 関数コメント: Update の処理を実行する。
 void ResultScene::Update() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
     if (isSceneEnd_) {
         return;
     }
 
     frameCount_++;
 
-    float offsetY = std::sin(frameCount_ * kTitleWaveSpeed) * kTitleWaveAmplitude;
+    float offsetY = static_cast<float>(std::sin(static_cast<double>(frameCount_ * kTitleWaveSpeed))) * kTitleWaveAmplitude;
     if (resultSprite_) {
         resultSprite_->SetPosition({kResultTitlePositionX, kResultTitlePositionY + offsetY});
     }
@@ -79,9 +76,7 @@ void ResultScene::Update() {
     }
 }
 
-// 関数コメント: UpdateButtonState の処理を実行する。
 void ResultScene::UpdateButtonState() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateButtonState の役割を実現する。
     Vector2 mousePos = input_->GetMousePosition();
 
     bool wasMouseOver = isMouseOverTitle_;
@@ -97,9 +92,7 @@ void ResultScene::UpdateButtonState() {
     );
 }
 
-// 関数コメント: Draw の処理を実行する。
 void ResultScene::Draw() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Draw の役割を実現する。
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
 
@@ -117,9 +110,7 @@ void ResultScene::Draw() {
     dxCommon_->ClearDepthBuffer();
 }
 
-// 関数コメント: IsMouseOverTitle の処理を実行する。
 bool ResultScene::IsMouseOverTitle(const Vector2& mousePos) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、IsMouseOverTitle の役割を実現する。
     if (!titleSprite_) {
         return false;
     }
@@ -130,3 +121,5 @@ bool ResultScene::IsMouseOverTitle(const Vector2& mousePos) {
     return (mousePos.x >= position.x && mousePos.x <= position.x + size.x &&
         mousePos.y >= position.y && mousePos.y <= position.y + size.y);
 }
+
+} // namespace MyEngine

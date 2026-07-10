@@ -18,12 +18,13 @@ public:
 	static constexpr float kDefaultTrailSizeParam = 60.0f;
 
 	/// <summary>
-	/// ~Ball に関する処理を行う。
-	/// </summary>
+/// Ball が所有する Model や Sprite を unique_ptr により自動解放する。
+/// </summary>
 	~Ball();
 	/// <summary>
-	/// オブジェクトやシーンの初期化処理を行う。
-	/// </summary>
+/// Ball が使用するモデル、爆発用 Sprite、初期座標、物理状態を初期化する。
+/// </summary>
+/// <param name="camera">3D 描画とスクリーン座標変換に使用するカメラ。</param>
 	void Initialize(KamataEngine::Camera* camera);
 	/// <summary>
 	/// 毎フレームの更新処理を行う。
@@ -35,22 +36,24 @@ public:
 	void Draw();
 
 	/// <summary>
-	/// OnEnterGoal に関する処理を行う。
-	/// </summary>
+/// Ball が Goal に入った時、対象 Goal の到達カウントを 1 回増やす。
+/// </summary>
+/// <param name="goal">接触した Goal。nullptr の場合は何もしない。</param>
 	void OnEnterGoal(Goal* goal);
 
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
 
 	// 接收屏幕坐标来更新爆炸范围位置
 	/// <summary>
-	/// UpdateExplosionRangePosition に関する処理を行う。
-	/// </summary>
+/// 爆発範囲 Sprite を Ball のスクリーン座標に合わせて移動する。
+/// </summary>
+/// <param name="screenPos">WorldToScreen で変換した画面上の座標。</param>
 	void UpdateExplosionRangePosition(const KamataEngine::Vector3& screenPos);
 
 	// 爆炸相关方法
 	/// <summary>
-	/// Explode に関する処理を行う。
-	/// </summary>
+/// クリックされた Ball を爆発済み状態にし、自身の表示やエフェクト開始状態を切り替える。
+/// </summary>
 	void Explode();                                               // 触发爆炸
 	bool IsExploded() const { return isExploded_; }               // 是否已爆炸
 	bool IsActive() const { return isActive_; }                   // 是否活跃（未消失）
@@ -59,18 +62,19 @@ public:
 		if (!active) {
 			// 球体不活跃时，立即清空拖尾
 			/// <summary>
-			/// CleanupTrail に関する処理を行う。
-			/// </summary>
+/// Ball が持つトレイル Sprite の配列をクリアし、表示残りを消去する。
+/// </summary>
 			CleanupTrail();
 		}
 	}           // 设置活跃状态
 	/// <summary>
-	/// ApplyExplosionForce に関する処理を行う。
-	/// </summary>
+/// 爆発によって受けた力をノックバックとして Ball に適用する。
+/// </summary>
+/// <param name="force">爆発中心から Ball へ向かう力ベクトル。</param>
 	void ApplyExplosionForce(const KamataEngine::Vector3& force); // 应用爆炸力
 	/// <summary>
-	/// DrawExplosionRange に関する処理を行う。
-	/// </summary>
+/// マウスオーバー中の Ball に対して、クリック可能な爆発範囲を 2D 表示する。
+/// </summary>
 	void DrawExplosionRange();
 
 	// 鼠标悬停相关方法
@@ -83,12 +87,14 @@ public:
 
 	// SetPosition方法，同时更新初始位置
 	/// <summary>
-	/// SetInitialPosition に関する処理を行う。
-	/// </summary>
+/// リスタート時に戻る初期座標を設定し、現在座標も同じ値へ更新する。
+/// </summary>
+/// <param name="position">Ball の初期ワールド座標。</param>
 	void SetInitialPosition(const KamataEngine::Vector3& position);
 	/// <summary>
-	/// SetPosition に関する処理を行う。
-	/// </summary>
+/// Ball の現在座標を変更し、WorldTransform に反映する。
+/// </summary>
+/// <param name="position">更新後のワールド座標。</param>
 	void SetPosition(const KamataEngine::Vector3& position);
 
 	// 检查是否可被点击
@@ -99,8 +105,12 @@ public:
 	bool IsKnockbackLocked() const { return isKnockbackLocked_; }
 
 	/// <summary>
-	/// Reset に関する処理を行う。
-	/// </summary>
+/// 指定された力と時間で Ball をノックバック状態にする。
+/// </summary>
+/// <param name="force">移動方向と強さを表す力ベクトル。</param>
+/// <param name="duration">ノックバックを継続する秒数。</param>
+/// <param name="forceMultiplier">力に掛ける倍率。</param>
+/// <param name="isExplosionKnockback">爆発によるノックバックかどうか。</param>
 	void Reset();
 
 	// 物理相关方法
@@ -186,40 +196,40 @@ private:
 
 	// 私有方法
 	/// <summary>
-	/// WorldToScreen に関する処理を行う。
-	/// </summary>
+/// Camera の view-projection 行列を使い、3D 座標を画面上の 2D 座標へ変換する。
+/// </summary>
 	KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 	/// <summary>
-	/// UpdateKnockbackLock に関する処理を行う。
-	/// </summary>
+/// 衝突直後に再クリック・再衝突が起きないよう、ノックバックのロック時間を更新する。
+/// </summary>
 	void UpdateKnockbackLock();                     // 更新击退锁定状态
 	/// <summary>
-	/// UpdateTrail に関する処理を行う。
-	/// </summary>
+/// Ball の移動速度と状態に応じてトレイル点の生成・寿命更新・削除を行う。
+/// </summary>
 	void UpdateTrail();                            // 更新拖尾特效
 	/// <summary>
-	/// DrawTrail に関する処理を行う。
-	/// </summary>
+/// 保持しているトレイル Sprite を古い順に描画し、Ball の移動軌跡を表現する。
+/// </summary>
 	void DrawTrail();                              // 绘制拖尾特效
 	/// <summary>
-	/// AddTrailPoint に関する処理を行う。
-	/// </summary>
+/// 現在の Ball 位置に標準設定のトレイル点を追加する。
+/// </summary>
 	void AddTrailPoint(float size = kDefaultTrailSizeParam);        // 添加拖尾点
 	/// <summary>
-	/// CleanupTrail に関する処理を行う。
-	/// </summary>
+/// Ball が持つトレイル Sprite の配列をクリアし、表示残りを消去する。
+/// </summary>
 	void CleanupTrail();                           // 清理拖尾资源
 	/// <summary>
-	/// UpdateKnockback に関する処理を行う。
-	/// </summary>
+/// ノックバック中の速度、位置、減速率、終了条件を更新する。
+/// </summary>
 	void UpdateKnockback();                        // 更新击飞状态
 	/// <summary>
-	/// CalculateSlowDownFactor に関する処理を行う。
-	/// </summary>
+/// 爆発・衝突・通常移動の種類に応じた減速率を返す。
+/// </summary>
 	float CalculateSlowDownFactor();               // 计算减速因子
 	/// <summary>
-	/// AddTrailPointWithConfig に関する処理を行う。
-	/// </summary>
+/// サイズ、色、寿命を指定してトレイル点を生成し、画面座標へ配置する。
+/// </summary>
 	void AddTrailPointWithConfig(float size, const KamataEngine::Vector4& color, float lifetime); // 带配置的拖尾点
 };
 

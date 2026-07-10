@@ -7,14 +7,18 @@
 
 #include <memory>
 
+namespace MyEngine {
+
+
 /// <summary>
 /// シーン切り替え時のロード画面を管理するクラス。
 /// </summary>
+
 class LoadingScene : public IScene {
 public:
     /// <summary>
-    /// ~LoadingScene に関する処理を行う。
-    /// </summary>
+/// LoadingScene が所有する Sprite を unique_ptr により解放する。
+/// </summary>
     ~LoadingScene() override;
 
     /// <summary>
@@ -50,3 +54,5 @@ private:
     int frameCount_ = 0;
     int loadingDuration_ = 0;
 };
+
+} // namespace MyEngine

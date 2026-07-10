@@ -1,5 +1,8 @@
 #pragma once
 
+
+namespace MyEngine {
+
 class GameScene;
 
 /// <summary>
@@ -21,3 +24,5 @@ public:
     /// </summary>
     virtual void Exit(GameScene* scene) = 0;    // 离开状态时的清理
 };
+
+} // namespace MyEngine

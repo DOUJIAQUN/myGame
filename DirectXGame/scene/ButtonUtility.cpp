@@ -1,5 +1,10 @@
 #include "ButtonUtility.h"
 
+
+using namespace KamataEngine;
+
+namespace MyEngine {
+
 void ButtonUtility::UpdateHoverSprite(
     KamataEngine::Sprite* sprite,
     const KamataEngine::Vector2& basePosition,
@@ -35,3 +40,5 @@ void ButtonUtility::UpdateHoverSprite(
         sprite->SetPosition(basePosition);
     }
 }
+
+} // namespace MyEngine

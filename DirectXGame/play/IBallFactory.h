@@ -4,6 +4,9 @@
 
 #include <memory>
 
+
+namespace MyEngine {
+
 /// <summary>
 /// Ball 生成処理を抽象化するための Factory インターフェース。
 /// </summary>
@@ -16,3 +19,5 @@ public:
         int levelNumber
     ) = 0;
 };
+
+} // namespace MyEngine

@@ -15,7 +15,7 @@
 #include <memory>
 #include <vector>
 
-using namespace KamataEngine;
+namespace MyEngine {
 
 /// <summary>
 /// ゲームシーン
@@ -24,12 +24,12 @@ class GameScene : public IScene {
 
 public:
     /// <summary>
-    /// GameScene に関する処理を行う。
-    /// </summary>
+/// ゲーム本編の Stage、Ball、Goal、UI、状態遷移を統合して管理する。
+/// </summary>
     GameScene();
     /// <summary>
-    /// ~GameScene に関する処理を行う。
-    /// </summary>
+/// GameScene が所有する Stage、UI、Ball、Goal、State を unique_ptr により解放する。
+/// </summary>
     ~GameScene() override;
 
     /// <summary>
@@ -41,8 +41,13 @@ public:
     /// </summary>
     void Update() override;
     /// <summary>
-    /// 描画処理を行う。
-    /// </summary>
+/// LevelManager から受け取ったステージ番号、Ball 配置、Goal 設定を GameScene に保存する。
+/// </summary>
+/// <param name="levelNumber">ステージ番号。</param>
+/// <param name="ballPositions">生成する Ball の初期座標一覧。</param>
+/// <param name="goalPositions">生成する Goal の初期座標一覧。</param>
+/// <param name="goalRequiredCounts">各 Goal に必要な到達回数。</param>
+/// <param name="goalMovementConfigs">各 Goal の移動設定。</param>
     void Draw() override;
 
     bool IsSceneEnd() const override { return isSceneEnd_; }
@@ -63,34 +68,35 @@ public:
 
     // 状態変更
     /// <summary>
-    /// 現在のゲーム状態を別の状態へ切り替える。
-    /// </summary>
+/// 現在の State を終了させ、次の State に所有権を移して Enter を呼び出す。
+/// </summary>
+/// <param name="newState">切り替え先のゲーム状態。unique_ptr で所有権を受け取る。</param>
     void ChangeState(std::unique_ptr<IGameState> newState);
 
     // 供状态类调用的公共接口
     /// <summary>
-    /// UpdateStageInternal に関する処理を行う。
-    /// </summary>
+/// PlayingState から呼ばれ、Stage のスクロールなど背景更新を行う。
+/// </summary>
     void UpdateStageInternal();
     /// <summary>
-    /// UpdateUIInternal に関する処理を行う。
-    /// </summary>
+/// UI ボタンの入力を更新し、リスタートやタイトル遷移の要求を処理する。
+/// </summary>
     void UpdateUIInternal();
     /// <summary>
-    /// UpdateGameLogicInternal に関する処理を行う。
-    /// </summary>
+/// GameLogicManager にゲーム中の入力判定・爆発・衝突判定を更新させる。
+/// </summary>
     void UpdateGameLogicInternal();
     /// <summary>
-    /// UpdateBallsAndGoalsInternal に関する処理を行う。
-    /// </summary>
+/// 各 Ball と Goal の位置、アニメーション、移動 Strategy を更新する。
+/// </summary>
     void UpdateBallsAndGoalsInternal();
     /// <summary>
-    /// IsLevelComplete に関する処理を行う。
-    /// </summary>
+/// すべての Goal が必要到達数を満たしているか確認する。
+/// </summary>
     bool IsLevelComplete() const;
     /// <summary>
-    /// SetSceneEndFlag に関する処理を行う。
-    /// </summary>
+/// 外部のシーン管理に終了を通知するため、シーン終了フラグを立てる。
+/// </summary>
     void SetSceneEndFlag();
 
     // 供状态类调用的其他公共方法
@@ -113,13 +119,14 @@ public:
     }
 
     /// <summary>
-    /// SetBallFactory に関する処理を行う。
-    /// </summary>
+/// Ball の生成処理を差し替えるための Factory を設定する。
+/// </summary>
+/// <param name="factory">GameScene が所有する BallFactory。</param>
     void SetBallFactory(std::unique_ptr<IBallFactory> factory);
 
 private:
-    DirectXCommon* dxCommon_ = nullptr;
-    Input* input_ = nullptr;
+    KamataEngine::DirectXCommon* dxCommon_ = nullptr;
+    KamataEngine::Input* input_ = nullptr;
 
     std::unique_ptr<Stage> stage_;
     std::unique_ptr<GameUI> gameUI_;
@@ -129,7 +136,7 @@ private:
     std::vector<std::unique_ptr<MyEngine::Ball>> balls_;
     std::vector<std::unique_ptr<MyEngine::Goal>> goals_;
 
-    Camera camera_;
+    KamataEngine::Camera camera_;
 
     /// <summary>
     /// チュートリアル、開始待機、開始演出の流れを表す列挙型。
@@ -153,8 +160,8 @@ private:
     float animTimer_ = 0.0f;
     bool showStart_ = false;
 
-    Vector2 startSize_ = {};
-    Vector2 targetSize_ = {};
+    KamataEngine::Vector2 startSize_ = {};
+    KamataEngine::Vector2 targetSize_ = {};
 
     float animDuration_ = 0.0f;
     float displayDuration_ = 0.0f;
@@ -173,44 +180,46 @@ private:
 
 private:
     /// <summary>
-    /// LoadTutorialTextures に関する処理を行う。
-    /// </summary>
+/// チュートリアル画像と開始演出画像を読み込み、Sprite を生成する。
+/// </summary>
     void LoadTutorialTextures();
     /// <summary>
-    /// UpdateTutorial に関する処理を行う。
-    /// </summary>
+/// クリック入力に応じてチュートリアル画像を次へ進める。
+/// </summary>
     void UpdateTutorial();
     /// <summary>
-    /// UpdateStartWait に関する処理を行う。
-    /// </summary>
+/// チュートリアル終了後、開始演出へ移るまでの待機時間を更新する。
+/// </summary>
     void UpdateStartWait();
     /// <summary>
-    /// UpdateStartAnim に関する処理を行う。
-    /// </summary>
+/// 開始画像の拡大縮小アニメーションを進め、完了後にゲームを開始する。
+/// </summary>
     void UpdateStartAnim();
     /// <summary>
-    /// StartGame に関する処理を行う。
-    /// </summary>
+/// 開始演出を終了し、ゲーム本編の PlayingState へ切り替える。
+/// </summary>
     void StartGame();
     /// <summary>
-    /// DrawTutorial に関する処理を行う。
-    /// </summary>
+/// 現在の進行状態に応じてチュートリアル画像または開始演出画像を描画する。
+/// </summary>
     void DrawTutorial();
 
     /// <summary>
-    /// InitializeLevelObjects に関する処理を行う。
-    /// </summary>
+/// 現在のレベル設定から Ball と Goal を再生成し、ゲームロジックへ渡せる状態にする。
+/// </summary>
     void InitializeLevelObjects();
     /// <summary>
-    /// CheckLevelCompletion に関する処理を行う。
-    /// </summary>
+/// Goal の達成状態を確認し、クリアしていれば GameOver 状態へ切り替える。
+/// </summary>
     void CheckLevelCompletion();
     /// <summary>
-    /// ResetLevelCompletion に関する処理を行う。
-    /// </summary>
+/// 全 Goal の到達カウントをリセットし、リスタート時のクリア判定を初期化する。
+/// </summary>
     void ResetLevelCompletion();
     /// <summary>
-    /// GameOver に関する処理を行う。
-    /// </summary>
+/// ゲームクリア時に GameOverState へ遷移し、外部シーン遷移の準備を行う。
+/// </summary>
     void GameOver();
 };
+
+} // namespace MyEngine

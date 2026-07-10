@@ -1,6 +1,9 @@
 #pragma once
 #include "IGameState.h"
 
+
+namespace MyEngine {
+
 /// <summary>
 /// ゲームプレイ中の更新処理を担当する状態クラス。
 /// </summary>
@@ -19,3 +22,5 @@ public:
     /// </summary>
     void Exit(GameScene* scene) override;
 };
+
+} // namespace MyEngine

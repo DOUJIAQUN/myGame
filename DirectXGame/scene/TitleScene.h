@@ -7,14 +7,18 @@
 
 #include <memory>
 
+namespace MyEngine {
+
+
 /// <summary>
 /// タイトル画面の表示、ボタン入力、次シーンへの遷移を管理するクラス。
 /// </summary>
+
 class TitleScene : public IScene {
 public:
     /// <summary>
-    /// ~TitleScene に関する処理を行う。
-    /// </summary>
+/// TitleScene が所有するタイトル画像、背景、ボタン Sprite を unique_ptr により解放する。
+/// </summary>
     ~TitleScene();
     /// <summary>
     /// オブジェクトやシーンの初期化処理を行う。
@@ -63,11 +67,13 @@ private:
     SceneState nextSceneState_ = LOADING;
 
     /// <summary>
-    /// IsMouseOverButton に関する処理を行う。
-    /// </summary>
+/// 指定された Sprite の矩形範囲内にマウス座標があるか判定する。
+/// </summary>
     bool IsMouseOverButton(const KamataEngine::Vector2& mousePos, KamataEngine::Sprite* buttonSprite);
     /// <summary>
-    /// UpdateButtonStates に関する処理を行う。
-    /// </summary>
+/// 各ボタンのホバー状態を更新し、クリックされたボタンのフラグを立てる。
+/// </summary>
     void UpdateButtonStates();
 };
+
+} // namespace MyEngine

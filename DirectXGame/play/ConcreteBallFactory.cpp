@@ -2,6 +2,11 @@
 
 #include <memory>
 
+
+using namespace KamataEngine;
+
+namespace MyEngine {
+
 std::unique_ptr<MyEngine::Ball> ConcreteBallFactory::CreateBall(
     const KamataEngine::Vector3& position,
     int levelNumber
@@ -14,3 +19,5 @@ std::unique_ptr<MyEngine::Ball> ConcreteBallFactory::CreateBall(
 
     return ball;
 }
+
+} // namespace MyEngine

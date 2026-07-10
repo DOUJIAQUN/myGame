@@ -15,12 +15,13 @@ namespace {
     constexpr int kStage2StartLevel = 5;
 }
 
+
+namespace MyEngine {
+
 StageSelectScene::StageSelectScene() = default;
 StageSelectScene::~StageSelectScene() = default;
 
-// 関数コメント: Initialize の処理を実行する。
 void StageSelectScene::Initialize() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Initialize の役割を実現する。
     input_ = Input::GetInstance();
     dxCommon_ = DirectXCommon::GetInstance();
 
@@ -57,9 +58,7 @@ void StageSelectScene::Initialize() {
     isMouseOverStage2_ = false;
 }
 
-// 関数コメント: Update の処理を実行する。
 void StageSelectScene::Update() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
     Vector2 mousePos = input_->GetMousePosition();
 
     UpdateButtonStates();
@@ -80,9 +79,7 @@ void StageSelectScene::Update() {
             nextSceneState_ = LOADING;
             isSceneEnd_ = true;
         }
-        // 関数コメント: if の処理を実行する。
         else if (IsMouseOverButton(mousePos, stage2ButtonSprite_.get())) {
-            // 処理コメント: 必要な状態確認やデータ更新を行い、if の役割を実現する。
             selectedLevel_ = kStage2StartLevel;
             nextSceneState_ = LOADING;
             isSceneEnd_ = true;
@@ -90,9 +87,7 @@ void StageSelectScene::Update() {
     }
 }
 
-// 関数コメント: UpdateButtonStates の処理を実行する。
 void StageSelectScene::UpdateButtonStates() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateButtonStates の役割を実現する。
     Vector2 mousePos = input_->GetMousePosition();
 
     bool wasMouseOverStage1 = isMouseOverStage1_;
@@ -120,9 +115,7 @@ void StageSelectScene::UpdateButtonStates() {
     );
 }
 
-// 関数コメント: Draw の処理を実行する。
 void StageSelectScene::Draw() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Draw の役割を実現する。
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
     Sprite::PreDraw(commandList);
 
@@ -143,9 +136,7 @@ void StageSelectScene::Draw() {
     dxCommon_->ClearDepthBuffer();
 }
 
-// 関数コメント: IsMouseOverButton の処理を実行する。
 bool StageSelectScene::IsMouseOverButton(const Vector2& mousePos, Sprite* buttonSprite) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、IsMouseOverButton の役割を実現する。
     if (!buttonSprite) {
         return false;
     }
@@ -156,3 +147,5 @@ bool StageSelectScene::IsMouseOverButton(const Vector2& mousePos, Sprite* button
     return (mousePos.x >= position.x && mousePos.x <= position.x + size.x &&
         mousePos.y >= position.y && mousePos.y <= position.y + size.y);
 }
+
+} // namespace MyEngine

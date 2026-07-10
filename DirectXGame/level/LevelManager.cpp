@@ -8,6 +8,11 @@
 #include "../DebugLogger.h"
 #include "../external/nlohmann/json.hpp"
 
+
+using namespace KamataEngine;
+
+namespace MyEngine {
+
 using json = nlohmann::json;
 
 namespace {
@@ -18,27 +23,24 @@ LevelManager::LevelManager()
     : currentLevelIndex_(0),
     shouldReturnToTitle_(false),
     isSceneEnd_(false),
-    // 関数コメント: currentState_ の処理を実行する。
     currentState_(LevelState::Playing) {
-        // 処理コメント: 必要な状態確認やデータ更新を行い、currentState_ の役割を実現する。
 
+    // JSON からレベル設定を読み込み、全ステージを先に生成しておく。
+    // ここで生成しておくことで、ステージ遷移時は index を進めるだけで済む。
     CreateLevels();
 
+    // ステージ切り替え時に挟む LoadingScene は LevelManager が所有する。
     loadingScene_ = std::make_unique<LoadingScene>();
     loadingScene_->Initialize();
 }
 
-// 関数コメント: ~LevelManager の処理を実行する。
 LevelManager::~LevelManager() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、~LevelManager の役割を実現する。
     CleanupLevels();
 
    
 }
 
-// 関数コメント: GetCurrentLevelName の処理を実行する。
 std::string LevelManager::GetCurrentLevelName() const {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、GetCurrentLevelName の役割を実現する。
     if (currentLevelIndex_ >= levelNames_.size()) {
         return "Unknown";
     }
@@ -46,9 +48,9 @@ std::string LevelManager::GetCurrentLevelName() const {
     return levelNames_[currentLevelIndex_];
 }
 
-// 関数コメント: StringToMoveDirection の処理を実行する。
 MoveDirection LevelManager::StringToMoveDirection(const std::string& directionText) const {//SR2_02_04
-    // 処理コメント: 必要な状態確認やデータ更新を行い、StringToMoveDirection の役割を実現する。
+    // JSON では文字列で移動方向を管理しているため、
+    // C++ 側で使用する enum に変換して Strategy 選択へつなげる。
     if (directionText == "Horizontal") {
         return MoveDirection::Horizontal;
     }
@@ -64,11 +66,11 @@ MoveDirection LevelManager::StringToMoveDirection(const std::string& directionTe
     return MoveDirection::Horizontal;
 }
 
-// 関数コメント: LoadLevelConfigsFromJson の処理を実行する。
 std::vector<LevelManager::LevelConfig> LevelManager::LoadLevelConfigsFromJson(const std::string& filePath) const {//SR2_02_04
-    // 処理コメント: 必要な状態確認やデータ更新を行い、LoadLevelConfigsFromJson の役割を実現する。
     std::vector<LevelConfig> configs;
 
+    // 外部ファイル化したステージ設定を読み込む。
+    // ファイルが開けない場合は空配列を返し、無効なデータで生成しないようにする。
     std::ifstream file(filePath);
     if (!file.is_open()) {
       
@@ -78,6 +80,8 @@ std::vector<LevelManager::LevelConfig> LevelManager::LoadLevelConfigsFromJson(co
     json root;
     file >> root;
 
+    // levels 配列の各要素を 1 ステージ分の設定として変換する。
+    // C++ 側の生成処理は共通化し、違いは JSON の値だけにする。
     for (const auto& levelJson : root["levels"]) {
         LevelConfig config;
 
@@ -94,6 +98,7 @@ std::vector<LevelManager::LevelConfig> LevelManager::LoadLevelConfigsFromJson(co
             config.ballPositions.push_back(position);
         }
 
+        // Goal は座標だけでなく、必要到達数と移動設定も外部データから受け取る。
         for (const auto& goalJson : levelJson["goals"]) {
             const auto& positionJson = goalJson["position"];
 
@@ -131,15 +136,15 @@ std::vector<LevelManager::LevelConfig> LevelManager::LoadLevelConfigsFromJson(co
     return configs;
 }
 
-// 関数コメント: CreateLevels の処理を実行する。
 void LevelManager::CreateLevels() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、CreateLevels の役割を実現する。
     CleanupLevels();
     levelNames_.clear();
 
+    // CreateLevels は「生成手順」だけを担当し、ステージごとの差分は JSON に集約する。
     std::vector<LevelConfig> configs = LoadLevelConfigsFromJson(kLevelConfigPath);
 
     for (const LevelConfig& config : configs) {
+        // unique_ptr で所有することで、LevelManager 破棄時の delete 漏れを防ぐ。
         std::unique_ptr<GameScene> level = std::make_unique<GameScene>();
 
         level->SetLevelConfig(
@@ -155,17 +160,13 @@ void LevelManager::CreateLevels() {
     }
 }
 
-// 関数コメント: SetCurrentLevel の処理を実行する。
 void LevelManager::SetCurrentLevel(int level) {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、SetCurrentLevel の役割を実現する。
     if (level >= 1 && level <= static_cast<int>(levels_.size())) {
         currentLevelIndex_ = level - 1;
     }
 }
 
-// 関数コメント: Initialize の処理を実行する。
 void LevelManager::Initialize() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Initialize の役割を実現する。
     if (!levels_.empty()) {
         levels_[currentLevelIndex_]->Initialize();
 
@@ -175,13 +176,12 @@ void LevelManager::Initialize() {
     }
 }
 
-// 関数コメント: Update の処理を実行する。
 void LevelManager::Update() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Update の役割を実現する。
     if (isSceneEnd_) {
         return;
     }
 
+    // LevelManager 自身の状態に応じて、現在のステージ更新か Loading 更新かを切り替える。
     switch (currentState_) {
     case LevelState::Playing:
         UpdatePlayingState();
@@ -201,9 +201,7 @@ void LevelManager::Update() {
     }
 }
 
-// 関数コメント: UpdatePlayingState の処理を実行する。
 void LevelManager::UpdatePlayingState() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdatePlayingState の役割を実現する。
     if (currentLevelIndex_ >= levels_.size()) {
         return;
     }
@@ -213,6 +211,7 @@ void LevelManager::UpdatePlayingState() {
         return;
     }
 
+    // 実際のゲーム更新は現在の GameScene に委譲し、LevelManager は遷移判定だけを行う。
     currentLevel->Update();
 
     // 检查当前关卡是否结束
@@ -231,13 +230,12 @@ void LevelManager::UpdatePlayingState() {
     }
 }
 
-// 関数コメント: UpdateLoadingState の処理を実行する。
 void LevelManager::UpdateLoadingState() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateLoadingState の役割を実現する。
     loadingScene_->Update();
 
     if (loadingScene_->IsSceneEnd()) {
         // 加载完成，进入下一关
+        // Loading が終わったタイミングで初めて index を進め、次ステージを初期化する。
         currentLevelIndex_++;
 
         if (currentLevelIndex_ < levels_.size()) {
@@ -252,16 +250,12 @@ void LevelManager::UpdateLoadingState() {
     }
 }
 
-// 関数コメント: UpdateTransitionState の処理を実行する。
 void LevelManager::UpdateTransitionState() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateTransitionState の役割を実現する。
     // 可以在这里添加其他过渡效果
     // 暂时为空
 }
 
-// 関数コメント: UpdateGameCompleteState の処理を実行する。
 void LevelManager::UpdateGameCompleteState() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、UpdateGameCompleteState の役割を実現する。
     loadingScene_->Update();
 
     if (loadingScene_->IsSceneEnd()) {
@@ -270,9 +264,8 @@ void LevelManager::UpdateGameCompleteState() {
     }
 }
 
-// 関数コメント: Draw の処理を実行する。
 void LevelManager::Draw() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、Draw の役割を実現する。
+    // LevelManager 自身の状態に応じて、現在のステージ更新か Loading 更新かを切り替える。
     switch (currentState_) {
     case LevelState::Playing:
         if (currentLevelIndex_ < levels_.size() && levels_[currentLevelIndex_]) {
@@ -293,9 +286,7 @@ void LevelManager::Draw() {
     }
 }
 
-// 関数コメント: StartLevelTransition の処理を実行する。
 void LevelManager::StartLevelTransition() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、StartLevelTransition の役割を実現する。
     if (currentLevelIndex_ + 1 < levels_.size()) {
         currentState_ = LevelState::Loading;
         loadingScene_->StartLoading();
@@ -307,9 +298,7 @@ void LevelManager::StartLevelTransition() {
     }
 }
 
-// 関数コメント: GoToNextLevel の処理を実行する。
 void LevelManager::GoToNextLevel() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、GoToNextLevel の役割を実現する。
     currentLevelIndex_++;
 
     if (currentLevelIndex_ < levels_.size()) {
@@ -322,24 +311,20 @@ void LevelManager::GoToNextLevel() {
     }
 }
 
-// 関数コメント: RestartCurrentLevel の処理を実行する。
 void LevelManager::RestartCurrentLevel() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、RestartCurrentLevel の役割を実現する。
     if (currentLevelIndex_ < levels_.size() && levels_[currentLevelIndex_]) {
         levels_[currentLevelIndex_]->Initialize();
     }
 }
 
-// 関数コメント: ReturnToTitle の処理を実行する。
 void LevelManager::ReturnToTitle() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、ReturnToTitle の役割を実現する。
     shouldReturnToTitle_ = true;
     isSceneEnd_ = true;
 }
 
-// 関数コメント: CleanupLevels の処理を実行する。
 void LevelManager::CleanupLevels() {
-    // 処理コメント: 必要な状態確認やデータ更新を行い、CleanupLevels の役割を実現する。
    
     levels_.clear();
 }
+
+} // namespace MyEngine

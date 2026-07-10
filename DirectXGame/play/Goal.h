@@ -16,12 +16,13 @@ class Goal
 {
 public:
 	/// <summary>
-	/// ~Goal に関する処理を行う。
-	/// </summary>
+/// Goal が所有する Model と移動 Strategy を unique_ptr により自動解放する。
+/// </summary>
 	~Goal();
 	/// <summary>
-	/// オブジェクトやシーンの初期化処理を行う。
-	/// </summary>
+/// Goal のモデル、初期座標、移動 Strategy、到達カウントを初期化する。
+/// </summary>
+/// <param name="camera">Goal の 3D 描画に使用するカメラ。</param>
 	void Initialize(KamataEngine::Camera* camera);
 	/// <summary>
 	/// 毎フレームの更新処理を行う。
@@ -34,8 +35,9 @@ public:
 
 	// 添加 SetPosition 方法
 	/// <summary>
-	/// SetPosition に関する処理を行う。
-	/// </summary>
+/// Goal の現在位置と移動開始位置を設定する。
+/// </summary>
+/// <param name="position">Goal を配置するワールド座標。</param>
 	void SetPosition(const KamataEngine::Vector3& position);
 
 	KamataEngine::Vector3 GetPosition() const { return worldTransform_.translation_; }
@@ -50,16 +52,17 @@ public:
 
 	// 移动相关方法，使用配置
 	/// <summary>
-	/// SetMovementConfig に関する処理を行う。
-	/// </summary>
+/// JSON から読み込んだ移動設定を反映し、対応する移動 Strategy を選択する。
+/// </summary>
+/// <param name="config">移動有無、方向、範囲、速度を持つ設定値。</param>
 	void SetMovementConfig(const GoalMovementConfig& config);
 	const GoalMovementConfig& GetMovementConfig() const { return movementConfig_; }
 
 private:
 	// 根据配置选择 Strategy
 	/// <summary>
-	/// SetMoveStrategyByConfig に関する処理を行う。
-	/// </summary>
+/// GoalMovementConfig の移動方向に応じて使用する Strategy クラスを選択する。
+/// </summary>
 	void SetMoveStrategyByConfig();
 
 private:

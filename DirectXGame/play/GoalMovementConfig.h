@@ -1,6 +1,9 @@
 #pragma once
 #include "KamataEngine.h"
 
+
+namespace MyEngine {
+
 /// <summary>
 /// Goal の移動方向を表す列挙型。
 /// </summary>
@@ -26,3 +29,5 @@ struct GoalMovementConfig {
         : shouldMove(move), direction(dir), moveRange(range), moveSpeed(speed) {
     }
 };
+
+} // namespace MyEngine

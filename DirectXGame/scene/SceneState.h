@@ -1,4 +1,7 @@
 #pragma once
+
+namespace MyEngine {
+
 /// <summary>
 /// 現在または次に表示するシーン種別を表す列挙型。
 /// </summary>
@@ -9,3 +12,5 @@ enum SceneState {
 	GAME,    // 游戏场景
 	RESULT   // 结果场景
 };
+
+} // namespace MyEngine
