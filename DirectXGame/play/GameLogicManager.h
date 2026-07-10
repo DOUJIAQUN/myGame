@@ -14,8 +14,8 @@ public:
 
     // 初始化
     void Initialize(
-        std::vector<std::unique_ptr<Ball>>& balls,
-        std::vector<std::unique_ptr<Goal>>& goals,
+        std::vector<std::unique_ptr<MyEngine::Ball>>& balls,
+        std::vector<std::unique_ptr<MyEngine::Goal>>& goals,
         KamataEngine::Camera* camera
     );
 
@@ -24,7 +24,7 @@ public:
 
     // 碰撞检测
     bool CheckBallGoalCollision();
-    bool CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal);
+    bool CheckCollisionBetweenBallAndGoal(MyEngine::Ball* ball, MyEngine::Goal* goal);
 
     int GetCurrentGoalsReached() const { return currentGoalsReached_; }
     int GetRequiredGoalsReached() const { return requiredGoalsReached_; }
@@ -38,8 +38,8 @@ public:
 
 private:
     // 这里只是不拥有对象，只保存 GameScene 管理的对象容器地址
-    std::vector<std::unique_ptr<Ball>>* balls_ = nullptr;
-    std::vector<std::unique_ptr<Goal>>* goals_ = nullptr;
+    std::vector<std::unique_ptr<MyEngine::Ball>>* balls_ = nullptr;
+    std::vector<std::unique_ptr<MyEngine::Goal>>* goals_ = nullptr;
 
     KamataEngine::Camera* camera_ = nullptr;
     KamataEngine::Input* input_ = nullptr;
@@ -67,11 +67,11 @@ private:
     void HandleMouseHover();
     void HandleMouseClick();
 
-    bool IsMouseOverBall(Ball* ball, const KamataEngine::Vector2& mousePos);
+    bool IsMouseOverBall(MyEngine::Ball* ball, const KamataEngine::Vector2& mousePos);
     KamataEngine::Vector3 WorldToScreen(const KamataEngine::Vector3& worldPos);
 
     // 球体间碰撞
     void HandleBallCollisions();
-    bool CheckBallBallCollision(Ball* ball1, Ball* ball2);
-    void ResolveBallCollision(Ball* ball1, Ball* ball2);
+    bool CheckBallBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2);
+    void ResolveBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2);
 };

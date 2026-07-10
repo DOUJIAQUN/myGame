@@ -15,6 +15,8 @@ namespace {
 	constexpr float kDefaultScale = 2.0f;
 }
 
+namespace MyEngine {
+
 Goal::~Goal() = default;
 
 void Goal::Initialize(Camera* camera) {
@@ -85,3 +87,5 @@ void Goal::Update() {
 void Goal::Draw() {
 	model_->Draw(worldTransform_, *camera_);
 }
+
+} // namespace MyEngine

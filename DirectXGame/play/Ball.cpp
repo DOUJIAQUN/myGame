@@ -50,6 +50,8 @@ namespace {
 	constexpr float kScreenHeight = 720.0f;
 }
 
+namespace MyEngine {
+
 Ball::~Ball() = default;
 
 void Ball::Initialize(Camera* camera) {
@@ -568,3 +570,5 @@ void Ball::OnEnterGoal(Goal* goal) {
 	// 清理拖尾效果
 	CleanupTrail();
 }
+
+} // namespace MyEngine

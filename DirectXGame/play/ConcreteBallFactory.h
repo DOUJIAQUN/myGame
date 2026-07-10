@@ -6,7 +6,7 @@
 
 class ConcreteBallFactory : public IBallFactory {
 public:
-    std::unique_ptr<Ball> CreateBall(
+    std::unique_ptr<MyEngine::Ball> CreateBall(
         const KamataEngine::Vector3& position,
         int levelNumber
     ) override;

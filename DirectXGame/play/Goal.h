@@ -7,6 +7,8 @@
 #include "../play/GoalMovementConfig.h"
 #include "../play/IGoalMoveStrategy.h"
 
+namespace MyEngine {
+
 class Goal
 {
 public:
@@ -55,3 +57,5 @@ private:
 	// Strategy Pattern: 移動アルゴリズムを差し替える
 	std::unique_ptr<IGoalMoveStrategy> moveStrategy_;
 };
+
+} // namespace MyEngine

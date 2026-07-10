@@ -3,6 +3,8 @@
 
 using namespace KamataEngine;
 
+namespace MyEngine {
+
 // アフィン変換行列の作成
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rot, const Vector3& translate) {
 
@@ -252,3 +254,4 @@ float myMath::Distance(const KamataEngine::Vector3& v1, const KamataEngine::Vect
 	float dz = v1.z - v2.z;
 	return std::sqrt(dx * dx + dy * dy + dz * dz);
 }
+} // namespace MyEngine

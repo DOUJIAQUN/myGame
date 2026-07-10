@@ -8,7 +8,7 @@ class IBallFactory {
 public:
     virtual ~IBallFactory() = default;
 
-    virtual std::unique_ptr<Ball> CreateBall(
+    virtual std::unique_ptr<MyEngine::Ball> CreateBall(
         const KamataEngine::Vector3& position,
         int levelNumber
     ) = 0;

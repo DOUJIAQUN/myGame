@@ -3,6 +3,8 @@
 #include <math/Vector3.h>
 #include <math/Vector4.h>
 #include <cmath>
+
+namespace MyEngine {
 // アフィン変換行列の作成
 KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& scale, const KamataEngine::Vector3& rot, const KamataEngine::Vector3& translate);
 
@@ -36,3 +38,5 @@ public:
 	 // 添加距离计算函数
 	static float Distance(const KamataEngine::Vector3& v1, const KamataEngine::Vector3& v2);
 };
+
+} // namespace MyEngine

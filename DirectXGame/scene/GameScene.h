@@ -15,6 +15,7 @@
 #include <memory>
 #include <vector>
 
+using namespace KamataEngine;
 
 /// <summary>
 /// ゲームシーン
@@ -72,18 +73,18 @@ public:
     void SetBallFactory(std::unique_ptr<IBallFactory> factory);
 
 private:
-    KamataEngine::DirectXCommon* dxCommon_ = nullptr;
-    KamataEngine::Input* input_ = nullptr;
+    DirectXCommon* dxCommon_ = nullptr;
+    Input* input_ = nullptr;
 
     std::unique_ptr<Stage> stage_;
     std::unique_ptr<GameUI> gameUI_;
     GameLogicManager gameLogicManager_;
     std::unique_ptr<IBallFactory> ballFactory_;
 
-    std::vector<std::unique_ptr<Ball>> balls_;
-    std::vector<std::unique_ptr<Goal>> goals_;
+    std::vector<std::unique_ptr<MyEngine::Ball>> balls_;
+    std::vector<std::unique_ptr<MyEngine::Goal>> goals_;
 
-    KamataEngine::Camera camera_;
+    Camera camera_;
 
     enum class GameFlowState {
         Tutorial,
@@ -104,8 +105,8 @@ private:
     float animTimer_ = 0.0f;
     bool showStart_ = false;
 
-    KamataEngine::Vector2 startSize_ = {};
-    KamataEngine::Vector2 targetSize_ = {};
+    Vector2 startSize_ = {};
+    Vector2 targetSize_ = {};
 
     float animDuration_ = 0.0f;
     float displayDuration_ = 0.0f;

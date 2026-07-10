@@ -5,6 +5,8 @@
 #include "../math/myMath.h"
 #include "Goal.h"
 
+namespace MyEngine {
+
 class Ball
 {
 public:
@@ -148,3 +150,5 @@ private:
 	float CalculateSlowDownFactor();               // 计算减速因子
 	void AddTrailPointWithConfig(float size, const KamataEngine::Vector4& color, float lifetime); // 带配置的拖尾点
 };
+
+} // namespace MyEngine

@@ -33,8 +33,8 @@ GameLogicManager::GameLogicManager()
 }
 
 void GameLogicManager::Initialize(
-    std::vector<std::unique_ptr<Ball>>& balls,
-    std::vector<std::unique_ptr<Goal>>& goals,
+    std::vector<std::unique_ptr<MyEngine::Ball>>& balls,
+    std::vector<std::unique_ptr<MyEngine::Goal>>& goals,
     Camera* camera
 ) {
     balls_ = &balls;
@@ -108,7 +108,7 @@ void GameLogicManager::HandleMouseClick() {
     }
 
     for (size_t i = 0; i < balls_->size(); i++) {
-        Ball* clickedBall = (*balls_)[i].get();
+        MyEngine::Ball* clickedBall = (*balls_)[i].get();
 
         if (!clickedBall) {
             continue;
@@ -124,21 +124,21 @@ void GameLogicManager::HandleMouseClick() {
                     continue;
                 }
 
-                Ball* otherBall = (*balls_)[j].get();
+                MyEngine::Ball* otherBall = (*balls_)[j].get();
 
                 if (!otherBall) {
                     continue;
                 }
 
                 if (otherBall->IsActive()) {
-                    float distance = myMath::Distance(explosionPos, otherBall->GetPosition());
+                    float distance = MyEngine::myMath::Distance(explosionPos, otherBall->GetPosition());
 
                     if (distance <= explosionRadius_) {
-                        Vector3 direction = myMath::Subtract(otherBall->GetPosition(), explosionPos);
-                        direction = myMath::Normalize(direction);
+                        Vector3 direction = MyEngine::myMath::Subtract(otherBall->GetPosition(), explosionPos);
+                        direction = MyEngine::myMath::Normalize(direction);
 
                         float distanceFactor = 1.0f - (distance / explosionRadius_);
-                        Vector3 force = myMath::Multiply(
+                        Vector3 force = MyEngine::myMath::Multiply(
                             explosionForce_ * (1.0f + distanceFactor),
                             direction
                         );
@@ -194,7 +194,7 @@ void GameLogicManager::UpdateCompletionStatus() {
     }
 
     for (size_t g = 0; g < goals_->size(); g++) {
-        Goal* goal = (*goals_)[g].get();
+        MyEngine::Goal* goal = (*goals_)[g].get();
 
         if (!goal) {
             continue;
@@ -209,7 +209,7 @@ void GameLogicManager::UpdateCompletionStatus() {
         }
 
         for (size_t b = 0; b < balls_->size(); b++) {
-            Ball* ball = (*balls_)[b].get();
+            MyEngine::Ball* ball = (*balls_)[b].get();
 
             if (!ball) {
                 continue;
@@ -227,7 +227,7 @@ void GameLogicManager::UpdateCompletionStatus() {
     }
 }
 
-bool GameLogicManager::CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal) {
+bool GameLogicManager::CheckCollisionBetweenBallAndGoal(MyEngine::Ball* ball, MyEngine::Goal* goal) {
     if (!ball || !goal) {
         return false;
     }
@@ -235,7 +235,7 @@ bool GameLogicManager::CheckCollisionBetweenBallAndGoal(Ball* ball, Goal* goal) 
     Vector3 ballPos = ball->GetPosition();
     Vector3 goalPos = goal->GetPosition();
 
-    float distance = myMath::Distance(ballPos, goalPos);
+    float distance = MyEngine::myMath::Distance(ballPos, goalPos);
 
     float collisionRadius = kBallCollisionRadius + kGoalCollisionRadius;
     return distance <= collisionRadius;
@@ -247,14 +247,14 @@ void GameLogicManager::HandleBallCollisions() {
     }
 
     for (size_t i = 0; i < balls_->size(); i++) {
-        Ball* ball1 = (*balls_)[i].get();
+        MyEngine::Ball* ball1 = (*balls_)[i].get();
 
         if (!ball1 || !ball1->IsActive() || ball1->IsExploded()) {
             continue;
         }
 
         for (size_t j = i + 1; j < balls_->size(); j++) {
-            Ball* ball2 = (*balls_)[j].get();
+            MyEngine::Ball* ball2 = (*balls_)[j].get();
 
             if (!ball2 || !ball2->IsActive() || ball2->IsExploded()) {
                 continue;
@@ -267,7 +267,7 @@ void GameLogicManager::HandleBallCollisions() {
     }
 }
 
-bool GameLogicManager::CheckBallBallCollision(Ball* ball1, Ball* ball2) {
+bool GameLogicManager::CheckBallBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2) {
     if (!ball1 || !ball2) {
         return false;
     }
@@ -275,13 +275,13 @@ bool GameLogicManager::CheckBallBallCollision(Ball* ball1, Ball* ball2) {
     Vector3 pos1 = ball1->GetPosition();
     Vector3 pos2 = ball2->GetPosition();
 
-    float distance = myMath::Distance(pos1, pos2);
+    float distance = MyEngine::myMath::Distance(pos1, pos2);
 
     float collisionDistance = kBallCollisionRadius * kCollisionDistanceScale;
     return distance <= collisionDistance;
 }
 
-void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
+void GameLogicManager::ResolveBallCollision(MyEngine::Ball* ball1, MyEngine::Ball* ball2) {
     if (!ball1 || !ball2) {
         return;
     }
@@ -291,17 +291,17 @@ void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
     Vector3 vel1 = ball1->GetVelocity();
     Vector3 vel2 = ball2->GetVelocity();
 
-    Vector3 collisionNormal = myMath::Subtract(pos2, pos1);
-    float distance = myMath::Length(collisionNormal);
+    Vector3 collisionNormal = MyEngine::myMath::Subtract(pos2, pos1);
+    float distance = MyEngine::myMath::Length(collisionNormal);
 
     if (distance == 0.0f) {
         return;
     }
 
-    collisionNormal = myMath::Multiply(1.0f / distance, collisionNormal);
+    collisionNormal = MyEngine::myMath::Multiply(1.0f / distance, collisionNormal);
 
-    Vector3 relativeVelocity = myMath::Subtract(vel1, vel2);
-    float velocityAlongNormal = Dot(relativeVelocity, collisionNormal);
+    Vector3 relativeVelocity = MyEngine::myMath::Subtract(vel1, vel2);
+    float velocityAlongNormal = MyEngine::Dot(relativeVelocity, collisionNormal);
 
     if (velocityAlongNormal > 0) {
         return;
@@ -312,8 +312,8 @@ void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
     float impulseScalar = -(kNdcOffset + kRestitution) * velocityAlongNormal;
     impulseScalar *= kImpulseScale;
 
-    Vector3 impulse1 = myMath::Multiply(-impulseScalar * kImpulseDistribution, collisionNormal);
-    Vector3 impulse2 = myMath::Multiply(impulseScalar * kImpulseDistribution, collisionNormal);
+    Vector3 impulse1 = MyEngine::myMath::Multiply(-impulseScalar * kImpulseDistribution, collisionNormal);
+    Vector3 impulse2 = MyEngine::myMath::Multiply(impulseScalar * kImpulseDistribution, collisionNormal);
 
     ball1->StartKnockback(
         impulse1,
@@ -331,14 +331,14 @@ void GameLogicManager::ResolveBallCollision(Ball* ball1, Ball* ball2) {
 
     if (distance < minDistance && distance > 0.0f) {
         float overlap = minDistance - distance;
-        Vector3 separation = myMath::Multiply(overlap * kSeparationScale, collisionNormal);
+        Vector3 separation = MyEngine::myMath::Multiply(overlap * kSeparationScale, collisionNormal);
 
-        ball1->SetPosition(myMath::Subtract(pos1, separation));
-        ball2->SetPosition(myMath::Add(pos2, separation));
+        ball1->SetPosition(MyEngine::myMath::Subtract(pos1, separation));
+        ball2->SetPosition(MyEngine::myMath::Add(pos2, separation));
     }
 }
 
-bool GameLogicManager::IsMouseOverBall(Ball* ball, const Vector2& mousePos) {
+bool GameLogicManager::IsMouseOverBall(MyEngine::Ball* ball, const Vector2& mousePos) {
     if (!ball) {
         return false;
     }
@@ -367,7 +367,7 @@ Vector3 GameLogicManager::WorldToScreen(const Vector3& worldPos) {
 
     const Matrix4x4& viewMatrix = camera_->matView;
     const Matrix4x4& projectionMatrix = camera_->matProjection;
-    Matrix4x4 viewProjectionMatrix = myMath::Multiply(viewMatrix, projectionMatrix);
+    Matrix4x4 viewProjectionMatrix = MyEngine::myMath::Multiply(viewMatrix, projectionMatrix);
 
     Vector4 worldPos4 = {
         worldPos.x,

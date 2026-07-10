@@ -9,8 +9,6 @@
 #include <memory>
 #include <utility>
 
-using namespace KamataEngine;
-
 namespace {
     const Vector2 kStartSpriteInitialSize = {3840.0f, 2160.0f};
     const Vector2 kStartSpriteTargetSize = {1280.0f, 720.0f};
@@ -370,7 +368,7 @@ void GameScene::InitializeLevelObjects() {
     goals_.clear();
 
     for (const auto& pos : levelBallPositions_) {
-        std::unique_ptr<Ball> ball = ballFactory_->CreateBall(pos, levelNumber_);
+        std::unique_ptr<MyEngine::Ball> ball = ballFactory_->CreateBall(pos, levelNumber_);
 
         ball->Initialize(&camera_);
         ball->SetInitialPosition(pos);
@@ -379,7 +377,7 @@ void GameScene::InitializeLevelObjects() {
     }
 
     for (size_t i = 0; i < levelGoalPositions_.size(); i++) {
-        auto goal = std::make_unique<Goal>();
+        auto goal = std::make_unique<MyEngine::Goal>();
 
         goal->Initialize(&camera_);
         goal->SetPosition(levelGoalPositions_[i]);
